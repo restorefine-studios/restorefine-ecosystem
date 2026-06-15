@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BlogPost {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug         String   @unique
+  title        String
+  subtitle     String?
+  thumbnail    String   @default("")
+  thumbnailAlt String?  @map("thumbnail_alt")
+  author       String   @default("Restorefine Team")
+  authorImage  String   @default("") @map("author_image")
+  date         String
+  excerpt      String
+  content        Json     @default("[]")
+  postType       String   @default("simple") @map("post_type")
+  structuredData Json?    @map("structured_data")
+  metaTitle      String?  @map("meta_title")
+  metaDescription String? @map("meta_description")
+  noindex        Boolean  @default(false)
+  seoKeyphrase   String?  @map("seo_keyphrase")
+  ctaHeading     String?  @default("Let's craft something great") @map("cta_heading")
+  ctaBody        String?  @default("Ready to grow your restaurant or hospitality brand online? Work with RestoRefine to build a digital presence that drives real results.") @map("cta_body")
+  published      Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("blog_posts")
+}

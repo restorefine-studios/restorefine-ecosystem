@@ -1,0 +1,3 @@
+# Cloudflare Pages ignore file
+# Not needed with @cloudflare/next-on-pages
+# The adapter handles the build output
