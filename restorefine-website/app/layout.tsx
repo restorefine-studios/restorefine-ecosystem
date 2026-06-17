@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
+import { AdNoticeModal } from "@/components/ad-notice-modal";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from '@next/third-parties/google'
@@ -99,6 +100,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${holiday.variable}`}>
         <Navbar /> {children}
+        <AdNoticeModal />
         <SpeedInsights />
         <Analytics />
       </body>
