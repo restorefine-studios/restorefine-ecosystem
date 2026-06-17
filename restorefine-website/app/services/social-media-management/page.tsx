@@ -1,7 +1,6 @@
 import RSocial from "@/blocks/service/rsocial";
 import React from "react";
 import type { Metadata } from "next";
-import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Social Media Management for Restaurants | RestoRefine",
@@ -20,10 +19,5 @@ export const metadata: Metadata = {
 };
 
 export default function SocialMediaManagementPage() {
-  return (
-    <main>
-      <RSocial />
-      <Footer />
-    </main>
-  );
+  return <RSocial />;
 }

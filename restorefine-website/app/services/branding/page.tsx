@@ -4,7 +4,6 @@ import { getEntry } from "@/lib/contentful";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS } from "@contentful/rich-text-types";
 import Image from "next/image";
-import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Branding for Restaurants & Hospitality | RestoRefine",
@@ -179,10 +178,5 @@ async function fetchBrandingData() {
 
 export default async function BrandingPage() {
   const data = await fetchBrandingData();
-  return (
-    <main>
-      <RBranding data={data} />
-      <Footer />
-    </main>
-  );
+  return <RBranding data={data} />;
 }

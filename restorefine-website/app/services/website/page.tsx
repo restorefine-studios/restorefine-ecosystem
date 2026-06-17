@@ -4,7 +4,6 @@ import { getEntry } from "@/lib/contentful";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS } from "@contentful/rich-text-types";
 import Image from "next/image";
-import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Restaurant Website Design & Development | RestoRefine",
@@ -149,10 +148,5 @@ async function fetchWebData() {
 
 export default async function WebsitePage() {
   const data = await fetchWebData();
-  return (
-    <main>
-      <RWeb data={data} />
-      <Footer />
-    </main>
-  );
+  return <RWeb data={data} />;
 }

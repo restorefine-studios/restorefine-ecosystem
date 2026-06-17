@@ -12,12 +12,15 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/_next/static/chunks/",
           "/_next/static/media/",
-          "/_next/image",
-          "/public/",
         ],
       },
+      { userAgent: "GPTBot", disallow: "/" },
+      { userAgent: "Google-Extended", disallow: "/" },
+      { userAgent: "ClaudeBot", disallow: "/" },
+      { userAgent: "CCBot", disallow: "/" },
+      { userAgent: "Bytespider", disallow: "/" },
+      { userAgent: "meta-externalagent", disallow: "/" },
     ],
     sitemap: "https://www.restorefine.co.uk/sitemap.xml",
-    host: "https://www.restorefine.co.uk",
   };
 }

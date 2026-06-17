@@ -36,7 +36,7 @@ export default function BlogPageClient({ posts }: Props) {
     <main className="bg-white min-h-screen">
       {/* Hero Section */}
       <section className="pt-36 pb-20 px-6 md:px-12 lg:px-24 border-b border-zinc-200">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-4xl w-full mx-auto flex flex-col items-center text-center">
           <motion.span
             className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-6"
             initial="hidden"
@@ -45,28 +45,32 @@ export default function BlogPageClient({ posts }: Props) {
           >
             Resources
           </motion.span>
-          <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
-            <motion.h1
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight text-zinc-900 leading-[0.9] max-w-3xl"
-              initial="hidden"
-              animate="visible"
-              custom={1}
-              variants={fadeUp}
-            >
+          <motion.h1
+            className="font-black uppercase tracking-tight text-zinc-900 mb-8"
+            initial="hidden"
+            animate="visible"
+            custom={1}
+            variants={fadeUp}
+          >
+            <span className="block relative z-0 text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] xl:text-[7rem] leading-[0.9]">
               The First Word In
-              <br />
-              What&apos;s <span className="text-red-600">Next</span>
-            </motion.h1>
-            <motion.p
-              className="max-w-sm text-sm text-zinc-500 leading-relaxed lg:pb-2"
-              initial="hidden"
-              animate="visible"
-              custom={2}
-              variants={fadeUp}
+            </span>
+            <span
+              className="block relative z-10 font-light text-red-600 normal-case leading-none whitespace-nowrap"
+              style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(3.5rem, 11vw, 8.5rem)", marginTop: "-1.2rem" }}
             >
-              Bold brands, standout stories, and digital experiences worth remembering. From kitchens to code — it&apos;s all on the table.
-            </motion.p>
-          </div>
+              What&apos;s Next
+            </span>
+          </motion.h1>
+          <motion.p
+            className="max-w-lg text-sm text-zinc-500 leading-relaxed"
+            initial="hidden"
+            animate="visible"
+            custom={2}
+            variants={fadeUp}
+          >
+            Bold brands, standout stories, and digital experiences worth remembering. From kitchens to code — it&apos;s all on the table.
+          </motion.p>
         </div>
       </section>
 

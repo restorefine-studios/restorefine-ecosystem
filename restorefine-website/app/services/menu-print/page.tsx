@@ -4,7 +4,6 @@ import { getEntry } from "@/lib/contentful";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS } from "@contentful/rich-text-types";
 import Image from "next/image";
-import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Menu Design & Print for Restaurants | RestoRefine",
@@ -151,10 +150,5 @@ async function fetchPrintData() {
 
 export default async function MenuPrintPage() {
   const data = await fetchPrintData();
-  return (
-    <main>
-      <RPrint data={data} />
-      <Footer />
-    </main>
-  );
+  return <RPrint data={data} />;
 }
