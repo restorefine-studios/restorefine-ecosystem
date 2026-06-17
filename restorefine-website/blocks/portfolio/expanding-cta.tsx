@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
@@ -9,7 +9,7 @@ function lerp(a: number, b: number, t: number) {
 }
 
 interface Props {
-  heading: string;
+  heading: ReactNode;
   body: string;
 }
 

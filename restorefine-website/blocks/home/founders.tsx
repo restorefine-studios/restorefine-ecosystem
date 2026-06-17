@@ -21,13 +21,9 @@ interface FoundersProps {
 function FounderCard({ founder, index }: { founder: Founder; index: number }) {
   const [hovered, setHovered] = useState(false);
 
-  // Truncate bio to ~320 chars for the hover preview
-  const shortBio = founder.about
+  const bio = founder.about
     .replace(/<br><br>/g, " ")
-    .replace(/<[^>]+>/g, "")
-    .slice(0, 320)
-    .trimEnd()
-    .concat("…");
+    .replace(/<[^>]+>/g, "");
 
   return (
     <motion.article
@@ -44,6 +40,7 @@ function FounderCard({ founder, index }: { founder: Founder; index: number }) {
         style={{ aspectRatio: "3 / 5" }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onClick={() => setHovered((h) => !h)}
       >
         {/* Photo */}
         <motion.div
@@ -85,13 +82,13 @@ function FounderCard({ founder, index }: { founder: Founder; index: number }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute bottom-0 left-0 right-0 z-20 rounded-b-[28px] overflow-hidden"
+              className="absolute inset-0 z-20 rounded-[28px] overflow-hidden flex flex-col justify-end"
             >
               {/* Frosted glass panel */}
-              <div className="bg-white/80 backdrop-blur-md border-t border-white/60 px-6 py-5 flex flex-col gap-3">
+              <div className="bg-white/80 backdrop-blur-md border-t border-white/60 px-6 py-5 flex flex-col gap-3 max-h-full overflow-y-auto">
                 <Quote size={14} className="text-red-500 shrink-0" />
                 <p className="text-zinc-800 text-sm leading-relaxed">
-                  {shortBio}
+                  {bio}
                 </p>
               </div>
             </motion.div>

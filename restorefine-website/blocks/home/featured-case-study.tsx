@@ -157,9 +157,9 @@ function MobileCaseStudy() {
             <p className="text-[9px] tracking-[0.35em] uppercase text-red-600 font-semibold mb-2">
               Client Spotlight
             </p>
-            <h3 className="font-black uppercase text-zinc-950 text-3xl leading-none tracking-tight">
-              {c.title}{" "}
-              <span className="font-light text-red-600" style={{ fontFamily: "var(--font-holiday), serif" }}>
+            <h3 className="font-black text-zinc-950 text-3xl leading-none tracking-tight">
+              <span className="uppercase">{c.title}</span>{" "}
+              <span className="font-light text-red-600 normal-case" style={{ fontFamily: "var(--font-holiday), serif" }}>
                 {c.titleRed}
               </span>
             </h3>
