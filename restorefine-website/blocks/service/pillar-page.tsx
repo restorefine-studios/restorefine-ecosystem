@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { blogPosts } from "@/lib/blogContent";
 import { CaseStudiesSection } from "@/blocks/service/resto-services/case-studies";
@@ -26,6 +26,13 @@ export interface PillarPageData {
   tagline: string;
   description: string;
   image: string;
+  hero: {
+    eyebrow: string;
+    line1: string;
+    line2: string;
+    description: string;
+    ctaLabel: string;
+  };
   overview: {
     headline: string;
     body: string;
@@ -45,11 +52,6 @@ const fadeUp = {
     y: 0,
     transition: { duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
   }),
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.7, ease: "easeOut" } },
 };
 
 /* ─── Section label ──────────────────────────────────────────────── */
@@ -74,74 +76,52 @@ function SectionLabel({ index, label }: { index: string; label: string }) {
 
 function Hero({ data }: { data: PillarPageData }) {
   return (
-    <section className="hero-full-bleed relative min-h-[65vh] flex flex-col justify-end overflow-hidden bg-zinc-900">
-      {/* Background image */}
-      <motion.div
-        className="absolute inset-0"
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-      >
-        <Image
-          src={data.image}
-          alt={data.title}
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/60 to-zinc-900/20" />
-      </motion.div>
-
-      {/* Content */}
-      <div className="relative z-10 px-6 md:px-12 lg:px-24 pb-16 pt-32">
-        {/* Pillar ID */}
-        <motion.p
-          className="text-xs font-black uppercase tracking-[0.3em] text-white/50 mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+    <section className="bg-white min-h-screen flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 pt-20 pb-24 relative overflow-hidden">
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-red-50 via-violet-50 to-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <div className="max-w-4xl w-full mx-auto relative flex flex-col items-center">
+        <motion.span
+          className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
         >
-          {data.id} / {data.slug}
-        </motion.p>
-
-        {/* Giant title */}
+          {data.hero.eyebrow}
+        </motion.span>
         <motion.h1
-          className="font-black uppercase tracking-tight text-white leading-[0.9] mb-6"
-          style={{ fontSize: "clamp(4rem, 10vw, 8rem)" }}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          className="font-black uppercase tracking-tight text-zinc-900 mb-10"
+          initial="hidden"
+          animate="visible"
+          custom={1}
+          variants={fadeUp}
         >
-          {data.title}
+          <span className="block relative z-0 text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] xl:text-[7rem] leading-[0.9]">
+            {data.hero.line1}
+          </span>
+          <span
+            className="block relative z-10 font-light text-red-600 normal-case leading-none whitespace-nowrap"
+            style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(3.5rem, 11vw, 8.5rem)", marginTop: "-1.2rem" }}
+          >
+            {data.hero.line2}
+          </span>
         </motion.h1>
-
-        {/* Tagline / description */}
         <motion.p
-          className="text-zinc-300 text-lg leading-relaxed max-w-2xl mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-lg text-sm text-zinc-500 leading-relaxed mb-8"
+          initial="hidden"
+          animate="visible"
+          custom={2}
+          variants={fadeUp}
         >
-          {data.description}
+          {data.hero.description}
         </motion.p>
-
-        {/* Tag pills */}
-        <motion.div
-          className="flex flex-wrap gap-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {data.subServices.map((s) => (
-            <span
-              key={s.number}
-              className="px-4 py-1.5 text-xs font-black uppercase tracking-[0.1em] text-white/70 border border-white/20 rounded-full backdrop-blur-sm"
-            >
-              {s.title}
+        <motion.div initial="hidden" animate="visible" custom={3} variants={fadeUp}>
+          <Link href="/enquire-now" className="inline-flex items-center gap-2 group">
+            <span className="text-sm font-black uppercase tracking-[0.15em] bg-zinc-900 text-white px-7 py-3.5 rounded-full group-hover:bg-red-600 transition-colors duration-300">
+              {data.hero.ctaLabel}
             </span>
-          ))}
+            <span className="w-11 h-11 rounded-full bg-red-600 flex items-center justify-center group-hover:bg-zinc-900 transition-colors duration-300">
+              <ArrowRight className="w-5 h-5 text-white" />
+            </span>
+          </Link>
         </motion.div>
       </div>
     </section>

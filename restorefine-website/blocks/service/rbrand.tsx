@@ -3,18 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, PenTool, Palette, Share2 } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { CaseStudiesSection } from "./resto-services/case-studies";
 import { brandPillarContent } from "@/lib/pillar-content/brand-pillar";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
-
-const SERVICE_ICONS = [
-  <PenTool className="w-5 h-5" key="logo" />,
-  <Palette className="w-5 h-5" key="identity" />,
-  <Share2 className="w-5 h-5" key="social" />,
-];
 
 const fadeUp = { hidden: { opacity: 0, y: 40 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.7, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] } }) };
 
@@ -87,28 +81,68 @@ function BrandOverview() {
 
 function BrandServices() {
   return (
-    <section className="py-20 px-6 md:px-12 lg:px-24 bg-white">
+    <section className="bg-white py-20 px-6 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
         <motion.div className="flex items-center gap-3 mb-10" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
           <span className="text-red-600 font-black text-sm">02</span>
           <div className="h-px flex-1 bg-zinc-200" />
-          <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">What We Do</span>
+          <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">Our Services</span>
         </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {brandPillarContent.services.map((service, i) => (
-            <motion.div
-              key={service.title}
-              className="rounded-2xl border border-zinc-100 p-7 bg-white hover:border-red-100 hover:shadow-lg transition-all duration-300 group"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-            >
-              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 mb-4 group-hover:bg-red-600 group-hover:text-white transition-all duration-300">{SERVICE_ICONS[i]}</div>
-              <h3 className="text-lg font-black uppercase tracking-tight text-zinc-900 mb-2">{service.title}</h3>
-              <p className="text-sm text-zinc-500 leading-relaxed">{service.description}</p>
-            </motion.div>
-          ))}
+
+        <div className="space-y-24">
+          {brandPillarContent.subServices.map((service, index) => {
+            const isEven = index % 2 === 0;
+            return (
+              <motion.div
+                key={service.number}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className={`relative rounded-2xl overflow-hidden bg-zinc-200 aspect-[4/3] ${isEven ? "lg:order-2" : "lg:order-1"}`}>
+                  <Image
+                    src={service.image}
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </div>
+
+                <div className={isEven ? "lg:order-1" : "lg:order-2"}>
+                  <p className="text-xs font-black uppercase tracking-[0.3em] text-red-600 mb-3">{service.number}</p>
+                  <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-zinc-900 leading-[0.95] mb-4">{service.title}</h3>
+                  <p className="text-zinc-500 leading-relaxed mb-6">{service.description}</p>
+
+                  <div className="mb-7">
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400 mb-3">What&apos;s Included</p>
+                    <div className="flex flex-wrap gap-2">
+                      {service.includes.map((item) => (
+                        <span
+                          key={item}
+                          className="px-3 py-1.5 text-xs font-black uppercase tracking-[0.1em] text-zinc-600 border border-zinc-200 rounded-full bg-white"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {service.href && (
+                    <Link
+                      href={service.href}
+                      className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-zinc-900 hover:text-red-600 transition-colors duration-200 group"
+                    >
+                      Learn More
+                      <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

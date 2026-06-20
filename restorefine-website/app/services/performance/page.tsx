@@ -19,10 +19,18 @@ const data: PillarPageData = {
   id: "03",
   slug: "performance",
   title: "Performance",
-  tagline: "Growth engine for restaurants",
+  tagline: "Growth engine for ambitious brands",
   description:
-    "Websites, SEO, and data-driven paid campaigns that put your venue in front of hungry audiences at the exact right moment.",
+    "Websites, SEO, and data-driven paid campaigns that put your business in front of the right audience at the exact right moment.",
   image: "/services-performance.jpg",
+  hero: {
+    eyebrow: "Resto Performance",
+    line1: "Built To",
+    line2: "Be Found.",
+    description:
+      "Websites, SEO, and data-driven paid campaigns that put your business in front of the right audience at the exact right moment.",
+    ctaLabel: "Start Growing",
+  },
   overview: {
     headline: "Being great isn't enough. You need to be found.",
     body: "A beautiful restaurant with no digital presence is invisible. We build the online infrastructure that drives discovery, bookings, and repeat visits — turning your digital footprint into your most powerful front-of-house.",

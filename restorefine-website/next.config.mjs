@@ -3,6 +3,14 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async redirects() {
+    return [
+      { source: "/services/restobranding", destination: "/services/branding", permanent: true },
+      { source: "/services/restoweb", destination: "/services/website", permanent: true },
+      { source: "/services/restosocial", destination: "/services/social-media-management", permanent: true },
+      { source: "/services/restoprint", destination: "/services/menu-print", permanent: true },
+    ];
+  },
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [

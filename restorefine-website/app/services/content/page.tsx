@@ -19,10 +19,18 @@ const data: PillarPageData = {
   id: "02",
   slug: "content",
   title: "Content",
-  tagline: "Content that fills seats",
+  tagline: "Content for ambitious brands",
   description:
-    "Scroll-stopping reels, photography, and campaigns that turn followers into bookings. Every frame shot with intention.",
+    "Scroll-stopping reels, photography, and campaigns that turn followers into customers. Every frame shot with intention.",
   image: "/content-card-img.png",
+  hero: {
+    eyebrow: "Resto Content",
+    line1: "Content That",
+    line2: "Demands Attention.",
+    description:
+      "Scroll-stopping reels, photography, and campaigns that turn followers into customers. Every frame shot with intention.",
+    ctaLabel: "Start Creating",
+  },
   overview: {
     headline: "Most restaurants post. The best ones captivate.",
     body: "In a feed full of noise, content is your menu — it's how guests taste your venue before they visit. The difference between a packed house and a slow night is often just a reel.",

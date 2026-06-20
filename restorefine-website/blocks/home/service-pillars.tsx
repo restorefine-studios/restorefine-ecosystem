@@ -40,14 +40,14 @@ const pillars = [
         description: "A bold, cohesive identity that tells your story at a glance. From logo and colour palette to brand guidelines and asset kits — we craft brands that guests recognise, remember, and return to.",
         icon: <Palette size={20} />,
         visual: "branding" as const,
-        href: "/services/restobranding",
+        href: "/services/branding",
       },
       {
         label: "Menu Design & Print",
         description: "Premium menus and branded print materials designed to impress every guest. From table cards to full leather-bound booklets — everything on-brand and on-point.",
         icon: <Printer size={20} />,
         visual: "menu" as const,
-        href: "/services/restoprint",
+        href: "/services/menu-print",
       },
       {
         label: "Packaging",
@@ -97,7 +97,7 @@ const pillars = [
         description: "Scroll-stopping content and strategy built around your venue. We handle creative direction, caption writing, and scheduling — so your feed stays fresh and your following keeps growing.",
         icon: <Share2 size={20} />,
         visual: "social" as const,
-        href: "/services/restosocial",
+        href: "/services/social-media-management",
       },
       {
         label: "Launch Campaigns",
@@ -143,7 +143,7 @@ const pillars = [
         description: "Stunning, high-converting websites built for the hospitality industry. From sleek restaurant showcases to full web apps with bookings, menus, and ordering — we design, build, and deliver.",
         icon: <Globe size={20} />,
         visual: "browser" as const,
-        href: "/services/restoweb",
+        href: "/services/website",
       },
       {
         label: "SEO",

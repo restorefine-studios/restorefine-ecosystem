@@ -92,7 +92,7 @@ export const blogPost: BlogPost = {
         "If your website is getting visitors but no enquiries or sales, something is wrong. Low conversion rates, weak landing pages, unclear CTAs, and poor user experience often stop people from taking action. A digital marketing company in Glasgow improves your website strategy, optimises pages, and turns traffic into real leads.",
       link: {
         label: "Learn more about our web design solutions",
-        href: "https://restorefine.com/services/restoweb",
+        href: "https://www.restorefine.co.uk/services/website",
       },
     },
     {
@@ -108,7 +108,7 @@ export const blogPost: BlogPost = {
       content: "Marketing takes daily effort — content creation, SEO, ads, and analytics. Most business owners simply don't have time for this. A digital marketing company handles everything so you can focus on running your business.",
       link: {
         label: "See how we take the pressure off with social media management",
-        href: "https://restorefine.com/services/restosocial",
+        href: "https://www.restorefine.co.uk/services/social-media-management",
       },
     },
     {
@@ -120,7 +120,7 @@ export const blogPost: BlogPost = {
       content: "Low engagement and no conversions mean your social media strategy isn't working. A digital marketing company builds a content strategy, creates engaging posts and reels, and turns followers into paying customers.",
       link: {
         label: "Learn more about our social media marketing services",
-        href: "https://restorefine.com/services/restosocial",
+        href: "https://www.restorefine.co.uk/services/social-media-management",
       },
     },
     {
