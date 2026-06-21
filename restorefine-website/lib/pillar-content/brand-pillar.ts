@@ -78,7 +78,7 @@ export const brandPillarContent: BrandPillarContent = {
       description:
         "A logo is just the beginning. We develop complete visual identity systems — colour palettes, typography, graphic language, and brand guidelines — so your business looks and feels consistent everywhere it shows up.",
       image: "/services/branding/pexels-duygugungor-19949505.webp",
-      href: "/services/branding",
+      href: "/services/brand",
       includes: ["Colour Palette", "Typography System", "Brand Guidelines", "Stationery Design"],
     },
     {
@@ -103,7 +103,7 @@ export const brandPillarContent: BrandPillarContent = {
       description:
         "Your social presence is your most visible brand channel. We design scroll-stopping templates and graphics tailored to your platforms, so your feed builds recognition, credibility, and engagement.",
       image: "/services/branding/pexels-beyzaa-yurtkuran-279977530-17789088.webp",
-      href: "/services/social-media-management",
+      href: "/services/brand",
       includes: ["Post Templates", "Story Templates", "Highlight Covers", "Profile Branding"],
     },
   ],

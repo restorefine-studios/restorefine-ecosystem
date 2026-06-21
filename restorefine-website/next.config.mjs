@@ -5,10 +5,15 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: "/services/restobranding", destination: "/services/branding", permanent: true },
-      { source: "/services/restoweb", destination: "/services/website", permanent: true },
-      { source: "/services/restosocial", destination: "/services/social-media-management", permanent: true },
-      { source: "/services/restoprint", destination: "/services/menu-print", permanent: true },
+      { source: "/services/restobranding", destination: "/services/brand", permanent: true },
+      { source: "/services/restoweb", destination: "/services/performance", permanent: true },
+      { source: "/services/restosocial", destination: "/services/content", permanent: true },
+      { source: "/services/restoprint", destination: "/services/brand", permanent: true },
+      { source: "/services/branding", destination: "/services/brand", permanent: true },
+      { source: "/services/menu-print", destination: "/services/brand", permanent: true },
+      { source: "/services/social-media-management", destination: "/services/content", permanent: true },
+      { source: "/services/website", destination: "/services/performance", permanent: true },
+      { source: "/services/seo", destination: "/services/performance", permanent: true },
     ];
   },
   images: {

@@ -49,8 +49,8 @@ export const pillars: NavPillar[] = [
     href: "/services/brand",
     icon: Palette,
     services: [
-      { title: "Branding", href: "/services/branding", icon: Palette },
-      { title: "Menu Design & Print", href: "/services/menu-print", icon: Printer },
+      { title: "Branding", href: "/services/brand", icon: Palette },
+      { title: "Menu Design & Print", href: "/services/brand", icon: Printer },
       { title: "Packaging", href: "/services/brand", icon: Package },
       { title: "Social Branding", href: "/services/brand", icon: Layers },
       { title: "Merchandise", href: "/services/brand", icon: Shirt },
@@ -64,7 +64,7 @@ export const pillars: NavPillar[] = [
     icon: Video,
     services: [
       { title: "Short-form Content", href: "/services/content", icon: Video },
-      { title: "Social Media Management", href: "/services/social-media-management", icon: Share2 },
+      { title: "Social Media Management", href: "/services/content", icon: Share2 },
       { title: "Launch Campaigns", href: "/services/launch-campaigns", icon: Rocket },
       { title: "Content Strategy", href: "/services/content", icon: LayoutList },
       { title: "Photography", href: "/services/content", icon: Camera },
@@ -77,8 +77,8 @@ export const pillars: NavPillar[] = [
     href: "/services/performance",
     icon: Globe,
     services: [
-      { title: "Websites", href: "/services/website", icon: Globe },
-      { title: "SEO", href: "/services/seo", icon: Search },
+      { title: "Websites", href: "/services/performance", icon: Globe },
+      { title: "SEO", href: "/services/performance", icon: Search },
       { title: "Paid Ads", href: "/services/performance", icon: TrendingUp },
       { title: "Conversion Optimisation", href: "/services/performance", icon: Target },
       { title: "Analytics", href: "/services/performance", icon: BarChart3 },

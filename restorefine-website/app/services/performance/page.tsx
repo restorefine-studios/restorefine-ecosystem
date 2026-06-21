@@ -48,7 +48,7 @@ const data: PillarPageData = {
       description:
         "Stunning, high-converting websites built for the hospitality industry. From sleek restaurant showcases to full web apps with bookings, menus, and ordering — we design, build, and deliver.",
       image: "/services/web/pexels-fotios-photos-16129705.webp",
-      href: "/services/website",
+      href: "/services/performance",
       includes: ["Custom Web Design", "CMS Integration", "Booking Flow", "Mobile-first Build"],
     },
     {
@@ -57,7 +57,7 @@ const data: PillarPageData = {
       description:
         "Get found by the guests who are already looking for you. We optimise your site so you rank at the top of local search — from Google Business to on-page content.",
       image: "/services/web/pexels-pixabay-270348.webp",
-      href: "/services/seo",
+      href: "/services/performance",
       includes: ["Local SEO", "Google Business Profile", "On-page Optimisation", "Link Building"],
     },
     {

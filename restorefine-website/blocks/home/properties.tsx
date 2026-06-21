@@ -504,11 +504,11 @@ export function BentoGrid({ headline, subtext }: BentoGridProps) {
           const isEven = index % 2 === 0;
 
           const learnMoreHref =
-            section.visual === "browser" ? "/services/website" :
+            section.visual === "browser" ? "/services/performance" :
             section.visual === "nfc" ? "/services" :
-            section.visual === "menu" ? "/services/menu-print" :
-            section.visual === "branding" ? "/services/branding" :
-            section.visual === "social" ? "/services/social-media-management" :
+            section.visual === "menu" ? "/services/brand" :
+            section.visual === "branding" ? "/services/brand" :
+            section.visual === "social" ? "/services/content" :
             "/services";
 
           const textBlock = (

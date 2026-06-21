@@ -56,7 +56,7 @@ const data: PillarPageData = {
       description:
         "Scroll-stopping content and strategy built around your venue. We handle creative direction, caption writing, and scheduling — so your feed stays fresh and your following keeps growing.",
       image: "/content-card-img.png",
-      href: "/services/social-media-management",
+      href: "/services/content",
       includes: ["Content Calendar", "Caption Writing", "Scheduling", "Community Management"],
     },
     {

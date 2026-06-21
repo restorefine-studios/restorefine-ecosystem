@@ -33,7 +33,13 @@ const fadeUp = { hidden: { opacity: 0, y: 40 }, visible: (i = 0) => ({ opacity: 
 function LaunchOverview() {
   return (
     <section className="bg-zinc-50 px-6 md:px-12 lg:px-24 py-20">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-16">
+      <div className="max-w-7xl mx-auto">
+        <motion.div className="flex items-center gap-3 mb-10" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+          <span className="text-red-600 font-black text-sm">01</span>
+          <div className="h-px flex-1 bg-zinc-200" />
+          <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">Overview</span>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-16">
         <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
           <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 block mb-4">The Service</span>
           <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-zinc-900 leading-[1] mb-4">From Teaser To Sold-out Launch</h2>
@@ -52,6 +58,7 @@ function LaunchOverview() {
             </div>
           </div>
         </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -167,33 +174,31 @@ function LaunchDeliverables() {
 
 function LaunchHero() {
   return (
-    <section className="bg-white min-h-screen flex flex-col items-start justify-center px-6 md:px-12 lg:px-24 pt-36 pb-24 relative overflow-hidden">
-      <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-gradient-to-br from-red-50 via-violet-50 to-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
-      <div className="max-w-7xl w-full mx-auto relative">
+    <section className="bg-white min-h-screen flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 pt-20 pb-24 relative overflow-hidden">
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-red-50 via-violet-50 to-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <div className="max-w-4xl w-full mx-auto relative flex flex-col items-center">
         <motion.span className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-8" initial="hidden" animate="visible" variants={fadeUp}>
           Resto Launch
         </motion.span>
         <motion.h1 className="font-black uppercase tracking-tight text-zinc-900 mb-10" initial="hidden" animate="visible" custom={1} variants={fadeUp}>
           <span className="block relative z-0 text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] xl:text-[7rem] leading-[0.9]">Open With</span>
-          <span className="block relative z-10 font-light text-red-600 normal-case leading-none" style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(3.5rem, 11vw, 8.5rem)", marginTop: "-1.2rem" }}>
+          <span className="block relative z-10 font-light text-red-600 normal-case leading-none whitespace-nowrap" style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(3.5rem, 11vw, 8.5rem)", marginTop: "-1.2rem" }}>
             Impact.
           </span>
         </motion.h1>
-        <div className="flex flex-col md:flex-row items-start md:items-end gap-8">
-          <motion.p className="max-w-sm text-sm text-zinc-500 leading-relaxed" initial="hidden" animate="visible" custom={2} variants={fadeUp}>
-            We build the buzz before you open the doors — and keep the momentum going long after. Teaser content, opening day coverage, and a post-launch strategy that turns first-timers into regulars.
-          </motion.p>
-          <motion.div initial="hidden" animate="visible" custom={3} variants={fadeUp}>
-            <Link href="/enquire-now" className="inline-flex items-center gap-2 group">
-              <span className="text-sm font-black uppercase tracking-[0.15em] bg-zinc-900 text-white px-7 py-3.5 rounded-full group-hover:bg-red-600 transition-colors duration-300">Start Your Campaign</span>
-              <span className="w-11 h-11 rounded-full bg-red-600 flex items-center justify-center group-hover:bg-zinc-900 transition-colors duration-300">
-                <ArrowRight className="w-5 h-5 text-white" />
-              </span>
-            </Link>
-          </motion.div>
-        </div>
+        <motion.p className="max-w-lg text-sm text-zinc-500 leading-relaxed mb-8" initial="hidden" animate="visible" custom={2} variants={fadeUp}>
+          We build the buzz before you open the doors — and keep the momentum going long after. Teaser content, opening day coverage, and a post-launch strategy that turns first-timers into regulars.
+        </motion.p>
+        <motion.div initial="hidden" animate="visible" custom={3} variants={fadeUp}>
+          <Link href="/enquire-now" className="inline-flex items-center gap-2 group">
+            <span className="text-sm font-black uppercase tracking-[0.15em] bg-zinc-900 text-white px-7 py-3.5 rounded-full group-hover:bg-red-600 transition-colors duration-300">Start Your Campaign</span>
+            <span className="w-11 h-11 rounded-full bg-red-600 flex items-center justify-center group-hover:bg-zinc-900 transition-colors duration-300">
+              <ArrowRight className="w-5 h-5 text-white" />
+            </span>
+          </Link>
+        </motion.div>
         {/* Stats */}
-        <motion.div className="grid grid-cols-3 gap-6 mt-20 pt-12 border-t border-zinc-100" initial="hidden" animate="visible" custom={4} variants={fadeUp}>
+        <motion.div className="grid grid-cols-3 gap-10 mt-16 pt-10 border-t border-zinc-100 max-w-2xl w-full" initial="hidden" animate="visible" custom={4} variants={fadeUp}>
           {[
             { value: "4", label: "Campaign phases — teaser to wrap-up" },
             { value: "100%", label: "Opening day covered" },
@@ -204,12 +209,6 @@ function LaunchHero() {
               <p className="text-xs text-zinc-400 mt-1 leading-tight">{stat.label}</p>
             </div>
           ))}
-        </motion.div>
-        {/* Divider */}
-        <motion.div className="flex items-center gap-4 mt-10" initial="hidden" animate="visible" custom={5} variants={fadeUp}>
-          <span className="text-red-600 font-black text-sm">01</span>
-          <div className="h-px flex-1 bg-zinc-200" />
-          <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">Overview</span>
         </motion.div>
       </div>
     </section>
