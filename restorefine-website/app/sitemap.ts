@@ -1,7 +1,6 @@
 import { MetadataRoute } from "next";
 import { portfolioItems } from "@/lib/portfolio";
 import { blogPosts } from "@/lib/blogContent";
-import { structuredBlogPosts, structuredCaseStudies } from "@/lib/blog/registry";
 import { getSupaPosts } from "@/lib/supabase";
 
 const BASE_URL = "https://www.restorefine.co.uk";
@@ -100,11 +99,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const supaSlugSet = new Set(supaPosts.map((p) => p.slug));
 
-  const structuredSlugs = new Set([
-    ...structuredBlogPosts.map((p) => p.slug),
-    ...structuredCaseStudies.map((p) => p.slug),
-  ]);
-
   const supaRoutes: MetadataRoute.Sitemap = supaPosts.map((post) => ({
     url: `${BASE_URL}/resources/${post.slug}`,
     lastModified: new Date(post.date),
@@ -115,7 +109,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogRoutes: MetadataRoute.Sitemap = blogPosts
     .filter((post, index, self) =>
       self.findIndex((p) => p.slug === post.slug) === index &&
-      !structuredSlugs.has(post.slug) &&
       !supaSlugSet.has(post.slug)
     )
     .map((post) => ({
@@ -125,19 +118,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-  const structuredBlogRoutes: MetadataRoute.Sitemap = structuredBlogPosts.map((post) => ({
-    url: `${BASE_URL}/resources/${post.slug}`,
-    lastModified: new Date(post.publishedAt),
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
-  }));
-
-  const caseStudyRoutes: MetadataRoute.Sitemap = structuredCaseStudies.map((post) => ({
-    url: `${BASE_URL}/resources/${post.slug}`,
-    lastModified: new Date(post.publishedAt),
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
-  }));
-
-  return [...staticRoutes, ...portfolioRoutes, ...supaRoutes, ...blogRoutes, ...structuredBlogRoutes, ...caseStudyRoutes];
+  return [...staticRoutes, ...portfolioRoutes, ...supaRoutes, ...blogRoutes];
 }

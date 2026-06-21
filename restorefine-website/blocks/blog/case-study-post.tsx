@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, AlertCircle, Quote } from "lucide-react";
 import { ExpandingCta } from "@/blocks/portfolio/expanding-cta";
-import type { CaseStudy } from "@/lib/blog/registry";
+import type { CaseStudy } from "@/lib/blog/types";
 import { TableOfContents } from "./toc";
 import { FaqAccordion } from "./faq-accordion";
 import { ShareBar } from "./share-bar";

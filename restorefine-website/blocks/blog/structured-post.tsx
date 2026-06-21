@@ -4,7 +4,7 @@ import { jsonLd } from "@/lib/utils";
 import { ArrowRight, Search, Share2, Target, Palette, TrendingUp, Wrench, Clock } from "lucide-react";
 
 const benefitIcons = [Search, Share2, Target, Palette, TrendingUp, Wrench, Clock];
-import type { BlogPost } from "@/lib/blog/registry";
+import type { BlogPost } from "@/lib/blog/types";
 import { TableOfContents } from "./toc";
 import { FaqAccordion } from "./faq-accordion";
 import { ShareBar } from "./share-bar";

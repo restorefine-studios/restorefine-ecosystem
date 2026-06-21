@@ -4,7 +4,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getEntry } from "@/lib/contentful"
-import { getStructuredPost, allStructuredSlugs } from "@/lib/blog/registry"
 import { StructuredBlogPost } from "@/blocks/blog/structured-post"
 import { CaseStudyPost } from "@/blocks/blog/case-study-post"
 import { SupabasePost } from "@/blocks/blog/supabase-post"
@@ -50,34 +49,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
-  // 2. Local structured post
-  const localPost = getStructuredPost(params.slug);
-  if (localPost) {
-    const data = localPost.data;
-    const ogImage = data.coverImage
-      ? `${BASE}${data.coverImage}`
-      : `${BASE}/image-og.png`;
-    return {
-      title: data.metaTitle,
-      description: data.metaDescription,
-      keywords: data.tags,
-      alternates: { canonical },
-      openGraph: {
-        title: data.metaTitle,
-        description: data.metaDescription,
-        url: canonical,
-        type: "article",
-        images: [{ url: ogImage, width: 1200, height: 630, alt: data.metaTitle }],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: data.metaTitle,
-        description: data.metaDescription,
-        images: [ogImage],
-      },
-    };
-  }
-
   const entry = await getEntry(params.slug);
   if (!entry) return {};
   const title = entry.fields?.title || "Blog Post";
@@ -118,7 +89,6 @@ export async function generateStaticParams() {
   }
   return [
     ...contentfulIds.map((id) => ({ slug: id })),
-    ...allStructuredSlugs.map((slug) => ({ slug })),
     ...supaSlugs.map((slug) => ({ slug })),
   ];
 }
@@ -135,17 +105,6 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       return <CaseStudyPost caseStudy={supaPost.structured_data} />;
     }
     return <SupabasePost post={supaPost} />;
-  }
-
-  const localPost = getStructuredPost(params.slug);
-
-  if (localPost) {
-    if (localPost.type === "blog") {
-      return <StructuredBlogPost post={localPost.data} />;
-    }
-    if (localPost.type === "case-study") {
-      return <CaseStudyPost caseStudy={localPost.data} />;
-    }
   }
 
   const entry = await getEntry(params.slug);
