@@ -4,8 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { Menu, ChevronDown, ArrowUpRight } from "lucide-react";
 import { pillars } from "./navbar";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+
+const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`;
 
 export function MobileMenu() {
   const [open, setOpen] = React.useState(false);
@@ -108,9 +111,20 @@ export function MobileMenu() {
           ))}
         </div>
 
-        <Button asChild className="mt-8 w-full rounded-lg bg-zinc-900 text-white hover:bg-zinc-700">
-          <Link href="/enquire-now" onClick={close}>Enquire Now</Link>
-        </Button>
+        <div className="mt-8 flex flex-col gap-3">
+          <Button asChild className="w-full rounded-lg bg-zinc-900 text-white hover:bg-zinc-700">
+            <Link href="/enquire-now" onClick={close}>Enquire Now</Link>
+          </Button>
+          <a
+            href={WHATSAPP_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            <Image src="/whatsapp.svg" alt="" width={18} height={18} className="brightness-0 invert" />
+            WhatsApp Us
+          </a>
+        </div>
       </SheetContent>
     </Sheet>
   );

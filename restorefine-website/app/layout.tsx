@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { AdNoticeModal } from "@/components/ad-notice-modal";
+import Image from "next/image";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from '@next/third-parties/google'
@@ -111,6 +112,15 @@ export default function RootLayout({
       <body className={`${inter.className} ${holiday.variable}`}>
         <Navbar /> {children}
         <AdNoticeModal />
+        <a
+          href={`https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat with RestoRefine Studios on WhatsApp"
+          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform duration-200 hover:scale-110 hover:shadow-xl"
+        >
+          <Image src="/whatsapp.svg" alt="WhatsApp" width={28} height={28} className="brightness-0 invert" />
+        </a>
         <SpeedInsights />
         <Analytics />
       </body>

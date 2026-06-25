@@ -22,6 +22,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
+const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`;
+
 /* ------------------------------------------------------------------ */
 /* Data                                                                 */
 /* ------------------------------------------------------------------ */
@@ -219,6 +221,16 @@ export function Navbar() {
 
         {/* CTA + mobile trigger */}
         <div className="bg-transparent border border-black/10 p-1 rounded-xl flex items-center space-x-0 md:space-x-2">
+          <a
+            href={WHATSAPP_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chat on WhatsApp"
+            className="hidden md:inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            <Image src="/whatsapp.svg" alt="" width={16} height={16} className="brightness-0 invert" />
+            WhatsApp Us
+          </a>
           <Button asChild className="hidden md:inline-flex relative rounded-lg border border-black/10 bg-zinc-900 text-white hover:bg-zinc-700">
             <Link href="/enquire-now">Enquire Now</Link>
           </Button>
