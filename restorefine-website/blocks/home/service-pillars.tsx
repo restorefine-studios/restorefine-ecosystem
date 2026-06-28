@@ -81,7 +81,7 @@ const pillars = [
   {
     id: 1,
     title: "Content",
-    description: "Scroll-stopping reels, photography, and campaigns that turn followers into bookings. Every frame shot with intention.",
+    description: "Scroll-stopping reels, photography, and campaigns that turn followers into customers. Every frame shot with intention.",
     image: "/content-card-img.png",
     href: "/services",
     bentoServices: [
@@ -134,7 +134,7 @@ const pillars = [
   {
     id: 2,
     title: "Performance",
-    description: "Websites, SEO, and data-driven paid campaigns that put your venue in front of hungry audiences at the exact right moment.",
+    description: "Websites, SEO, and data-driven campaigns that connect your brand with the audiences actively searching for you.",
     image: "/services-performance.jpg",
     href: "/services",
     bentoServices: [
@@ -593,7 +593,7 @@ export default function ServicePillars() {
           One Vision
           <span className="text-red-600">.</span>
         </div>
-        <p className="max-w-md text-sm text-zinc-500">Everything your hospitality brand needs to stand out, show up, and scale — under one roof.</p>
+        <p className="max-w-md text-sm text-zinc-500">Brand strategy, content, and digital marketing for ambitious brands — all under one roof.</p>
       </div>
 
       {/* ——— MOBILE: Swiper (click-based) ——— */}

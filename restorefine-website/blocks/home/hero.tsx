@@ -78,7 +78,7 @@ export default function Hero() {
         </div>
 
         <div className="rr-bottom flex flex-col gap-4">
-          <p className="text-zinc-400 text-[13px] leading-relaxed">Creative-led growth for premium hospitality and leisure brands.</p>
+          <p className="text-zinc-400 text-[13px] leading-relaxed">A creative agency and branding studio for hospitality, leisure, and lifestyle brands that want to be remembered.</p>
           <Link href="/enquire-now" className="inline-flex items-center justify-center gap-4 bg-red-600 hover:bg-red-500 transition-colors rounded-full px-7 py-4 group">
             <span className="text-white font-semibold text-xs tracking-[0.2em] uppercase">Enquire Now</span>
             <span className="text-white group-hover:translate-x-1 transition-transform duration-200 ml-4">→</span>
@@ -111,7 +111,7 @@ export default function Hero() {
             </h1>
 
             <div className="rr-bottom flex flex-col gap-3">
-              <p className="text-zinc-400 text-base leading-relaxed">Creative-led growth for premium hospitality and leisure brands.</p>
+              <p className="text-zinc-400 text-base leading-relaxed">A creative agency and branding studio for hospitality, leisure, and lifestyle brands that want to be remembered.</p>
               <Link href="/enquire-now" className="group inline-flex items-center gap-4 bg-red-600 hover:bg-red-500 transition-all duration-300 rounded-full px-8 py-4 self-start">
                 <span className="text-white font-medium text-sm tracking-[0.22em] uppercase whitespace-nowrap">Enquire Now</span>
                 <span className="text-white group-hover:translate-x-1 transition-transform duration-200">→</span>
