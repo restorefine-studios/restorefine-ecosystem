@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import { TableKit } from "@tiptap/extension-table";
 import { useEffect, useState, useRef } from "react";
 
 interface Props {
@@ -20,6 +21,10 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
   const [linkUrl, setLinkUrl] = useState("");
   const linkInputRef = useRef<HTMLInputElement>(null);
 
+  const [tableBarOpen, setTableBarOpen] = useState(false);
+  const [tableRows, setTableRows] = useState(3);
+  const [tableCols, setTableCols] = useState(3);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -29,6 +34,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
         HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
       }),
       Placeholder.configure({ placeholder }),
+      TableKit.configure({ table: { resizable: false } }),
     ],
     content: value || "",
     editorProps: {
@@ -76,6 +82,13 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
     setLinkUrl("");
   }
 
+  function insertTable() {
+    const rows = Math.min(Math.max(tableRows, 1), 20);
+    const cols = Math.min(Math.max(tableCols, 1), 10);
+    editor!.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+    setTableBarOpen(false);
+  }
+
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
       {/* Toolbar */}
@@ -100,6 +113,29 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
           className={`${btn} px-2 ${editor.isActive("link") ? active : ""}`}>
           Link
         </button>
+
+        <div className="w-px h-4 bg-gray-200 mx-1" />
+
+        <button type="button" onMouseDown={(e) => e.preventDefault()}
+          onClick={() => (editor.isActive("table") ? setTableBarOpen((v) => !v) : setTableBarOpen(true))}
+          className={`${btn} px-2 ${editor.isActive("table") ? active : ""}`}>
+          Table
+        </button>
+
+        {editor.isActive("table") && (
+          <>
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().addRowAfter().run()}
+              className={`${btn} px-2`}>+ Row</button>
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().addColumnAfter().run()}
+              className={`${btn} px-2`}>+ Col</button>
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().deleteRow().run()}
+              className={`${btn} px-2`}>− Row</button>
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().deleteColumn().run()}
+              className={`${btn} px-2`}>− Col</button>
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().deleteTable().run()}
+              className={`${btn} px-2 text-red-500 hover:text-red-600`}>Delete Table</button>
+          </>
+        )}
 
         <div className="w-px h-4 bg-gray-200 mx-1" />
 
@@ -135,6 +171,36 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
             </button>
           )}
           <button type="button" onClick={() => setLinkBarOpen(false)}
+            className="text-gray-400 hover:text-gray-600 transition text-sm px-1">✕</button>
+        </div>
+      )}
+
+      {/* Inline table-insert bar — appears when Table is clicked and cursor isn't already in a table */}
+      {tableBarOpen && !editor.isActive("table") && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 bg-white">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">Rows</span>
+          <input
+            type="number"
+            min={1}
+            max={20}
+            value={tableRows}
+            onChange={(e) => setTableRows(Number(e.target.value))}
+            className="w-16 bg-gray-100 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-400"
+          />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">Columns</span>
+          <input
+            type="number"
+            min={1}
+            max={10}
+            value={tableCols}
+            onChange={(e) => setTableCols(Number(e.target.value))}
+            className="w-16 bg-gray-100 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-400"
+          />
+          <button type="button" onClick={insertTable}
+            className="text-xs font-bold bg-white text-gray-900 px-3 py-1.5 rounded hover:bg-gray-50 transition whitespace-nowrap border border-gray-200">
+            Insert
+          </button>
+          <button type="button" onClick={() => setTableBarOpen(false)}
             className="text-gray-400 hover:text-gray-600 transition text-sm px-1">✕</button>
         </div>
       )}
