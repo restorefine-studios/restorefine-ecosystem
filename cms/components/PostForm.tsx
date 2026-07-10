@@ -103,13 +103,61 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     return `${folder}/${base}${suffix}.${ext}`;
   }
 
+  /**
+   * Compress an image using the Canvas API.
+   * - Resizes so the longest side never exceeds `maxPx`.
+   * - Re-encodes as WebP at `quality` (0–1). Falls back to JPEG if WebP
+   *   is unsupported by the browser.
+   * - Returns a new File so the original is unchanged.
+   */
+  async function compressImage(file: File, maxPx = 1920, quality = 0.85): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxPx || height > maxPx) {
+          if (width >= height) {
+            height = Math.round((height / width) * maxPx);
+            width = maxPx;
+          } else {
+            width = Math.round((width / height) * maxPx);
+            height = maxPx;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(file); return; }
+        ctx.drawImage(img, 0, 0, width, height);
+        const mimeType = "image/webp";
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { resolve(file); return; }
+            const compressed = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: mimeType });
+            resolve(compressed);
+          },
+          mimeType,
+          quality,
+        );
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Image load failed")); };
+      img.src = url;
+    });
+  }
+
   async function uploadImage(file: File, setUploading: (v: boolean) => void, field: "thumbnail" | "author_image") {
     setUploading(true);
     const supabase = createClient();
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const suffix = field === "author_image" ? "-author" : "";
-    const path = buildPath(field, suffix, ext);
-    const { error } = await supabase.storage.from("blog-images").upload(path, file, { upsert: true });
+    // Compress: thumbnails max 1920px, author images max 400px
+    const maxPx = field === "author_image" ? 400 : 1920;
+    const compressed = await compressImage(file, maxPx, 0.85).catch(() => file);
+    const ts = Date.now();
+    const suffix = field === "author_image" ? `-author-${ts}` : `-${ts}`;
+    const path = buildPath(field, suffix, "webp");
+    const { error } = await supabase.storage.from("blog-images").upload(path, compressed, { upsert: true, contentType: "image/webp" });
     if (error) { alert("Upload failed: " + error.message); setUploading(false); return; }
     const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
     const publicUrl = data.publicUrl;
@@ -125,7 +173,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
         .eq("slug", form.slug);
       queryClient.invalidateQueries({ queryKey: ["post", form.slug] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      setSavedMsg("Image saved");
+      setSavedMsg("Image saved ✓");
     }
 
     setUploading(false);
@@ -133,9 +181,10 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
 
   async function uploadContentImage(file: File, index: number) {
     const supabase = createClient();
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const path = buildPath("content", `-${index}-${Date.now()}`, ext);
-    const { error } = await supabase.storage.from("blog-images").upload(path, file, { upsert: true });
+    // Compress content images to max 1200px wide at 0.85 quality
+    const compressed = await compressImage(file, 1200, 0.85).catch(() => file);
+    const path = buildPath("content", `-${index}-${Date.now()}`, "webp");
+    const { error } = await supabase.storage.from("blog-images").upload(path, compressed, { upsert: true, contentType: "image/webp" });
     if (error) { alert("Upload failed: " + error.message); return; }
     const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
     updateBlock(index, { src: data.publicUrl } as Partial<ContentBlock>);
