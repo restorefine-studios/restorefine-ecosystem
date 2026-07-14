@@ -23,6 +23,25 @@ const holiday = localFont({
 
 const BASE_URL = "https://www.restorefine.co.uk";
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "RestoRefine",
+  url: BASE_URL,
+  logo: `${BASE_URL}/restorefine-logoblack.svg`,
+  sameAs: [
+    "https://www.instagram.com/restorefine/",
+    "https://uk.linkedin.com/company/restorefine",
+  ],
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "RestoRefine",
+  url: BASE_URL,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
@@ -99,6 +118,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <script
+          id="organization-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          id="website-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <Script id="clarity-script" strategy="afterInteractive">
           {`(function(c,l,a,r,i,t,y){
               c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
