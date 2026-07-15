@@ -115,7 +115,6 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
   const title = entry.fields?.title || 'Blog Title';
   const author = entry.fields?.authorName || 'Author';
-  const authorImage = entry.fields?.authorImage ? 'https:' + entry.fields.authorImage.fields.file.url : '/placeholder.svg';
   const thumbnail = entry.fields?.blogThumbnail ? 'https:' + entry.fields.blogThumbnail.fields.file.url : '/placeholder.svg';
   const dateRaw = entry.fields?.blogDate || 'Date';
   const date = new Date(dateRaw).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
@@ -134,14 +133,8 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       <div className="max-w-3xl relative z-10 container mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{title}</h1>
         <div className="flex items-center gap-3 mt-6">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-[#d9d9d9]">
-            <Image
-              src={authorImage}
-              alt={author}
-              width={48}
-              height={48}
-              className="object-cover"
-            />
+          <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden p-2.5">
+            <img src="/restorefine-logowhite.svg" alt={author} style={{ height: "100%", width: "auto" }} />
           </div>
           <div className="flex items-center text-white text-sm">
             <span>{author}</span>

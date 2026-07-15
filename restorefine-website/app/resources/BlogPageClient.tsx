@@ -125,14 +125,8 @@ export default function BlogPageClient({ posts }: Props) {
                     <div className="absolute inset-0 bg-zinc-900/0 group-hover:bg-zinc-900/10 transition-colors duration-300" />
                   </div>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-200 flex-shrink-0">
-                      <Image
-                        src={post.authorImage || "/placeholder.svg"}
-                        alt={post.author}
-                        width={32}
-                        height={32}
-                        className="object-cover"
-                      />
+                    <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0 overflow-hidden p-1.5">
+                      <img src="/restorefine-logowhite.svg" alt={post.author} style={{ height: "100%", width: "auto" }} />
                     </div>
                     <span className="text-xs text-zinc-400 font-medium">{post.author}</span>
                     <span className="text-zinc-200">•</span>
@@ -194,14 +188,8 @@ export default function BlogPageClient({ posts }: Props) {
                     />
                   </div>
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-full overflow-hidden bg-zinc-200 flex-shrink-0">
-                      <Image
-                        src={post.authorImage || "/placeholder.svg"}
-                        alt={post.author}
-                        width={28}
-                        height={28}
-                        className="object-cover"
-                      />
+                    <div className="w-7 h-7 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0 overflow-hidden p-1.5">
+                      <img src="/restorefine-logowhite.svg" alt={post.author} style={{ height: "100%", width: "auto" }} />
                     </div>
                     <span className="text-xs text-zinc-400">{post.author}</span>
                     <span className="text-zinc-200">•</span>

@@ -20,7 +20,7 @@ export const blogPosts: BlogPost[] = [
     thumbnail: "/blog-thumbnail/psychology-behind-viral-food-content.png",
     thumbnailAlt: "The psychology behind viral food content — why food videos go viral on TikTok and Instagram",
     author: "Restorefine Team",
-    authorImage: "/blogauthorholder.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "2025-05-31",
     excerpt:
       "Discover why food videos go viral and how restaurants use emotion, storytelling, and social media strategy to create scroll-stopping content.",
@@ -32,7 +32,7 @@ export const blogPosts: BlogPost[] = [
     thumbnail: "/blog-thumbnail/how-we-helped-padel-academy-scotland-build-brand-from-scratch.png",
     thumbnailAlt: "How RestoreFine helped a padel academy in Scotland build its brand from scratch",
     author: "Restorefine Team",
-    authorImage: "/blogauthorholder.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "2025-05-22",
     excerpt:
       "When It's Padel came to us, they had courts, coaches, and passion — but no logo, no website, and no digital strategy. Here's how RestoreFine changed that.",
@@ -44,7 +44,7 @@ export const blogPosts: BlogPost[] = [
     thumbnail: "/blog-thumbnail/10-signs-your-business-needs-a-digital-marketing-company-in-glasgow.png",
     thumbnailAlt: "10 signs your business needs a digital marketing company in Glasgow — RestoRefine blog",
     author: "Restorefine Team",
-    authorImage: "/blogauthorholder.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "2025-05-22",
     excerpt:
       "Struggling to generate leads online? Discover 10 clear signs your business needs a digital marketing company in Glasgow — and how Restorefine can help you grow.",
@@ -56,7 +56,7 @@ export const blogPosts: BlogPost[] = [
     subtitle: "",
     thumbnail: "/blogmesh.svg?height=100&width=100",
     author: "Wally Nomad",
-    authorImage: "/blogauthorholder.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "",
     content: [
@@ -153,7 +153,7 @@ export const blogPosts: BlogPost[] = [
     title: "Brand Consistency is Boring. That’s Why It Works",
     thumbnail: "/blogmesh.svg?height=100&width=100&query=brand consistency is boring thats why it works",
     author: "Wally Nomad",
-    authorImage: "/blogauthorholder.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "",
     content: [
@@ -256,7 +256,7 @@ export const blogPosts: BlogPost[] = [
     title: "What the Best Restaurants Teach Us About Branding (Hint: It’s Not the Logo)",
     thumbnail: "/blogmesh.svg",
     author: "Harpreet Singh",
-    authorImage: "/blogauthorholderii.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "",
     content: [
@@ -339,7 +339,7 @@ export const blogPosts: BlogPost[] = [
     title: "Brand Consistency is Boring. That’s Why It Works",
     thumbnail: "/blogmesh.svg",
     author: "Harpreet Singh",
-    authorImage: "/blogauthorholderii.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "How artificial intelligence is transforming content creation while highlighting the irreplaceable value of human creativity.",
     content: [
@@ -417,7 +417,7 @@ export const blogPosts: BlogPost[] = [
     title: "Your Website Has 3 Seconds to Matter. Here’s What to Do With Them",
     thumbnail: "/blogmesh.svg",
     author: "Harpreet Singh",
-    authorImage: "/blogauthorholderii.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "",
     content: [
@@ -487,7 +487,7 @@ export const blogPosts: BlogPost[] = [
     title: "Hospitality Isn’t a Vibe. It’s a System",
     thumbnail: "/blogmesh.svg",
     author: "Harpreet Singh",
-    authorImage: "/blogauthorholderii.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "Why leading organizations are treating data ethics as a cornerstone of customer trust and brand loyalty.",
     content: [
@@ -568,7 +568,7 @@ export const blogPosts: BlogPost[] = [
     title: "What a Tiny Coffee Cart Taught Me About Positioning",
     thumbnail: "/blogmesh.svg",
     author: "Harpreet Singh",
-    authorImage: "/blogauthorholderii.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "",
     content: [
@@ -648,7 +648,7 @@ export const blogPosts: BlogPost[] = [
     title: "Why Physical Spaces Make Better Websites",
     thumbnail: "/blogmesh.svg",
     author: "Harpreet Singh",
-    authorImage: "/blogauthorholderii.webp",
+    authorImage: "/restorefine-logowhite.svg",
     date: "18 May, 2025",
     excerpt: "How organizations are reimagining workplace collaboration for a distributed world.",
     content: [

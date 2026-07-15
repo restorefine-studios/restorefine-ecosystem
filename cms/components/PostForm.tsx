@@ -72,7 +72,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
       thumbnail: "",
       thumbnail_alt: "",
       author: "Restorefine Team",
-      author_image: "/blogauthorholder.webp",
+      author_image: "/restorefine-logowhite.svg",
       date: new Date().toISOString().split("T")[0],
       excerpt: "",
       meta_title: "",
