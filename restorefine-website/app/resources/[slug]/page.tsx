@@ -125,7 +125,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     <main>
       <section className="relative h-[500px] w-full">
         <div className="">
-          <Image src={thumbnail} alt={title} fill quality={90} className="object-cover" priority />
+          <Image src={thumbnail} alt={title} fill quality={95} className="object-cover" priority />
           <div className="absolute inset-0 bg-black/40" />
         </div>
       </section>
@@ -156,7 +156,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                         src={'https:' + node.data.target.fields.file.url}
                         alt={node.data.target.fields.title || ''}
                         fill
-                        quality={90}
+                        quality={95}
                         className="object-cover rounded-lg"
                       />
                     </div>

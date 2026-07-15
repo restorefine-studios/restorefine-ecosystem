@@ -143,7 +143,7 @@ export function SupabasePost({ post }: { post: SupaBlogPost }) {
           {/* Thumbnail */}
           {post.thumbnail && (
             <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-12">
-              <Image src={post.thumbnail} alt={post.thumbnail_alt || post.title} fill quality={90} className="object-cover" priority />
+              <Image src={post.thumbnail} alt={post.thumbnail_alt || post.title} fill quality={95} className="object-cover" priority />
             </div>
           )}
 
@@ -217,7 +217,7 @@ export function SupabasePost({ post }: { post: SupaBlogPost }) {
                 return (
                   <figure key={i} className="my-10">
                     <div className="relative aspect-[16/9] rounded-xl overflow-hidden">
-                      <Image src={block.src} alt={block.alt || ""} fill quality={90} className="object-cover" />
+                      <Image src={block.src} alt={block.alt || ""} fill quality={95} className="object-cover" />
                     </div>
                     {block.caption && <figcaption className="text-xs text-zinc-400 text-center mt-3">{block.caption}</figcaption>}
                   </figure>

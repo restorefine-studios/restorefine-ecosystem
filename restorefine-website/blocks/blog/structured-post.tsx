@@ -124,7 +124,7 @@ export function StructuredBlogPost({ post }: { post: BlogPost }) {
           {/* Cover image */}
           {post.coverImage && (
             <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-12">
-              <Image src={post.coverImage} alt={post.title} fill quality={90} className="object-cover" priority />
+              <Image src={post.coverImage} alt={post.title} fill quality={95} className="object-cover" priority />
             </div>
           )}
 

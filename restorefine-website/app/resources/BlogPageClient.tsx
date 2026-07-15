@@ -120,7 +120,7 @@ export default function BlogPageClient({ posts }: Props) {
                       src={post.thumbnail || "/placeholder.svg"}
                       alt={post.thumbnailAlt || post.title}
                       fill
-                      quality={90}
+                      quality={95}
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-zinc-900/0 group-hover:bg-zinc-900/10 transition-colors duration-300" />
@@ -185,7 +185,7 @@ export default function BlogPageClient({ posts }: Props) {
                       src={post.thumbnail || "/placeholder.svg"}
                       alt={post.thumbnailAlt || post.title}
                       fill
-                      quality={90}
+                      quality={95}
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
