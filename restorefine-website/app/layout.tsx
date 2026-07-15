@@ -29,6 +29,14 @@ const organizationSchema = {
   name: "RestoRefine",
   url: BASE_URL,
   logo: `${BASE_URL}/restorefine-logoblack.svg`,
+  email: "hello@restorefine.com",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "24 Fairley St",
+    addressLocality: "Glasgow",
+    postalCode: "G51 2SN",
+    addressCountry: "GB",
+  },
   sameAs: [
     "https://www.instagram.com/restorefine/",
     "https://uk.linkedin.com/company/restorefine",
