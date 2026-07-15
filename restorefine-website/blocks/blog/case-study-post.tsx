@@ -109,7 +109,7 @@ export function CaseStudyPost({ caseStudy: cs }: { caseStudy: CaseStudy }) {
           {/* Cover image */}
           {cs.coverImage && (
             <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-12">
-              <Image src={cs.coverImage} alt={cs.title} fill className="object-cover" priority />
+              <Image src={cs.coverImage} alt={cs.title} fill quality={90} className="object-cover" priority />
             </div>
           )}
 

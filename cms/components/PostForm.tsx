@@ -110,7 +110,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
    *   is unsupported by the browser.
    * - Returns a new File so the original is unchanged.
    */
-  async function compressImage(file: File, maxPx = 1920, quality = 0.85): Promise<File> {
+  async function compressImage(file: File, maxPx = 2400, quality = 0.92): Promise<File> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
@@ -131,6 +131,8 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         if (!ctx) { resolve(file); return; }
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
         const mimeType = "image/webp";
         canvas.toBlob(
@@ -151,9 +153,9 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
   async function uploadImage(file: File, setUploading: (v: boolean) => void, field: "thumbnail" | "author_image") {
     setUploading(true);
     const supabase = createClient();
-    // Compress: thumbnails max 1920px, author images max 400px
-    const maxPx = field === "author_image" ? 400 : 1920;
-    const compressed = await compressImage(file, maxPx, 0.85).catch(() => file);
+    // Compress: thumbnails max 2400px, author images max 400px
+    const maxPx = field === "author_image" ? 400 : 2400;
+    const compressed = await compressImage(file, maxPx, 0.92).catch(() => file);
     const ts = Date.now();
     const suffix = field === "author_image" ? `-author-${ts}` : `-${ts}`;
     const path = buildPath(field, suffix, "webp");
@@ -181,8 +183,8 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
 
   async function uploadContentImage(file: File, index: number) {
     const supabase = createClient();
-    // Compress content images to max 1200px wide at 0.85 quality
-    const compressed = await compressImage(file, 1200, 0.85).catch(() => file);
+    // Compress content images to max 1800px wide at 0.92 quality
+    const compressed = await compressImage(file, 1800, 0.92).catch(() => file);
     const path = buildPath("content", `-${index}-${Date.now()}`, "webp");
     const { error } = await supabase.storage.from("blog-images").upload(path, compressed, { upsert: true, contentType: "image/webp" });
     if (error) { alert("Upload failed: " + error.message); return; }
