@@ -34,12 +34,18 @@ export interface FeatureItem {
   description?: string;
 }
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export type ContentBlock =
   | { type: "paragraph"; content: string }
   | { type: "heading"; content: string }
   | { type: "image"; src: string; alt?: string; caption?: string }
   | { type: "features"; heading?: string; description?: string; footerDescription?: string; items: FeatureItem[] }
-  | { type: "section"; heading: string; content: string };
+  | { type: "section"; heading: string; content: string }
+  | { type: "faq"; heading?: string; faqs: FaqItem[] };
 
 export interface BlogPost {
   id?: string;

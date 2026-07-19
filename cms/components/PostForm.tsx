@@ -207,6 +207,11 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     setForm((prev) => ({ ...prev, content: [...prev.content, block] }));
   }
 
+  function addFaq() {
+    const block = { type: "faq", heading: "Frequently Asked Questions", faqs: [{ question: "", answer: "" }] } as unknown as ContentBlock;
+    setForm((prev) => ({ ...prev, content: [...prev.content, block] }));
+  }
+
   function removeBlock(index: number) {
     setForm((prev) => ({ ...prev, content: prev.content.filter((_, i) => i !== index) }));
   }
@@ -507,6 +512,39 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             );
           }
 
+          if (block.type === "faq") {
+            const qb = block as unknown as { type: "faq"; heading?: string; faqs: { question: string; answer: string }[] };
+            return (
+              <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-50">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">FAQ — Section {i + 1}</span>
+                  <BlockControls i={i} total={form.content.length} onMove={moveBlock} onRemove={removeBlock} />
+                </div>
+                <div className="p-4 space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Section Heading (optional)</label>
+                    <input value={qb.heading || ""} onChange={e => updateBlock(i, { heading: e.target.value } as Partial<ContentBlock>)} placeholder="e.g. Frequently Asked Questions" className={inputCls} />
+                  </div>
+                  <div className="space-y-3">
+                    {qb.faqs.map((item, idx) => (
+                      <div key={idx} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Question {idx + 1}</span>
+                          <button type="button" onClick={() => { const faqs = qb.faqs.filter((_, j) => j !== idx); updateBlock(i, { faqs } as Partial<ContentBlock>); }} className="text-[10px] text-red-400 hover:text-red-600 font-semibold">Remove</button>
+                        </div>
+                        <input value={item.question} onChange={e => { const faqs = qb.faqs.map((it, j) => j === idx ? { ...it, question: e.target.value } : it); updateBlock(i, { faqs } as Partial<ContentBlock>); }} placeholder="Question" className={inputCls} />
+                        <textarea value={item.answer} onChange={e => { const faqs = qb.faqs.map((it, j) => j === idx ? { ...it, answer: e.target.value } : it); updateBlock(i, { faqs } as Partial<ContentBlock>); }} placeholder="Answer" rows={3} className={inputCls} />
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" onClick={() => updateBlock(i, { faqs: [...qb.faqs, { question: "", answer: "" }] } as Partial<ContentBlock>)} className="text-xs font-bold text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 px-4 py-2 rounded-lg transition">
+                    + Add Question
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
           // Section block (heading + rich text paragraph combined)
           const headingVal = block.type === "section"
             ? (block as { type: "section"; heading: string; content: string }).heading
@@ -578,6 +616,13 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-xl transition"
           >
             <span className="text-base leading-none">+</span> Image
+          </button>
+          <button
+            type="button"
+            onClick={addFaq}
+            className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-xl transition"
+          >
+            <span className="text-base leading-none">+</span> FAQ
           </button>
         </div>
       </section>

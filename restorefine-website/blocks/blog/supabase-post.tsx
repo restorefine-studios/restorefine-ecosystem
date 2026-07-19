@@ -7,7 +7,8 @@ import { jsonLd } from "@/lib/utils";
 import { ShareBar } from "./share-bar";
 import { TableOfContents, type TocItem } from "./toc";
 import { ExpandingCta } from "@/blocks/portfolio/expanding-cta";
-import type { SupaBlogPost, ContentBlock, FeatureItem } from "@/lib/supabase";
+import { FaqAccordion } from "./faq-accordion";
+import type { SupaBlogPost, ContentBlock, FeatureItem, FaqItem } from "@/lib/supabase";
 
 const SANITIZE_OPTS = {
   allowedTags: sanitizeHtml.defaults.allowedTags.concat(["s", "br", "strong", "em", "b", "i"]),
@@ -41,6 +42,25 @@ function TitleWithHighlight({ title }: { title: string }) {
   return (
     <>
       {first} {last && <span className="text-red-600">{last}</span>}
+    </>
+  );
+}
+
+/** Renders a heading with the word "Asked" (if present) picked out in the
+ *  site's holiday-font red accent, matching the convention used elsewhere. */
+function FaqHeadingText({ text }: { text: string }) {
+  const parts = text.split(/(Asked)/i);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === "asked" ? (
+          <span key={i} className="text-red-600 normal-case" style={{ fontFamily: "var(--font-holiday), serif" }}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
     </>
   );
 }
@@ -100,6 +120,11 @@ export function SupabasePost({ post }: { post: SupaBlogPost }) {
       }
       if (block.type === "heading" && block.content) {
         return { id: headingId(block.content, i), label: block.content };
+      }
+      if (block.type === "faq") {
+        const f = block as unknown as { heading?: string };
+        if (!f.heading) return null;
+        return { id: headingId(f.heading, i), label: f.heading };
       }
       return null;
     })
@@ -221,6 +246,22 @@ export function SupabasePost({ post }: { post: SupaBlogPost }) {
                     </div>
                     {block.caption && <figcaption className="text-xs text-zinc-400 text-center mt-3">{block.caption}</figcaption>}
                   </figure>
+                );
+              }
+
+              if (block.type === "faq") {
+                const qb = block as unknown as { heading?: string; faqs: FaqItem[] };
+                if (!qb.faqs?.length) return null;
+                const id = qb.heading ? headingId(qb.heading, i) : undefined;
+                return (
+                  <div key={i} id={id} className="my-10 scroll-mt-28">
+                    {qb.heading && (
+                      <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-zinc-950 mb-4" style={{ fontFamily: "var(--font-oswald), sans-serif" }}>
+                        <FaqHeadingText text={qb.heading} />
+                      </h2>
+                    )}
+                    <FaqAccordion faqs={qb.faqs} />
+                  </div>
                 );
               }
 
