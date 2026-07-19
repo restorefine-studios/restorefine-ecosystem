@@ -216,7 +216,13 @@ export default function BlogPageClient({ posts }: Props) {
             <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 block mb-3">Ready to build?</span>
             <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-zinc-900">
               Let&apos;s craft<br />
-              something <span className="text-red-600">great</span>
+              something{" "}
+              <span
+                className="text-red-600 font-normal normal-case"
+                style={{ fontFamily: "var(--font-holiday), serif", fontSize: "1.4em" }}
+              >
+                Great
+              </span>
             </h2>
           </div>
           <Link href="/enquire-now" className="flex items-center gap-2 group">

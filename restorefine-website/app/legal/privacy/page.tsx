@@ -49,7 +49,13 @@ export default function PrivacyPolicy() {
 
           <h2 className="text-zinc-900 font-black uppercase tracking-tight text-lg mt-8">Contact</h2>
           <p>
-            RestoRefine Ltd · 24 Fairley St · Glasgow · G51 2SN · United Kingdom
+            RestoRefine Ltd
+            <br />
+            (Unit 54) 24 Fairley Street
+            <br />
+            Glasgow
+            <br />
+            G51 2SN, Scotland
             <br />
             Email:{" "}
             <a href="mailto:hello@restorefine.com" className="text-red-600 hover:underline">

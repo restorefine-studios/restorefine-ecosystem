@@ -95,7 +95,13 @@ export function ContactSection() {
               <p className="text-xs text-zinc-400 mb-2 leading-relaxed">Come say hello at our office</p>
               <p className="inline-flex items-start gap-2 text-sm font-semibold text-zinc-700">
                 <MapPin className="w-3.5 h-3.5 text-zinc-400 mt-0.5 flex-shrink-0" />
-                24 Fairley St, Glasgow, G51 2SN, United Kingdom
+                <span>
+                  (Unit 54) 24 Fairley Street
+                  <br />
+                  Glasgow
+                  <br />
+                  G51 2SN, Scotland
+                </span>
               </p>
             </div>
             <div>

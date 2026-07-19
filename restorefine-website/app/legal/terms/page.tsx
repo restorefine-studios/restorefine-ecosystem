@@ -50,7 +50,13 @@ export default function Terms() {
 
           <h2 className="text-zinc-900 font-black uppercase tracking-tight text-lg mt-8">Contact</h2>
           <p>
-            RestoRefine Ltd · 24 Fairley St · Glasgow · G51 2SN
+            RestoRefine Ltd
+            <br />
+            (Unit 54) 24 Fairley Street
+            <br />
+            Glasgow
+            <br />
+            G51 2SN, Scotland
             <br />
             <a href="mailto:hello@restorefine.com" className="text-red-600 hover:underline">
               hello@restorefine.com

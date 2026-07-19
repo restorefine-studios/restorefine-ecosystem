@@ -32,8 +32,9 @@ const organizationSchema = {
   email: "hello@restorefine.com",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "24 Fairley St",
+    streetAddress: "(Unit 54) 24 Fairley Street",
     addressLocality: "Glasgow",
+    addressRegion: "Scotland",
     postalCode: "G51 2SN",
     addressCountry: "GB",
   },

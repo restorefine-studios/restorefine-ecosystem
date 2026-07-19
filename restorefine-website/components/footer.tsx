@@ -63,7 +63,13 @@ export function Footer() {
             <div className="flex flex-col gap-2 text-zinc-500 text-xs">
               <span className="flex items-start gap-2">
                 <MapPin size={12} className="mt-0.5 shrink-0 text-red-600" />
-                <span>24 Fairley St, Glasgow G51 2SN</span>
+                <span>
+                  (Unit 54) 24 Fairley Street
+                  <br />
+                  Glasgow
+                  <br />
+                  G51 2SN, Scotland
+                </span>
               </span>
               <Link href="mailto:hello@restorefine.com" className="flex items-center gap-2 hover:text-zinc-300 transition-colors">
                 <Mail size={12} className="text-red-600 shrink-0" />
@@ -79,11 +85,11 @@ export function Footer() {
               <div>
                 <p className="text-zinc-200 text-[13px] font-medium">Glasgow Studio</p>
                 <p className="mt-1 text-zinc-500 text-xs leading-relaxed">
-                  24 Fairley St
+                  (Unit 54) 24 Fairley Street
                   <br />
-                  Glasgow, G51 2SN
+                  Glasgow
                   <br />
-                  United Kingdom
+                  G51 2SN, Scotland
                 </p>
                 <Link href="/contact" className="inline-block mt-2 text-[11px] text-red-500 hover:text-red-400 transition-colors">
                   Get Directions →
