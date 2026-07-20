@@ -13,10 +13,12 @@ export function AdNoticeModal() {
 
   useEffect(() => {
     if (sessionStorage.getItem(STORAGE_KEY)) return;
+    // Delayed well past the initial paint window so this never competes
+    // with real page content for Largest Contentful Paint.
     const timer = setTimeout(() => {
       setIsOpen(true);
       sessionStorage.setItem(STORAGE_KEY, "1");
-    }, 1200);
+    }, 4000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -60,7 +62,6 @@ export function AdNoticeModal() {
                 fill
                 sizes="(max-width: 480px) 100vw, 448px"
                 className="object-cover"
-                priority
               />
             </div>
 
