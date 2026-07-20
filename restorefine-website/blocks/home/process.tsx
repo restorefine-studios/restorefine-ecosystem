@@ -178,7 +178,7 @@ export function Process() {
   const headerOpacity = headerProgress;
 
   return (
-    <section ref={sectionRef} className="section-bleed py-20 md:py-32 overflow-x-clip bg-white">
+    <section ref={sectionRef} className="section-bleed py-20 md:py-32 overflow-x-clip bg-zinc-50">
       {/* Section header */}
       <motion.div style={{ y: headerY, opacity: headerOpacity }} className="flex flex-col items-center text-center mb-16 md:mb-20 gap-y-3">
         <p className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium">How It Works</p>

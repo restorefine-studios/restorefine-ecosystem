@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Palette, Printer, Package, Layers, Shirt,
   Video, Share2, Rocket, LayoutList, Camera,
   Globe, Search, TrendingUp, Target, BarChart3,
-  ArrowUpRight,
+  ArrowUpRight, ArrowRight,
 } from "lucide-react";
 import { MobileMenu } from "./mobile-menu";
 import navlogo from "@/public/restorefine-logoblack.svg";
@@ -92,150 +93,312 @@ export const pillars: NavPillar[] = [
 export const services = pillars.flatMap((p) => p.services);
 
 /* ------------------------------------------------------------------ */
-/* Mega-menu pillar column                                              */
+/* Mega-menu: left rail of pillars drives the service pane on the right */
 /* ------------------------------------------------------------------ */
-function PillarColumn({ pillar }: { pillar: NavPillar }) {
+function ServicesMegaMenu() {
+  const [active, setActive] = React.useState(0);
+  const pillar = pillars[active];
+
   return (
-    <div className="flex flex-col gap-1">
-      {/* Pillar header */}
-      <Link
-        href={pillar.href}
-        className="group flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg hover:bg-zinc-50 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-black text-red-600 tabular-nums">{pillar.id}</span>
-          <span className="text-xs font-black uppercase tracking-[0.15em] text-zinc-900">{pillar.title}</span>
+    <div className="w-[860px] overflow-hidden rounded-[28px] border border-black/[0.06] bg-white shadow-[0_30px_70px_-20px_rgba(0,0,0,0.22)]">
+      <div className="grid grid-cols-[290px_1fr]">
+        {/* Left rail: the three pillars */}
+        <div className="flex flex-col gap-1 border-r border-zinc-100 bg-zinc-50/70 p-4">
+          <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 no-underline">
+            Our Pillars
+          </p>
+          {pillars.map((p, i) => {
+            const isActive = i === active;
+            const Icon = p.icon;
+            return (
+              <Link
+                key={p.id}
+                href={p.href}
+                onMouseEnter={() => setActive(i)}
+                onFocus={() => setActive(i)}
+                className={cn(
+                  "group relative flex items-center gap-3 rounded-2xl px-3 py-3.5 no-underline transition-colors duration-200",
+                  isActive ? "bg-white shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)]" : "hover:bg-white/60",
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute left-0 top-1/2 h-7 w-[3px] -translate-y-1/2 rounded-r-full bg-red-600 transition-all duration-200",
+                    isActive ? "opacity-100" : "opacity-0",
+                  )}
+                />
+                <Icon
+                  className={cn("size-[18px] shrink-0 transition-colors duration-200", isActive ? "text-red-600" : "text-zinc-300")}
+                  strokeWidth={1.75}
+                />
+                <span className="flex-1">
+                  <span
+                    className={cn(
+                      "block text-[15px] font-black uppercase leading-none tracking-tight no-underline transition-colors duration-200",
+                      isActive ? "text-zinc-950" : "text-zinc-500",
+                    )}
+                  >
+                    {p.title}
+                  </span>
+                  <span className="mt-1 block text-[11px] font-medium leading-none text-zinc-400 no-underline">
+                    {p.description}
+                  </span>
+                </span>
+                <ArrowUpRight
+                  className={cn(
+                    "size-3.5 shrink-0 text-red-600 transition-opacity duration-200",
+                    isActive ? "opacity-100" : "opacity-0",
+                  )}
+                />
+              </Link>
+            );
+          })}
         </div>
-        <ArrowUpRight className="w-3 h-3 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-      </Link>
 
-      {/* Divider */}
-      <div className="h-px bg-zinc-100 mb-2" />
+        {/* Right pane: services for the hovered pillar */}
+        <div className="flex flex-col p-4">
+          <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 no-underline">
+            {pillar.title} Services
+          </p>
 
-      {/* Sub-services */}
-      {pillar.services.map((service) => (
-        <ServiceItem key={service.title} service={service} />
-      ))}
+          <div key={pillar.id} className="grid grid-cols-2 gap-1 mb-6 duration-300 animate-in fade-in slide-in-from-right-2">
+            {pillar.services.map((service) => {
+              const Icon = service.icon;
+              return (
+                <NavigationMenuLink asChild key={service.title}>
+                  <Link
+                    href={service.href}
+                    className="group flex items-center gap-3 rounded-2xl px-3 py-3 no-underline transition-colors duration-200 hover:bg-zinc-50"
+                  >
+                    <Icon
+                      className="size-4 shrink-0 text-zinc-300 transition-colors duration-200 group-hover:text-red-600"
+                      strokeWidth={1.75}
+                    />
+                    <span className="flex-1 text-[13px] font-medium leading-tight text-zinc-600 no-underline transition-colors duration-200 group-hover:text-zinc-950">
+                      {service.title}
+                    </span>
+                    <ArrowRight className="size-3.5 shrink-0 -translate-x-1 text-red-600 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
+                  </Link>
+                </NavigationMenuLink>
+              );
+            })}
+          </div>
+
+          {/* Dark CTA strip, echoes the Framework section */}
+          <Link
+            href="/enquire-now"
+            className="group relative mt-auto flex items-center justify-between overflow-hidden rounded-2xl bg-zinc-950 px-5 py-4 no-underline"
+          >
+            <span className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-600/25 blur-[50px]" />
+            <span className="relative">
+              <span className="block text-[13px] font-black uppercase tracking-tight text-white no-underline">
+                Not sure where to start?
+              </span>
+              <span className="mt-0.5 block text-[11px] font-medium text-zinc-400 no-underline">
+                Tell us your goals, we&apos;ll map the route.
+              </span>
+            </span>
+            <span className="relative flex items-center gap-1.5 text-[11px] font-black uppercase tracking-[0.15em] text-red-500 no-underline">
+              Enquire
+              <ArrowUpRight className="size-3 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
 
-function ServiceItem({ service }: { service: NavService }) {
-  const Icon = service.icon;
+/* ------------------------------------------------------------------ */
+/* Shared nav content, reused by the standalone header (every page     */
+/* except home) and embedded directly in the homepage hero's notch.    */
+/* ------------------------------------------------------------------ */
+export function NavBarContent({ height = "h-20" }: { height?: string }) {
   return (
-    <NavigationMenuLink asChild>
-      <Link
-        href={service.href}
-        className={cn(
-          "flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors",
-          "hover:bg-zinc-50 group"
-        )}
-      >
-        <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border border-black/8 bg-red-50">
-          <Icon className="size-3 text-red-600" />
-        </div>
-        <span className="text-[13px] text-zinc-600 group-hover:text-zinc-900 font-medium leading-none">
-          {service.title}
-        </span>
+    <div className={cn("grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-8", height)}>
+      {/* Nav links — left column */}
+      <div className="justify-self-start hidden md:block">
+        <NavigationMenu>
+          <NavigationMenuList className="flex items-center gap-x-7">
+
+            {/* Services mega-menu */}
+            <NavigationMenuItem>
+              {/* Trigger opens the panel only, it deliberately does not route
+                  anywhere while the Services landing page is being built. */}
+              <NavigationMenuTrigger className="bg-transparent px-0 font-medium text-zinc-500 hover:bg-transparent hover:text-zinc-900 data-[state=open]:bg-transparent data-[state=open]:text-zinc-900">
+                Services
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ServicesMegaMenu />
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <Link href="/portfolio" legacyBehavior passHref>
+                <NavigationMenuLink className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+                  Portfolio
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <Link href="/resources" legacyBehavior passHref>
+                <NavigationMenuLink className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+                  Resources
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <Link href="/contact" legacyBehavior passHref>
+                <NavigationMenuLink className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+                  Contact
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+
+      {/* Logo — exact centre column */}
+      <Link href="/" passHref className="justify-self-center flex items-center">
+        <Image src={navlogo || "/placeholder.svg"} alt="RestoRefine" width={25} height={25} />
       </Link>
-    </NavigationMenuLink>
+
+      {/* Right: CTAs + mobile trigger, right column */}
+      <div className="justify-self-end flex items-center gap-4">
+        <a
+          href={WHATSAPP_HREF}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat on WhatsApp"
+          className="hidden md:inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#25D366] transition-opacity hover:opacity-90"
+        >
+          <Image src="/whatsapp.svg" alt="" width={20} height={20} className="brightness-0 invert" />
+        </a>
+        <Button asChild className="hidden md:inline-flex items-center gap-2 rounded-full bg-red-600 text-white hover:bg-red-500 px-5">
+          <Link href="/enquire-now">
+            Enquire Now
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </Button>
+        <MobileMenu />
+      </div>
+    </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Navbar                                                               */
+/* Notched nav bar: the white bar with a straight top edge, rounded    */
+/* bottom corners, and tangent concave ears at both top sides so the   */
+/* backdrop it sits on curves smoothly into its edges. Positioned      */
+/* absolutely against the top of whatever relative panel contains it   */
+/* (the homepage hero, or the beige strip in the standalone header).   */
 /* ------------------------------------------------------------------ */
-export function Navbar() {
+const NOTCH_RADIUS = 24;
+
+function earMask(side: "left" | "right"): React.CSSProperties {
+  const corner = side === "left" ? "bottom left" : "bottom right";
+  const gradient = `radial-gradient(circle ${NOTCH_RADIUS}px at ${corner}, transparent ${NOTCH_RADIUS - 1}px, black ${NOTCH_RADIUS}px)`;
+  return { maskImage: gradient, WebkitMaskImage: gradient };
+}
+
+export function NotchNav({ shadow = false }: { shadow?: boolean }) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-b-black/10 text-sm font-medium">
-      <div className="flex h-20 px-4 md:px-8 items-center justify-between">
-        {/* Logo */}
-        <Link href="/" passHref>
+    <>
+      {/* Mobile: plain flush bar, no notch/ears, same as the pre-redesign header.
+          Simple two-item row (logo far left, menu trigger far right) instead of
+          reusing the desktop grid, which centred the logo oddly with nothing in
+          the left column. */}
+      <div className={cn("md:hidden absolute top-0 left-0 right-0 z-20 h-16 bg-white flex items-center justify-between px-4", shadow && "shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)]")}>
+        <Link href="/" className="flex items-center">
           <Image src={navlogo || "/placeholder.svg"} alt="RestoRefine" width={25} height={25} />
         </Link>
+        <MobileMenu />
+      </div>
 
-        {/* Nav links */}
-        <div className="ml-20 hidden md:block">
-          <div className="rounded-full border border-black/10 px-10 py-1">
-            <NavigationMenu>
-              <NavigationMenuList className="flex items-center gap-x-8">
+      {/* Desktop: notch carved into the backdrop it sits on */}
+      <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 z-20 w-[72%] md:w-[65%] h-[104px]">
+        {/* Junction ears */}
+        <div
+          className="absolute top-0 bg-white pointer-events-none"
+          style={{ left: -NOTCH_RADIUS, width: NOTCH_RADIUS, height: NOTCH_RADIUS, ...earMask("left") }}
+        />
+        <div
+          className="absolute top-0 bg-white pointer-events-none"
+          style={{ right: -NOTCH_RADIUS, width: NOTCH_RADIUS, height: NOTCH_RADIUS, ...earMask("right") }}
+        />
 
-                {/* Services mega-menu */}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent font-medium text-zinc-500 hover:bg-transparent hover:text-zinc-900 data-[state=open]:bg-transparent">
-                    <Link href="/services">Services</Link>
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="w-[680px] p-5 rounded-[24px] border border-black/10 bg-white shadow-xl">
-                      {/* 3-column pillar grid */}
-                      <div className="grid grid-cols-3 gap-5">
-                        {pillars.map((pillar) => (
-                          <PillarColumn key={pillar.id} pillar={pillar} />
-                        ))}
-                      </div>
-
-                      {/* Bottom bar */}
-                      <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
-                        <p className="text-[11px] text-zinc-400 font-medium">
-                          Everything your hospitality brand needs — under one roof.
-                        </p>
-                        <Link
-                          href="/services"
-                          className="flex items-center gap-1 text-[11px] font-black uppercase tracking-[0.15em] text-red-600 hover:text-red-500 transition-colors"
-                        >
-                          All Services <ArrowUpRight className="w-3 h-3" />
-                        </Link>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link href="/portfolio" legacyBehavior passHref>
-                    <NavigationMenuLink className="bg-transparent text-zinc-500 hover:bg-transparent hover:text-zinc-900">
-                      Portfolio
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link href="/resources" legacyBehavior passHref>
-                    <NavigationMenuLink className="bg-transparent text-zinc-500 hover:bg-transparent hover:text-zinc-900">
-                      Resources
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link href="/contact" legacyBehavior passHref>
-                    <NavigationMenuLink className="bg-transparent text-zinc-500 hover:bg-transparent hover:text-zinc-900">
-                      Contact
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
+        {/* Bar */}
+        <div
+          className={cn("relative h-full bg-white", shadow && "shadow-[0_16px_40px_-12px_rgba(0,0,0,0.12)]")}
+          style={{ borderBottomLeftRadius: NOTCH_RADIUS, borderBottomRightRadius: NOTCH_RADIUS }}
+        >
+          <NavBarContent height="h-[104px]" />
         </div>
+      </div>
+    </>
+  );
+}
 
-        {/* CTA + mobile trigger */}
-        <div className="bg-transparent border border-black/10 p-1 rounded-xl flex items-center space-x-0 md:space-x-2">
-          <a
-            href={WHATSAPP_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Chat on WhatsApp"
-            className="hidden md:inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          >
-            <Image src="/whatsapp.svg" alt="" width={16} height={16} className="brightness-0 invert" />
-            WhatsApp Us
-          </a>
-          <Button asChild className="hidden md:inline-flex relative rounded-lg border border-black/10 bg-zinc-900 text-white hover:bg-zinc-700">
-            <Link href="/enquire-now">Enquire Now</Link>
-          </Button>
-          <MobileMenu />
-        </div>
+/* ------------------------------------------------------------------ */
+/* Scroll-aware visibility: the fixed bar slides up out of view while  */
+/* scrolling down and slides back in on any upward scroll. On the      */
+/* homepage the hero has its own embedded notch nav at the top, so the */
+/* fixed bar additionally stays hidden until the hero is scrolled past */
+/* (otherwise the two navs would briefly stack on top of each other).  */
+/* ------------------------------------------------------------------ */
+function useNavVisibility(isHome: boolean) {
+  const [visible, setVisible] = React.useState(!isHome);
+
+  React.useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const goingDown = y > lastY + 4;
+      const goingUp = y < lastY - 4;
+      if (isHome) {
+        if (y < window.innerHeight * 0.6) setVisible(false);
+        else if (goingUp) setVisible(true);
+        else if (goingDown) setVisible(false);
+      } else {
+        if (y < 80) setVisible(true);
+        else if (goingDown) setVisible(false);
+        else if (goingUp) setVisible(true);
+      }
+      lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
+
+  return visible;
+}
+
+/* ------------------------------------------------------------------ */
+/* Navbar: fixed header on every page. The header itself has no        */
+/* background, so whatever the page looks like shows through around   */
+/* the bar; the bar's own white fill plus its shadow (desktop) give it */
+/* definition, instead of a full-width strip sitting behind it. On the */
+/* homepage it only appears when scrolling back up past the hero       */
+/* (whose own notch nav covers the top of the page).                   */
+/* ------------------------------------------------------------------ */
+export function Navbar() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const visible = useNavVisibility(isHome);
+
+  return (
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 text-sm font-medium transition-transform duration-300 ease-out",
+        !visible && "-translate-y-full",
+      )}
+    >
+      <div className="relative h-16 md:h-[104px]">
+        <NotchNav shadow />
       </div>
     </header>
   );

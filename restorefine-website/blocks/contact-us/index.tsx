@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail, MapPin } from "lucide-react";
+import { ArrowRight, Mail, MapPin, ArrowUpRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+
+const OFFICE_ADDRESS = "(Unit 54) 24 Fairley Street, Glasgow, G51 2SN, Scotland";
+const MAPS_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(OFFICE_ADDRESS)}&output=embed`;
+const MAPS_DIRECTIONS_HREF = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(OFFICE_ADDRESS)}`;
 
 export function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,7 +51,7 @@ export function ContactSection() {
   }
 
   return (
-    <section className="min-h-screen bg-white flex items-center px-6 md:px-12 lg:px-24 py-28 lg:py-20">
+    <section className="bg-white px-6 md:px-12 lg:px-24 pt-32 md:pt-40 lg:pt-44 pb-20 lg:pb-24">
       <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 lg:items-stretch">
 
         {/* ── LEFT: headline + info ── */}
@@ -59,7 +63,7 @@ export function ContactSection() {
             className="font-black text-zinc-950 tracking-tight"
             style={{ fontSize: "clamp(2.5rem, 5vw, 4.5rem)" }}
           >
-            <span className="block relative z-0 leading-none">
+            <span className="block relative z-0 leading-none uppercase">
               Let&apos;s Build Something
             </span>
             <span
@@ -168,6 +172,42 @@ export function ContactSection() {
           </form>
         </div>
 
+      </div>
+
+      {/* ── Map: horizontal landscape, pins the office location ── */}
+      <div className="max-w-7xl w-full mx-auto mt-16 lg:mt-24">
+        <div className="relative w-full aspect-[21/9] rounded-3xl overflow-hidden bg-zinc-100">
+          <iframe
+            src={MAPS_EMBED_SRC}
+            title="RestoRefine office location"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="absolute inset-0 w-full h-full border-0 grayscale-[15%]"
+          />
+
+          {/* Address card, floats over the map */}
+          <div className="absolute bottom-5 left-5 right-5 sm:right-auto sm:max-w-xs bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg p-5 flex items-start gap-3 pointer-events-none">
+            <span className="flex-shrink-0 w-9 h-9 rounded-full bg-red-600 flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-white" />
+            </span>
+            <div className="flex-1">
+              <p className="text-xs font-black uppercase tracking-wide text-zinc-900">RestoRefine Studio</p>
+              <p className="text-xs text-zinc-500 leading-relaxed mt-1">
+                (Unit 54) 24 Fairley Street
+                <br />
+                Glasgow, G51 2SN, Scotland
+              </p>
+              <a
+                href={MAPS_DIRECTIONS_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pointer-events-auto inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-500 transition-colors mt-2"
+              >
+                Get Directions <ArrowUpRight className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -11,9 +11,12 @@ function lerp(a: number, b: number, t: number) {
 interface Props {
   heading: ReactNode;
   body: string;
+  /** Optional labeled pill button (e.g. "Start the Conversation Now") in place of the plain arrow icon. */
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
-export function ExpandingCta({ heading, body }: Props) {
+export function ExpandingCta({ heading, body, ctaLabel, ctaHref = "/contact" }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -51,29 +54,52 @@ export function ExpandingCta({ heading, body }: Props) {
 
       {/* Full-screen fixed overlay — only rendered when active */}
       {progress > 0 && (
-        <Link
-          href="/contact"
-          className="fixed inset-0 z-[9999] bg-red-600 flex flex-col items-center justify-center"
-          style={{ clipPath }}
-        >
-          <div
-            className="flex flex-col items-center gap-6 text-center px-8"
-            style={{ opacity: contentOpacity }}
-          >
-            <h3
-              className="font-black text-white uppercase tracking-tight leading-[0.95] max-w-3xl"
-              style={{ fontSize: "clamp(2.8rem, 4.2vw, 4.6rem)" }}
-            >
-              {heading}
-            </h3>
-            <p className="text-white/75 text-base md:text-lg max-w-xl leading-relaxed">
-              {body}
-            </p>
-            <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-2 border-white flex items-center justify-center transition-colors duration-300 hover:bg-white group/btn">
-              <ArrowUpRight className="w-10 h-10 md:w-14 md:h-14 text-white group-hover/btn:text-red-600 transition-colors duration-300" strokeWidth={1.8} />
+        ctaLabel ? (
+          <div className="fixed inset-0 z-[9999] bg-red-600 flex flex-col items-center justify-center" style={{ clipPath }}>
+            <div className="flex flex-col items-center gap-6 text-center px-8" style={{ opacity: contentOpacity }}>
+              <h3
+                className="font-black text-white uppercase tracking-tight leading-[0.95] max-w-3xl"
+                style={{ fontSize: "clamp(2.8rem, 4.2vw, 4.6rem)" }}
+              >
+                {heading}
+              </h3>
+              <p className="text-white/75 text-base md:text-lg max-w-xl leading-relaxed">
+                {body}
+              </p>
+              <Link
+                href={ctaHref}
+                className="group inline-flex items-center gap-3 bg-zinc-950 hover:bg-zinc-900 transition-colors rounded-full px-8 py-4"
+              >
+                <span className="text-white font-semibold text-xs md:text-sm tracking-[0.2em] uppercase">{ctaLabel}</span>
+                <ArrowRight size={16} className="text-white group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
-        </Link>
+        ) : (
+          <Link
+            href={ctaHref}
+            className="fixed inset-0 z-[9999] bg-red-600 flex flex-col items-center justify-center"
+            style={{ clipPath }}
+          >
+            <div
+              className="flex flex-col items-center gap-6 text-center px-8"
+              style={{ opacity: contentOpacity }}
+            >
+              <h3
+                className="font-black text-white uppercase tracking-tight leading-[0.95] max-w-3xl"
+                style={{ fontSize: "clamp(2.8rem, 4.2vw, 4.6rem)" }}
+              >
+                {heading}
+              </h3>
+              <p className="text-white/75 text-base md:text-lg max-w-xl leading-relaxed">
+                {body}
+              </p>
+              <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-2 border-white flex items-center justify-center transition-colors duration-300 hover:bg-white group/btn">
+                <ArrowUpRight className="w-10 h-10 md:w-14 md:h-14 text-white group-hover/btn:text-red-600 transition-colors duration-300" strokeWidth={1.8} />
+              </div>
+            </div>
+          </Link>
+        )
       )}
     </>
   );

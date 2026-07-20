@@ -1,12 +1,15 @@
 import React from "react";
 import Hero from "./hero";
-import { FeaturedCaseStudy } from "./featured-case-study";
+import { GrowthProblem } from "./growth-problem";
+import { ClientSpotlight } from "./client-spotlight";
 import { Process } from "./process";
 import { Reviews } from "./reviews";
-import Cta from "@/components/cta";
 import { getEntry } from "@/lib/contentful";
-import ServicePillars from "./service-pillars";
+import { Framework } from "./framework";
+import { Industries } from "./industries";
+import { WhyWorkWithUs } from "./why-work-with-us";
 import { Founders } from "./founders";
+import { FinalCta } from "./final-cta";
 
 async function Resto() {
   const entry = await getEntry("4vS3xsxhN1eATw3l21K6ek");
@@ -86,12 +89,15 @@ async function Resto() {
   return (
     <main className="">
       <Hero />
-      <FeaturedCaseStudy />
+      <GrowthProblem />
+      <ClientSpotlight />
       <Process />
-      <ServicePillars />
+      <Framework />
+      <Industries />
+      <WhyWorkWithUs />
       <Reviews reviews={reviews} headline={clientReviewsHeadline} subtext={clientReviewsSubtext} />
       <Founders headline={founderHeadline} subtext={founderSubtext} founders={founders} />
-      <Cta />
+      <FinalCta />
     </main>
   );
 }

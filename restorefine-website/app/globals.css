@@ -517,3 +517,12 @@ body {
 .portfolio-intro-dot {
   animation: portfolioDot 1.2s ease-in-out infinite;
 }
+
+/* Hide scrollbars on horizontal swipe rows while keeping them scrollable */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -21,7 +21,7 @@ const quickLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
-const sectors = ["Restaurant Branding", "Bar & Pub Identity", "Hotel Digital Marketing", "Cafe & Bakery Design", "Food Truck Branding", "Fine Dining Identity", "Fast Casual Design"];
+const sectors = ["Hospitality & Restaurants", "Sport & Leisure", "Lifestyle Brands", "Professional Services"];
 
 const legal = [
   { name: "Privacy Policy", href: "/legal/privacy" },
@@ -59,7 +59,7 @@ export function Footer() {
             <Link href="/">
               <Image src="/restorefine-logowhite.svg" alt="RestoRefine" width={130} height={40} className="h-9 w-auto" />
             </Link>
-            <p className="text-zinc-400 text-sm leading-relaxed max-w-[210px]">The hospitality branding studio built for restaurants, bars, and food concepts.</p>
+            <p className="text-zinc-400 text-sm leading-relaxed max-w-[210px]">A creative growth agency for ambitious brands, built on strategy, branding, marketing, and digital experience.</p>
             <div className="flex flex-col gap-2 text-zinc-500 text-xs">
               <span className="flex items-start gap-2">
                 <MapPin size={12} className="mt-0.5 shrink-0 text-red-600" />
@@ -132,9 +132,9 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 5 — Sector Spotlight */}
+          {/* Col 5 — Specialisms */}
           <div>
-            <h3 className="text-white text-sm font-black tracking-[0.18em] uppercase mb-5">Sector Spotlight</h3>
+            <h3 className="text-white text-sm font-black tracking-[0.18em] uppercase mb-5">Specialisms</h3>
             <ul className="flex flex-col gap-2.5">
               {sectors.map((s) => (
                 <li key={s} className="flex items-center gap-2.5">
