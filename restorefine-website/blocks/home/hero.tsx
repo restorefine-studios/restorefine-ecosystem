@@ -1,24 +1,48 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { NotchNav } from "@/components/navbar";
 
+/* Only one <video> is ever mounted at a time: with both the desktop and
+ * mobile clips pointing at the same file, rendering them both (even one
+ * hidden via CSS) made the browser fetch the video twice on every load. */
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mql.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  return isDesktop;
+}
+
 export default function Hero() {
+  const isDesktop = useIsDesktop();
+
   return (
     <div className="relative w-screen ml-[calc(-50vw+50%)]">
       {/* Rounded panel, inset ~20px from the true viewport edges, clipping everything inside it */}
       <div className="relative mx-5 mt-5 mb-5 rounded-[28px] md:rounded-[32px] overflow-hidden min-h-[calc(100vh-2.5rem)] bg-white lg:bg-[#ecebe8]">
         {/* Desktop: full-bleed background video, shielded behind the text column */}
-        <video
-          className="absolute inset-0 z-0 hidden h-full w-full object-cover lg:block lg:left-[32%] lg:right-0 lg:w-[68%]"
-          src="/heroVideo.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          disablePictureInPicture
-          aria-hidden="true"
-          tabIndex={-1}
-        />
+        {isDesktop && (
+          <video
+            className="absolute inset-0 z-0 hidden h-full w-full object-cover lg:block lg:left-[32%] lg:right-0 lg:w-[68%]"
+            src="/heroVideo.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+        )}
         {/* Desktop: shield just the text column, leave the rest of the video clear */}
         <div
           className="absolute inset-0 z-0 hidden lg:block pointer-events-none"
@@ -79,19 +103,21 @@ export default function Hero() {
           <p className="rr-bottom text-zinc-400 text-[13px] leading-relaxed text-center mt-6">From hospitality and leisure to ambitious businesses across the UK, we bring strategy, brand, marketing, and digital experience together to create connected, sustainable growth.</p>
 
           {/* Video card: contained, portrait, in normal document flow */}
-          <div className="rr-bottom relative w-full aspect-[3/4] rounded-2xl overflow-hidden mt-6">
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              src="/heroVideo.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              disablePictureInPicture
-              aria-hidden="true"
-              tabIndex={-1}
-            />
+          <div className="rr-bottom relative w-full aspect-[3/4] rounded-2xl overflow-hidden mt-6 bg-zinc-100">
+            {isDesktop === false && (
+              <video
+                className="absolute inset-0 h-full w-full object-cover"
+                src="/heroVideo.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                disablePictureInPicture
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+            )}
           </div>
 
           <Link href="/enquire-now" className="rr-bottom inline-flex items-center justify-center gap-4 bg-red-600 hover:bg-red-500 transition-colors rounded-full px-7 py-4 group mt-6 self-center">
