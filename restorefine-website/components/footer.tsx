@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Instagram, Linkedin, MapPin, Mail } from "lucide-react";
+import { useCookieConsent } from "./cookie-consent-provider";
 
 const services = [
   { name: "Social Media Reels", href: "/services" },
@@ -44,6 +47,8 @@ const trustBadges = [
 ];
 
 export function Footer() {
+  const { openSettings } = useCookieConsent();
+
   return (
     <footer
       className="full-bleed mb-4 px-4 rounded-2xl relative overflow-hidden"
@@ -175,6 +180,9 @@ export function Footer() {
                 {l.name}
               </Link>
             ))}
+            <button onClick={openSettings} className="text-zinc-500 hover:text-zinc-300 text-[11px] transition-colors">
+              Cookie Settings
+            </button>
           </div>
 
           {/* Right — social icons */}

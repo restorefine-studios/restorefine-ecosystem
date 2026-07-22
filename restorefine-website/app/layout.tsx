@@ -7,8 +7,9 @@ import { AdNoticeModal } from "@/components/ad-notice-modal";
 import Image from "next/image";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
-import { GoogleAnalytics } from '@next/third-parties/google'
-import Script from "next/script";
+import { CookieConsentProvider } from "@/components/cookie-consent-provider";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { AnalyticsScripts } from "@/components/analytics-scripts";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -137,41 +138,26 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-        <Script id="clarity-script" strategy="afterInteractive">
-          {`(function(c,l,a,r,i,t,y){
-              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-          })(window, document, "clarity", "script", "x8w68zirez");`}
-        </Script>
       </head>
       <body className={`${inter.className} ${holiday.variable}`}>
-        <Navbar /> {children}
-        <AdNoticeModal />
-        <a
-          href={`https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat with RestoRefine Studios on WhatsApp"
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform duration-200 hover:scale-110 hover:shadow-xl"
-        >
-          <Image src="/whatsapp.svg" alt="WhatsApp" width={28} height={28} className="brightness-0 invert" />
-        </a>
-        <SpeedInsights />
-        <Analytics />
+        <CookieConsentProvider>
+          <Navbar /> {children}
+          <AdNoticeModal />
+          <a
+            href={`https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chat with RestoRefine Studios on WhatsApp"
+            className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform duration-200 hover:scale-110 hover:shadow-xl"
+          >
+            <Image src="/whatsapp.svg" alt="WhatsApp" width={28} height={28} className="brightness-0 invert" />
+          </a>
+          <SpeedInsights />
+          <Analytics />
+          <AnalyticsScripts />
+          <CookieConsentBanner />
+        </CookieConsentProvider>
       </body>
-    <GoogleAnalytics gaId="G-87QRBLHJXR" />
     </html>
   );
 }
-
-
-{/* <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-87QRBLHJXR"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-87QRBLHJXR');
-</script> */}

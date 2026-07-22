@@ -34,19 +34,24 @@ export default function CookiePolicy() {
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              <strong className="text-zinc-800">Essential cookies</strong> — required for the website to function correctly.
+              <strong className="text-zinc-800">Necessary cookies</strong> — required for the website to function correctly. We do not currently set any of these beyond what your browser needs to load the site.
             </li>
             <li>
-              <strong className="text-zinc-800">Analytics cookies</strong> — we use Google Analytics to understand site traffic and improve our content. This data is anonymised.
+              <strong className="text-zinc-800">Analytics cookies</strong> — Google Analytics and Microsoft Clarity, used to understand site traffic and improve our content. These only load if you select &ldquo;Accept All&rdquo; on our cookie banner.
             </li>
             <li>
-              <strong className="text-zinc-800">Performance cookies</strong> — Vercel Speed Insights and Analytics to monitor site performance.
+              <strong className="text-zinc-800">Performance monitoring</strong> — Vercel Speed Insights and Analytics, used to monitor site performance. These are cookieless and collect no personal data, so they run regardless of your cookie choice below.
             </li>
           </ul>
 
+          <h2 className="text-zinc-900 font-black uppercase tracking-tight text-lg mt-8">Your Choices</h2>
+          <p>
+            When you first visit our site, a banner lets you <strong className="text-zinc-800">Accept All</strong> or <strong className="text-zinc-800">Reject All</strong> analytics cookies. If you reject, Google Analytics and Microsoft Clarity will not load on your device. You can change your choice at any time using the &ldquo;Cookie Settings&rdquo; link in our website footer.
+          </p>
+
           <h2 className="text-zinc-900 font-black uppercase tracking-tight text-lg mt-8">Managing Cookies</h2>
           <p>
-            You can control and delete cookies through your browser settings. Disabling cookies may affect the functionality of certain parts of our website.
+            You can also control and delete cookies through your browser settings. Disabling cookies may affect the functionality of certain parts of our website.
           </p>
 
           <h2 className="text-zinc-900 font-black uppercase tracking-tight text-lg mt-8">Contact</h2>
@@ -57,7 +62,7 @@ export default function CookiePolicy() {
             </a>.
           </p>
 
-          <p className="text-zinc-400 text-xs mt-10">Last updated: April 2025</p>
+          <p className="text-zinc-400 text-xs mt-10">Last updated: July 2026</p>
         </div>
 
         <div className="mt-16 pt-8 border-t border-zinc-200">
