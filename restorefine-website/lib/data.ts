@@ -70,36 +70,30 @@ export const homeContent = {
   },
 
   framework: {
-    eyebrow: "The Framework",
+    eyebrow: "How We Create Growth",
     headline: {
-      prefix: "Four Disciplines.",
-      accent: "One System.",
+      prefix: "Three Disciplines.",
+      accent: "One Momentum.",
     },
-    intro: "Growth doesn't happen because one thing gets better. It happens when strategy, brand, marketing, and digital experience work together to create lasting momentum.",
+    intro: "Sustainable growth isn't built through isolated efforts. It comes from bringing brand, content, and performance together to create lasting momentum.",
     features: [
       {
-        title: "Strategy",
-        tagline: "Find direction before making decisions.",
-        description: "Every successful business starts with direction. We define your positioning, clarify your goals, and create the roadmap that guides every decision after.",
-        icon: "compass",
-      },
-      {
         title: "Brand",
-        tagline: "Build recognition people remember.",
-        description: "Your brand should do more than look good. We create identities, messaging, and creative systems that build recognition, trust, and long-term value.",
+        tagline: "Build a business people remember.",
+        description: "A strong brand does more than look good. It also creates recognition, builds trust, and gives every marketing effort a stronger foundation. From positioning and messaging to visual identity and creative direction, we build brands that grow with your business.",
         icon: "palette",
       },
       {
-        title: "Marketing",
-        tagline: "Turn visibility into demand.",
-        description: "Marketing works best when it's driven by strategy. From SEO and content to campaigns and local visibility, we create demand that compounds over time.",
-        icon: "trending",
+        title: "Content",
+        tagline: "Create value before you ask for attention.",
+        description: "Content is how your brand is experienced every day. Whether through search, social media, or SMM campaigns or storytelling through reels, TikToks, and more, we create content that builds visibility, earns trust, and keeps your business relevant long after the first impression.",
+        icon: "video",
       },
       {
-        title: "Digital Experience",
-        tagline: "Turn every interaction into momentum.",
-        description: "Your website should be more than a destination. We design digital experiences that convert visitors, support your customers, and evolve as your business grows.",
-        icon: "monitor",
+        title: "Performance",
+        tagline: "Turn attention into measurable growth.",
+        description: "Great marketing should produce results you can measure. Through SEO, paid media, conversion optimization, lead generation, CRM, and performance tracking, we help transform visibility into inquiries, customers, and sustainable business growth.",
+        icon: "trending",
       },
     ],
     poweredBy: {

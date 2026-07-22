@@ -2,16 +2,15 @@
 
 import { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent, type MotionValue } from "framer-motion";
-import { Compass, Palette, TrendingUp, MonitorSmartphone, Cpu, type LucideIcon } from "lucide-react";
+import { Palette, Video, TrendingUp, Cpu, type LucideIcon } from "lucide-react";
 import { homeContent } from "@/lib/data";
 
 const { eyebrow, headline, intro, features, poweredBy } = homeContent.framework;
 
 const iconMap: Record<string, LucideIcon> = {
-  compass: Compass,
   palette: Palette,
+  video: Video,
   trending: TrendingUp,
-  monitor: MonitorSmartphone,
 };
 
 /* Scroll choreography: each discipline owns a slice of the pinned scroll.
@@ -65,7 +64,7 @@ function Plate({ index, progress, isActive }: { index: number; progress: MotionV
   );
 }
 
-/* Dark foundation plate sitting under the four disciplines */
+/* Dark foundation plate sitting under the disciplines */
 function BasePlate() {
   return (
     <div className="absolute inset-0" style={{ transform: `translateZ(-${PLATE_GAP}px)` }}>
