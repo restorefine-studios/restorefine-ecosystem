@@ -63,6 +63,10 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [slugLocked, setSlugLocked] = useState(mode === "edit");
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  // The slug the DB row is actually keyed by right now — kept separate from
+  // form.slug (which the user can edit) so updates still find the row after
+  // a slug change, instead of querying for a slug that doesn't exist yet.
+  const [originalSlug, setOriginalSlug] = useState(initialData?.slug ?? "");
 
   const [form, setForm] = useState<BlogPost>(
     initialData ? { ...initialData, content: mergeBlocks(initialData.content) } : {
@@ -168,12 +172,12 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     update(field, publicUrl);
 
     // Auto-persist to DB immediately so it survives a page refresh
-    if (form.slug && mode === "edit") {
+    if (originalSlug && mode === "edit") {
       await supabase
         .from("blog_posts")
         .update({ [field]: publicUrl, updated_at: new Date().toISOString() })
-        .eq("slug", form.slug);
-      queryClient.invalidateQueries({ queryKey: ["post", form.slug] });
+        .eq("slug", originalSlug);
+      queryClient.invalidateQueries({ queryKey: ["post", originalSlug] });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       setSavedMsg("Image saved ✓");
     }
@@ -248,17 +252,24 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
         const { error } = await supabase.from("blog_posts").insert([payload]);
         if (error) throw new Error(error.message);
       } else {
-        const { error } = await supabase.from("blog_posts").update(payload).eq("slug", form.slug);
+        const { error } = await supabase.from("blog_posts").update(payload).eq("slug", originalSlug);
         if (error) throw new Error(error.message);
       }
       return { published: isPublished };
     },
     onSuccess: ({ published }) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      queryClient.invalidateQueries({ queryKey: ["post", form.slug] });
+      queryClient.invalidateQueries({ queryKey: ["post", originalSlug] });
+      if (form.slug !== originalSlug) queryClient.invalidateQueries({ queryKey: ["post", form.slug] });
       setSavedMsg(published ? "Published" : "Saved");
-      // Only redirect after creating a brand-new post
-      if (mode === "new") router.push(`/dashboard/${form.slug}`);
+      if (mode === "new") {
+        // Only redirect after creating a brand-new post
+        router.push(`/dashboard/${form.slug}`);
+      } else if (form.slug !== originalSlug) {
+        // Slug changed: the URL and our "current row" key must follow it
+        setOriginalSlug(form.slug);
+        router.replace(`/dashboard/${form.slug}`);
+      }
     },
     onError: (err) => alert("Save failed: " + err.message),
   });
@@ -273,7 +284,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const supabase = createClient();
-      const { error } = await supabase.from("blog_posts").delete().eq("slug", form.slug);
+      const { error } = await supabase.from("blog_posts").delete().eq("slug", originalSlug);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
