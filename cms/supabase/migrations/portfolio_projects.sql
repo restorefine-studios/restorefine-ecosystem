@@ -54,6 +54,16 @@ create policy "portfolio_projects public read published"
   on public.portfolio_projects for select
   using (published = true);
 
+-- NOTE ON SCOPE: the write policies below trust any authenticated user, matching
+-- how blog_posts already works. That is only safe while public sign-up is
+-- disabled, so confirm Authentication > Sign In / Providers > "Allow new users
+-- to sign up" is OFF in the Supabase dashboard. If you ever enable sign-ups,
+-- tighten these to a known account first, e.g.
+--
+--   using (auth.jwt() ->> 'email' = 'you@restorefine.co.uk')
+--
+-- otherwise anyone who registers can edit or delete published case studies.
+
 -- Signed-in CMS users may read everything, including drafts.
 drop policy if exists "portfolio_projects auth read all" on public.portfolio_projects;
 create policy "portfolio_projects auth read all"

@@ -60,6 +60,75 @@ export function buildUploadPath(folder: string, base: string, suffix: string, ex
   return `${folder}/${safeBase}${suffix}.${ext}`;
 }
 
+/** Elements that can execute or embed active content inside an SVG. */
+const SVG_FORBIDDEN_TAGS = new Set([
+  "script",
+  "foreignobject",
+  "iframe",
+  "embed",
+  "object",
+  "audio",
+  "video",
+  "handler",
+  "listener",
+]);
+
+function isUnsafeUrl(value: string) {
+  // Strip whitespace and control chars first: "java\nscript:" is still a URL
+  const cleaned = value.replace(/[\s\u0000-\u001F\u007F]/g, "").toLowerCase();
+  return cleaned.startsWith("javascript:") || cleaned.startsWith("data:text/html");
+}
+
+/**
+ * Strip active content from an SVG before it goes to storage.
+ *
+ * An SVG served from storage and opened directly is a document, not an image,
+ * so any script inside it would run on the storage origin. Uses the browser's
+ * own XML parser rather than regexes, so it sees the same tree an attacker
+ * would rely on. Static logo geometry is untouched.
+ *
+ * Returns null if the file doesn't parse as SVG, so the caller can reject it.
+ */
+export async function sanitizeSvg(file: File): Promise<Blob | null> {
+  const source = await file.text();
+  const doc = new DOMParser().parseFromString(source, "image/svg+xml");
+
+  const root = doc.documentElement;
+  // A parse failure yields a <parsererror> document rather than throwing
+  if (!root || root.localName.toLowerCase() !== "svg") return null;
+
+  // Walk the tree by hand. getElementsByTagName is unreliable on namespaced XML
+  // documents, and a sanitizer that silently matches nothing is worse than none.
+  const elements: Element[] = [];
+  const collect = (el: Element) => {
+    elements.push(el);
+    for (const child of Array.from(el.children)) collect(child);
+  };
+  collect(root);
+
+  for (const el of elements) {
+    if (SVG_FORBIDDEN_TAGS.has(el.localName.toLowerCase())) {
+      el.remove();
+      continue;
+    }
+    for (const attr of Array.from(el.attributes)) {
+      const name = attr.name.toLowerCase();
+      // Inline event handlers: onload, onclick, and friends
+      if (name.startsWith("on")) {
+        el.removeAttribute(attr.name);
+        continue;
+      }
+      const isUrlAttr = name === "href" || name === "src" || name.endsWith(":href");
+      if (isUrlAttr && isUnsafeUrl(attr.value)) {
+        el.removeAttribute(attr.name);
+      }
+    }
+  }
+
+  const cleaned = new XMLSerializer().serializeToString(doc);
+  return new Blob([cleaned], { type: "image/svg+xml" });
+}
+
 interface UploadOptions {
   file: File;
   /** Storage folder, e.g. "thumbnail", "hero", "card". */
@@ -74,8 +143,8 @@ interface UploadOptions {
 
 /**
  * Compress to WebP, upload to storage, and return the public URL.
- * SVGs are uploaded untouched: rasterising a logo to WebP would throw away
- * the very thing that makes it scale.
+ * SVGs skip compression, since rasterising a logo would throw away the very
+ * thing that makes it scale, but they are sanitized first.
  * Throws with the storage error message if the upload fails.
  */
 export async function uploadImage({
@@ -89,7 +158,15 @@ export async function uploadImage({
   const supabase = createClient();
   const isSvg = file.type === "image/svg+xml";
 
-  const payload = isSvg ? file : await compressImage(file, maxPx, quality).catch(() => file);
+  let payload: Blob;
+  if (isSvg) {
+    const cleaned = await sanitizeSvg(file);
+    if (!cleaned) throw new Error("That SVG could not be read. Try re-exporting it.");
+    payload = cleaned;
+  } else {
+    payload = await compressImage(file, maxPx, quality).catch(() => file);
+  }
+
   const path = buildUploadPath(folder, base, suffix, isSvg ? "svg" : "webp");
 
   const { error } = await supabase.storage
