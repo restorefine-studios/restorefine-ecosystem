@@ -21,15 +21,17 @@ export function ExpandingCta({ heading, body, ctaLabel, ctaHref = "/contact" }: 
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Amount of scroll needed to go from nothing to full screen
-    const SCROLL_RANGE = window.innerHeight * 0.6;
-
     const onScroll = () => {
       const el = sentinelRef.current;
       if (!el) return;
+      const vh = window.innerHeight;
+      // Hold off until the last section has scrolled clear of the viewport,
+      // so the red never creeps up over content that's still being read
+      const START_DELAY = vh * 0.55;
+      // Amount of scroll needed to go from nothing to full screen
+      const SCROLL_RANGE = vh * 0.55;
       const rect = el.getBoundingClientRect();
-      // Starts the moment the sentinel hits the bottom of the viewport
-      const scrolledPast = window.innerHeight - rect.top;
+      const scrolledPast = vh - rect.top - START_DELAY;
       const p = Math.max(0, Math.min(1, scrolledPast / SCROLL_RANGE));
       setProgress(p);
     };
@@ -39,20 +41,20 @@ export function ExpandingCta({ heading, body, ctaLabel, ctaHref = "/contact" }: 
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Red rises from the bottom — topInset goes 100→0 as you scroll
+  // Red rises from the bottom: topInset goes 100→0 as you scroll
   const topInset = lerp(100, 0, progress);
   const clipPath = `inset(${topInset}% 0% 0% 0%)`;
   const contentOpacity = Math.max(0, Math.min(1, (progress - 0.55) / 0.45));
 
   return (
     <>
-      {/* Zero-height sentinel — sits right after the last section */}
+      {/* Zero-height sentinel: sits right after the last section */}
       <div ref={sentinelRef} />
 
-      {/* Spacer gives the page enough scroll height for the animation to trigger */}
-      <div style={{ height: "70vh" }} aria-hidden="true" />
+      {/* Spacer gives the page enough scroll height for the delay + reveal to complete */}
+      <div style={{ height: "130vh" }} aria-hidden="true" />
 
-      {/* Full-screen fixed overlay — only rendered when active */}
+      {/* Full-screen fixed overlay: only rendered when active */}
       {progress > 0 && (
         ctaLabel ? (
           <div className="fixed inset-0 z-[9999] bg-red-600 flex flex-col items-center justify-center" style={{ clipPath }}>
