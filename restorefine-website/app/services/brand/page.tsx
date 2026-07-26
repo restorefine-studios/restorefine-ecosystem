@@ -1,5 +1,9 @@
+// Case-study strip pulls published CMS projects; ISR keeps the page static.
+export const revalidate = 300;
+
 import type { Metadata } from "next";
 import RBrand from "@/blocks/service/rbrand";
+import { getCmsCaseStudies } from "@/lib/portfolio-cms";
 
 export const metadata: Metadata = {
   title: "Brand | RestoRefine",
@@ -14,6 +18,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BrandPage() {
-  return <RBrand />;
+export default async function BrandPage() {
+  const caseStudies = await getCmsCaseStudies();
+  return <RBrand caseStudies={caseStudies} />;
 }

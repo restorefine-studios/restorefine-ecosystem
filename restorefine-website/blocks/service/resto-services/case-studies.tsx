@@ -16,6 +16,8 @@ interface CaseStudiesSectionProps {
   categories: string[];
   /** Limit how many items to show (default: all matching) */
   limit?: number;
+  /** CMS-published projects, merged ahead of the hardcoded list */
+  extraItems?: PortfolioItem[];
 }
 
 function CaseStudyCard({ item, index }: { item: PortfolioItem; index: number }) {
@@ -33,7 +35,10 @@ function CaseStudyCard({ item, index }: { item: PortfolioItem; index: number }) 
     >
       <Link href={`/portfolio/${item.id}`} className="group block">
         {/* Image */}
-        <div className={`relative rounded-2xl overflow-hidden ${item.cardBg ?? "bg-zinc-100"} ${isSvg ? "p-8" : ""}`} style={{ aspectRatio: "4/3" }}>
+        <div
+          className={`relative rounded-2xl overflow-hidden ${item.cardBgHex ? "" : item.cardBg ?? "bg-zinc-100"} ${isSvg ? "p-8" : ""}`}
+          style={{ aspectRatio: "4/3", ...(item.cardBgHex ? { backgroundColor: item.cardBgHex } : {}) }}
+        >
           <Image
             src={thumbnail || "/placeholder.svg"}
             alt={item.title}
@@ -71,10 +76,11 @@ export function CaseStudiesSection({
   sectionLabel = "Case Studies",
   categories,
   limit,
+  extraItems = [],
 }: CaseStudiesSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const items = portfolioItems
+  const items = [...extraItems, ...portfolioItems]
     .filter((p) => categories.includes(p.category) && p.thumbnail)
     .slice(0, limit);
 
@@ -136,7 +142,7 @@ export function CaseStudiesSection({
 
       </div>
 
-      {/* Scrollable strip — breaks out of max-width, first card aligns with header */}
+      {/* Scrollable strip: breaks out of max-width, first card aligns with header */}
       <div
         ref={scrollRef}
         className="flex gap-5 overflow-x-auto scroll-smooth pb-4 mt-10 pl-6 md:pl-12 lg:pl-24"

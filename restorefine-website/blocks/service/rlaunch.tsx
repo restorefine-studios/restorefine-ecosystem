@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Megaphone, Camera, Soup, TrendingUp, CheckCircle } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { CaseStudiesSection } from "./resto-services/case-studies";
+import type { PortfolioItem } from "@/lib/portfolio";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -217,7 +218,7 @@ function LaunchHero() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-function RLaunch() {
+function RLaunch({ caseStudies = [] }: { caseStudies?: PortfolioItem[] }) {
   return (
     <main className="bg-white">
       <LaunchHero />
@@ -226,7 +227,7 @@ function RLaunch() {
       <LaunchProcess />
       <LaunchDeliverables />
 
-      <CaseStudiesSection sectionNumber="05" sectionLabel="Case Studies" categories={["Media"]} />
+      <CaseStudiesSection sectionNumber="05" sectionLabel="Case Studies" categories={["Media"]} extraItems={caseStudies} />
 
       <Footer />
     </main>

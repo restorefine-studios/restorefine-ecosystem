@@ -25,6 +25,8 @@ import { PulpContent } from "@/blocks/portfolio/pulp-content";
 import { SpudKingzContent } from "@/blocks/portfolio/spudkingz-content";
 import { ZaCleaningContent } from "@/blocks/portfolio/za-cleaning-content";
 import { DayTodayContent } from "@/blocks/portfolio/day-today-content";
+import { CmsPortfolioContent } from "@/blocks/portfolio/cms-content";
+import type { PortfolioProject } from "@/lib/portfolio-cms";
 
 function getImageSrc(img: string | StaticImageData): string {
   if (typeof img === "string") return img;
@@ -36,9 +38,11 @@ interface PortfolioStoryClientProps {
   prevProject: PortfolioItem | null;
   nextProject: PortfolioItem | null;
   heroBg: string | StaticImageData;
+  /** Set when the project comes from the CMS rather than the hardcoded array. */
+  cmsProject?: PortfolioProject | null;
 }
 
-// Projects with hardcoded content blocks — skip Contentful-fetched description/challenge/outcome
+// Projects with hardcoded content blocks: skip Contentful-fetched description/challenge/outcome
 const CUSTOM_CONTENT_IDS = [
   "itspadel", "yewtreeinn", "primewash", "saladclub",
   "quiknest", "masala-moves-by-luna-shree", "big-bites", "everest-inn",
@@ -52,9 +56,11 @@ export function PortfolioStoryClient({
   prevProject,
   nextProject,
   heroBg,
+  cmsProject = null,
 }: PortfolioStoryClientProps) {
-  const hasCustomContent = CUSTOM_CONTENT_IDS.includes(project.id);
-  const isCleanHero = project.id === "za-cleaning" || project.id === "itspadel" || project.id === "masala-moves-by-luna-shree" || project.id === "day-today-tiktok-marketing-case-study";
+  // CMS projects always bring their own content block and use the clean hero
+  const hasCustomContent = !!cmsProject || CUSTOM_CONTENT_IDS.includes(project.id);
+  const isCleanHero = !!cmsProject || project.id === "za-cleaning" || project.id === "itspadel" || project.id === "masala-moves-by-luna-shree" || project.id === "day-today-tiktok-marketing-case-study";
   // Animation Variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 40 },
@@ -166,7 +172,7 @@ export function PortfolioStoryClient({
               >
                 {project.clientName}
               </motion.h2>
-              {/* Contentful-fetched description — hidden when hardcoded content block exists */}
+              {/* Contentful-fetched description: hidden when hardcoded content block exists */}
               {!hasCustomContent && (
                 <motion.p variants={fadeInUp} className="mt-4 text-zinc-500 text-sm md:text-base leading-relaxed max-w-xl">
                   {project.description}
@@ -181,6 +187,9 @@ export function PortfolioStoryClient({
             </motion.div>
           </div>
         </motion.div>}
+
+        {/* ── CMS-authored content ── */}
+        {cmsProject && <CmsPortfolioContent project={cmsProject} />}
 
         {/* ── Custom per-project content ── */}
         {project.id === "itspadel" && <ItsPadelContent />}
@@ -248,7 +257,9 @@ export function PortfolioStoryClient({
           </div>
         )}
 
-        {/* ── Image gallery ── */}
+        {/* ── Image gallery — skipped entirely when there are no assets, so the
+             "Project Assets" label never appears over an empty space ── */}
+        {project.images.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-20">
           <motion.p
             initial="hidden"
@@ -272,7 +283,7 @@ export function PortfolioStoryClient({
               >
                 <Image
                   src={image}
-                  alt={`${project.title} — ${index + 1}`}
+                  alt={`${project.title} ${index + 1}`}
                   fill
                   className="object-cover transition-transform duration-700 hover:scale-[1.02]"
                   sizes="(max-width: 768px) 100vw, (max-width: 1400px) 90vw, 1400px"
@@ -282,6 +293,7 @@ export function PortfolioStoryClient({
             ))}
           </div>
         </div>
+        )}
 
         {/* ── Outcome block — hidden when hardcoded content block exists ── */}
         {!hasCustomContent && project.outcome && (

@@ -2,12 +2,14 @@ import { MetadataRoute } from "next";
 import { portfolioItems } from "@/lib/portfolio";
 import { blogPosts } from "@/lib/blogContent";
 import { getSupaPosts } from "@/lib/supabase";
+import { getPortfolioProjects } from "@/lib/portfolio-cms";
 
 const BASE_URL = "https://www.restorefine.co.uk";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const supaPosts = await getSupaPosts();
+  const cmsProjects = await getPortfolioProjects();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -90,12 +92,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  const hardcodedSlugs = new Set(portfolioItems.map((item) => item.id));
+
   const portfolioRoutes: MetadataRoute.Sitemap = portfolioItems.map((item) => ({
     url: `${BASE_URL}/portfolio/${item.id}`,
     lastModified: now,
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
+
+  const cmsPortfolioRoutes: MetadataRoute.Sitemap = cmsProjects
+    // A hardcoded page of the same slug wins, so don't list the URL twice
+    .filter((p) => !p.noindex && !hardcodedSlugs.has(p.slug))
+    .map((p) => ({
+      url: `${BASE_URL}/portfolio/${p.slug}`,
+      lastModified: p.updated_at ? new Date(p.updated_at) : now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    }));
 
   const supaSlugSet = new Set(supaPosts.map((p) => p.slug));
 
@@ -118,5 +132,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-  return [...staticRoutes, ...portfolioRoutes, ...supaRoutes, ...blogRoutes];
+  return [...staticRoutes, ...portfolioRoutes, ...cmsPortfolioRoutes, ...supaRoutes, ...blogRoutes];
 }

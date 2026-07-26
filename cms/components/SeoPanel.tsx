@@ -3,8 +3,26 @@
 import { useMemo } from "react";
 import type { BlogPost, ContentBlock } from "@/lib/supabase";
 
+/**
+ * The subset of a post the analyser actually reads. Portfolio projects adapt
+ * themselves into this shape so both editors can share one SEO panel.
+ */
+export type SeoInput = Pick<
+  BlogPost,
+  | "title"
+  | "slug"
+  | "meta_title"
+  | "meta_description"
+  | "excerpt"
+  | "thumbnail"
+  | "thumbnail_alt"
+  | "noindex"
+  | "seo_keyphrase"
+  | "content"
+>;
+
 interface Props {
-  form: BlogPost;
+  form: SeoInput;
   onKeyphrase: (v: string) => void;
 }
 
@@ -36,7 +54,7 @@ function keyphraseRegex(kp: string) {
 type Status = "good" | "ok" | "bad";
 interface Check { label: string; status: Status; detail: string }
 
-function runSeoChecks(form: BlogPost, kp: string): { checks: Check[]; score: number } {
+function runSeoChecks(form: SeoInput, kp: string): { checks: Check[]; score: number } {
   const title = (form.meta_title || form.title || "").toLowerCase();
   const slug = (form.slug || "").toLowerCase();
   const metaDescription = (form.meta_description || form.excerpt || "").toLowerCase();
@@ -202,7 +220,7 @@ function runSeoChecks(form: BlogPost, kp: string): { checks: Check[]; score: num
   return { checks, score };
 }
 
-function runReadabilityChecks(form: BlogPost): { checks: Check[]; score: number } {
+function runReadabilityChecks(form: SeoInput): { checks: Check[]; score: number } {
   const blocks = (form.content || []) as unknown as { type: string; heading?: string; content?: string }[];
 
   const paragraphTexts = blocks

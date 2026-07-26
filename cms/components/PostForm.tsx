@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { createClient, type BlogPost, type ContentBlock } from "@/lib/supabase";
+import { uploadImage as uploadToStorage } from "@/lib/upload";
 import dynamic from "next/dynamic";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
@@ -21,7 +22,7 @@ function mergeBlocks(blocks: ContentBlock[]): ContentBlock[] {
   let i = 0;
   while (i < blocks.length) {
     const cur = blocks[i];
-    // Already a section or image — keep as-is
+    // Already a section or image: keep as-is
     if (cur.type === "section" || cur.type === "image") {
       out.push(cur);
       i++;
@@ -63,7 +64,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [slugLocked, setSlugLocked] = useState(mode === "edit");
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
-  // The slug the DB row is actually keyed by right now — kept separate from
+  // The slug the DB row is actually keyed by right now: kept separate from
   // form.slug (which the user can edit) so updates still find the row after
   // a slug change, instead of querying for a slug that doesn't exist yet.
   const [originalSlug, setOriginalSlug] = useState(initialData?.slug ?? "");
@@ -102,77 +103,31 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     }));
   }
 
-  function buildPath(folder: string, suffix: string, ext: string) {
-    const base = form.slug?.trim() || `upload-${Date.now()}`;
-    return `${folder}/${base}${suffix}.${ext}`;
-  }
-
-  /**
-   * Compress an image using the Canvas API.
-   * - Resizes so the longest side never exceeds `maxPx`.
-   * - Re-encodes as WebP at `quality` (0–1). Falls back to JPEG if WebP
-   *   is unsupported by the browser.
-   * - Returns a new File so the original is unchanged.
-   */
-  async function compressImage(file: File, maxPx = 2400, quality = 0.95): Promise<File> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        let { width, height } = img;
-        if (width > maxPx || height > maxPx) {
-          if (width >= height) {
-            height = Math.round((height / width) * maxPx);
-            width = maxPx;
-          } else {
-            width = Math.round((width / height) * maxPx);
-            height = maxPx;
-          }
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) { resolve(file); return; }
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-        ctx.drawImage(img, 0, 0, width, height);
-        const mimeType = "image/webp";
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) { resolve(file); return; }
-            const compressed = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: mimeType });
-            resolve(compressed);
-          },
-          mimeType,
-          quality,
-        );
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Image load failed")); };
-      img.src = url;
-    });
-  }
-
   async function uploadImage(file: File, setUploading: (v: boolean) => void, field: "thumbnail" | "author_image") {
     setUploading(true);
-    const supabase = createClient();
-    // Compress: thumbnails max 2400px, author images max 400px
-    const maxPx = field === "author_image" ? 400 : 2400;
-    const compressed = await compressImage(file, maxPx, 0.95).catch(() => file);
     const ts = Date.now();
-    const suffix = field === "author_image" ? `-author-${ts}` : `-${ts}`;
-    const path = buildPath(field, suffix, "webp");
-    const { error } = await supabase.storage.from("blog-images").upload(path, compressed, { upsert: true, contentType: "image/webp" });
-    if (error) { alert("Upload failed: " + error.message); setUploading(false); return; }
-    const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
-    const publicUrl = data.publicUrl;
+    let publicUrl: string;
+    try {
+      publicUrl = await uploadToStorage({
+        file,
+        folder: field,
+        base: form.slug?.trim() || "",
+        suffix: field === "author_image" ? `-author-${ts}` : `-${ts}`,
+        // Author images are shown at avatar size, thumbnails full width
+        maxPx: field === "author_image" ? 400 : 2400,
+      });
+    } catch (err) {
+      alert("Upload failed: " + (err as Error).message);
+      setUploading(false);
+      return;
+    }
 
     // Update local state
     update(field, publicUrl);
 
     // Auto-persist to DB immediately so it survives a page refresh
     if (originalSlug && mode === "edit") {
+      const supabase = createClient();
       await supabase
         .from("blog_posts")
         .update({ [field]: publicUrl, updated_at: new Date().toISOString() })
@@ -186,14 +141,18 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
   }
 
   async function uploadContentImage(file: File, index: number) {
-    const supabase = createClient();
-    // Compress content images to max 1800px wide at 0.95 quality
-    const compressed = await compressImage(file, 1800, 0.95).catch(() => file);
-    const path = buildPath("content", `-${index}-${Date.now()}`, "webp");
-    const { error } = await supabase.storage.from("blog-images").upload(path, compressed, { upsert: true, contentType: "image/webp" });
-    if (error) { alert("Upload failed: " + error.message); return; }
-    const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
-    updateBlock(index, { src: data.publicUrl } as Partial<ContentBlock>);
+    try {
+      const publicUrl = await uploadToStorage({
+        file,
+        folder: "content",
+        base: form.slug?.trim() || "",
+        suffix: `-${index}-${Date.now()}`,
+        maxPx: 1800,
+      });
+      updateBlock(index, { src: publicUrl } as Partial<ContentBlock>);
+    } catch (err) {
+      alert("Upload failed: " + (err as Error).message);
+    }
   }
 
   function addSection() {
@@ -264,11 +223,11 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
       setSavedMsg(published ? "Published" : "Saved");
       if (mode === "new") {
         // Only redirect after creating a brand-new post
-        router.push(`/dashboard/${form.slug}`);
+        router.push(`/dashboard/blogs/${form.slug}`);
       } else if (form.slug !== originalSlug) {
         // Slug changed: the URL and our "current row" key must follow it
         setOriginalSlug(form.slug);
-        router.replace(`/dashboard/${form.slug}`);
+        router.replace(`/dashboard/blogs/${form.slug}`);
       }
     },
     onError: (err) => alert("Save failed: " + err.message),
@@ -289,7 +248,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      router.push("/dashboard");
+      router.push("/dashboard/blogs");
     },
     onError: (err) => alert("Delete failed: " + err.message),
   });
@@ -459,7 +418,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             return (
               <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-50">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Feature List — Section {i + 1}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Feature List: Section {i + 1}</span>
                   <BlockControls i={i} total={form.content.length} onMove={moveBlock} onRemove={removeBlock} />
                 </div>
                 <div className="p-4 space-y-4">
@@ -528,7 +487,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             return (
               <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-50">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">FAQ — Section {i + 1}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">FAQ: Section {i + 1}</span>
                   <BlockControls i={i} total={form.content.length} onMove={moveBlock} onRemove={removeBlock} />
                 </div>
                 <div className="p-4 space-y-4">

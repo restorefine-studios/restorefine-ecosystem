@@ -6,6 +6,7 @@ import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { blogPosts } from "@/lib/blogContent";
 import { CaseStudiesSection } from "@/blocks/service/resto-services/case-studies";
+import type { PortfolioItem } from "@/lib/portfolio";
 import Cta from "@/components/cta";
 
 /* ─── Types ─────────────────────────────────────────────────────── */
@@ -323,7 +324,13 @@ function RelatedArticles({ slugs }: { slugs: string[] }) {
 
 /* ─── Main export ────────────────────────────────────────────────── */
 
-export default function PillarPage({ data }: { data: PillarPageData }) {
+export default function PillarPage({
+  data,
+  caseStudies = [],
+}: {
+  data: PillarPageData;
+  caseStudies?: PortfolioItem[];
+}) {
   return (
     <>
       <Hero data={data} />
@@ -334,6 +341,7 @@ export default function PillarPage({ data }: { data: PillarPageData }) {
         sectionNumber="04"
         sectionLabel="Case Studies"
         categories={data.caseStudyCategories}
+        extraItems={caseStudies}
       />
       <div className="px-6 md:px-12 lg:px-24">
         <Cta />

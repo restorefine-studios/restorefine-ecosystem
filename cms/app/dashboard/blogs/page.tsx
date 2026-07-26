@@ -40,7 +40,7 @@ export default function DashboardPage() {
           All Posts ({posts.length})
         </h2>
         <Link
-          href="/dashboard/new"
+          href="/dashboard/blogs/new"
           className="bg-gray-900 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-lg hover:bg-gray-700 transition"
         >
           + New Post
@@ -51,7 +51,7 @@ export default function DashboardPage() {
         <div className="border border-dashed border-gray-300 rounded-2xl p-16 text-center">
           <p className="text-gray-400 text-sm mb-4">No posts yet.</p>
           <Link
-            href="/dashboard/new"
+            href="/dashboard/blogs/new"
             className="text-xs font-bold uppercase tracking-widest text-white bg-gray-900 px-4 py-2 rounded-lg hover:bg-gray-700 transition"
           >
             Create your first post
@@ -62,7 +62,7 @@ export default function DashboardPage() {
           {posts.map((post) => (
             <Link
               key={post.id}
-              href={`/dashboard/${post.slug}`}
+              href={`/dashboard/blogs/${post.slug}`}
               className="group block bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md hover:border-gray-300 transition-all duration-200"
             >
               {/* Thumbnail */}

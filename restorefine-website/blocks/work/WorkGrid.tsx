@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
-interface ClientCard {
+export interface ClientCard {
   id: string;
   name: string;
   category: string;
@@ -13,7 +13,12 @@ interface ClientCard {
   logoType: "svg" | "png" | "webp";
   /** Tailwind gradient classes e.g. "from-emerald-900 to-teal-800" */
   cardColor?: string;
-  /** Portfolio slug — if set the card becomes a link */
+  /**
+   * Literal CSS colour for CMS-authored cards. Tailwind can't generate a class
+   * for a value it never sees at build time, so these get an inline background.
+   */
+  cardColorHex?: string;
+  /** Portfolio slug: if set the card becomes a link */
   portfolioId?: string;
   /** Use light overlay + dark text (for white/light-bg cards) */
   lightCard?: boolean;
@@ -72,18 +77,25 @@ function ClientCardInner({ client, gradient, colorClass, lightCard }: { client: 
 function ClientCard({ client }: { client: ClientCard }) {
   const gradient = client.cardColor ?? defaultGradient;
   const colorClass = categoryColors[client.category] ?? "bg-white/10 text-white/70 border-white/20";
-  const baseClass = `group relative rounded-2xl overflow-hidden bg-gradient-to-br ${gradient} border border-white/5`;
+  // A literal colour replaces the gradient entirely: otherwise the gradient
+  // background-image would paint straight over the inline background-color.
+  const hasHex = !!client.cardColorHex;
+  const baseClass = `group relative rounded-2xl overflow-hidden border border-white/5${hasHex ? "" : ` bg-gradient-to-br ${gradient}`}`;
+  const style: React.CSSProperties = {
+    aspectRatio: "3/4",
+    ...(hasHex ? { backgroundColor: client.cardColorHex } : {}),
+  };
 
   if (client.portfolioId) {
     return (
-      <Link href={`/portfolio/${client.portfolioId}`} className={`${baseClass} cursor-pointer block`} style={{ aspectRatio: "3/4" }}>
+      <Link href={`/portfolio/${client.portfolioId}`} className={`${baseClass} cursor-pointer block`} style={style}>
         <ClientCardInner client={client} gradient={gradient} colorClass={colorClass} lightCard={client.lightCard} />
       </Link>
     );
   }
 
   return (
-    <div className={`${baseClass} cursor-default`} style={{ aspectRatio: "3/4" }}>
+    <div className={`${baseClass} cursor-default`} style={style}>
       <ClientCardInner client={client} gradient={gradient} colorClass={colorClass} lightCard={client.lightCard} />
     </div>
   );
@@ -97,11 +109,14 @@ function splitIntoColumns(items: ClientCard[], numCols: number): ClientCard[][] 
 
 const columnDirections = ["down", "up", "down"] as const;
 
-export default function WorkGrid() {
+export default function WorkGrid({ extraClients = [] }: { extraClients?: ClientCard[] }) {
   const sectionRef = useRef<HTMLElement>(null);
 
-  const columns2 = splitIntoColumns(clients, 2);
-  const columns3 = splitIntoColumns(clients, 3);
+  // CMS-published projects lead, so the newest work is seen first
+  const allClients = extraClients.length ? [...extraClients, ...clients] : clients;
+
+  const columns2 = splitIntoColumns(allClients, 2);
+  const columns3 = splitIntoColumns(allClients, 3);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,

@@ -11,6 +11,7 @@ import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/footer";
 import { CaseStudiesSection } from "./resto-services/case-studies";
+import type { PortfolioItem } from "@/lib/portfolio";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -21,7 +22,7 @@ const fadeUp = {
   }),
 };
 
-function RMedia({ data }: { data: any }) {
+function RMedia({ data, caseStudies = [] }: { data: any; caseStudies?: PortfolioItem[] }) {
   return (
     <main className="bg-white">
       {/* Hero */}
@@ -140,6 +141,7 @@ function RMedia({ data }: { data: any }) {
         sectionNumber="04"
         sectionLabel="Case Studies"
         categories={["Media", "Branding"]}
+        extraItems={caseStudies}
       />
 
       {/* Signature marquee — commented out

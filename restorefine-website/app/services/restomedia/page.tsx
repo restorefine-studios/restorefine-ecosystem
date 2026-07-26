@@ -1,5 +1,9 @@
+// Case-study strip pulls published CMS projects; ISR keeps the page static.
+export const revalidate = 300;
+
 import type { Metadata } from "next";
 import RMedia from "@/blocks/service/rmedia";
+import { getCmsCaseStudies } from "@/lib/portfolio-cms";
 
 export const metadata: Metadata = {
   title: "RestoMedia — Restaurant Photography & Videography",
@@ -93,9 +97,10 @@ async function fetchMediaData() {
 
 export default async function RestoMedia() {
   const data = await fetchMediaData();
+  const caseStudies = await getCmsCaseStudies();
   return (
     <main>
-      <RMedia data={data} />
+      <RMedia data={data} caseStudies={caseStudies} />
     </main>
   );
 }

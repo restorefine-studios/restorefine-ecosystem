@@ -21,6 +21,12 @@ export interface PortfolioItem {
   outcome?: string;
   /** Background colour class for the thumbnail card (e.g. "bg-black") — used when thumbnail is a logo */
   cardBg?: string;
+  /**
+   * Literal CSS colour for CMS-authored projects. Tailwind can't generate a
+   * class for a value it never sees at build time, so these get an inline
+   * background instead of `cardBg`.
+   */
+  cardBgHex?: string;
 }
 
 export const portfolioItems: PortfolioItem[] = [

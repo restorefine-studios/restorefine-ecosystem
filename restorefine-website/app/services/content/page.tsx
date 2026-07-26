@@ -1,6 +1,10 @@
+// Case-study strip pulls published CMS projects; ISR keeps the page static.
+export const revalidate = 300;
+
 import type { Metadata } from "next";
 import PillarPage, { type PillarPageData } from "@/blocks/service/pillar-page";
 import { Footer } from "@/components/footer";
+import { getCmsCaseStudies } from "@/lib/portfolio-cms";
 
 export const metadata: Metadata = {
   title: "Content | RestoRefine",
@@ -92,10 +96,11 @@ const data: PillarPageData = {
   caseStudyCategories: ["Media", "Branding"],
 };
 
-export default function ContentPage() {
+export default async function ContentPage() {
+  const caseStudies = await getCmsCaseStudies();
   return (
     <main>
-      <PillarPage data={data} />
+      <PillarPage data={data} caseStudies={caseStudies} />
       <Footer />
     </main>
   );

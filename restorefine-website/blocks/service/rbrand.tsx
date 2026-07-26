@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { CaseStudiesSection } from "./resto-services/case-studies";
+import type { PortfolioItem } from "@/lib/portfolio";
 import { brandPillarContent } from "@/lib/pillar-content/brand-pillar";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
@@ -188,7 +189,7 @@ function BrandProcess() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-function RBrand() {
+function RBrand({ caseStudies = [] }: { caseStudies?: PortfolioItem[] }) {
   return (
     <main className="bg-white">
       <BrandHero />
@@ -196,7 +197,7 @@ function RBrand() {
       <BrandServices />
       <BrandProcess />
 
-      <CaseStudiesSection sectionNumber="04" sectionLabel="Case Studies" categories={["Branding", "Menus"]} />
+      <CaseStudiesSection sectionNumber="04" sectionLabel="Case Studies" categories={["Branding", "Menus"]} extraItems={caseStudies} />
 
       <Footer />
     </main>
