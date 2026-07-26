@@ -1,23 +1,13 @@
-import Link from "next/link";
+import { NotFoundScreen } from "@/components/not-found-screen";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black">
-      <div className="text-center">
-        <h2 className="mb-4 text-3xl font-bold text-white">
-          Project Not Found
-        </h2>
-        <p className="mb-8 text-white/60">
-          The project you&apos;re looking for doesn&apos;t exist or has been
-          removed.
-        </p>
-        <Link
-          href="/work"
-          className="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-opacity hover:opacity-90"
-        >
-          Back to Portfolio
-        </Link>
-      </div>
-    </div>
+    <NotFoundScreen
+      headingLead="This Project"
+      headingAccent="Went Missing"
+      body="We couldn't find that case study. It may have moved, or the link you followed might be out of date."
+      ctaLabel="Back to Portfolio"
+      ctaHref="/portfolio"
+    />
   );
 }
