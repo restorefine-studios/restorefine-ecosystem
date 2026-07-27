@@ -52,6 +52,27 @@ const websiteSchema = {
   url: BASE_URL,
 };
 
+const siteNavigationSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SiteNavigationElement",
+      name: "Brand",
+      url: `${BASE_URL}/services/brand`,
+    },
+    {
+      "@type": "SiteNavigationElement",
+      name: "Content",
+      url: `${BASE_URL}/services/content`,
+    },
+    {
+      "@type": "SiteNavigationElement",
+      name: "Performance",
+      url: `${BASE_URL}/services/performance`,
+    },
+  ],
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
@@ -138,6 +159,11 @@ export default function RootLayout({
           id="website-schema"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          id="site-navigation-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteNavigationSchema) }}
         />
       </head>
       <body className={`${inter.className} ${holiday.variable}`}>
