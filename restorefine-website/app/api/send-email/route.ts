@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { getMainServiceLabel, getServiceTypeLabel } from "@/blocks/enquire/service-options";
 
 export const runtime = "edge";
 
@@ -8,6 +9,8 @@ export async function POST(req: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const data = await req.json();
+    const mainServiceLabel = getMainServiceLabel(data.mainService);
+    const serviceTypeLabel = getServiceTypeLabel(data.mainService, data.serviceType);
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -65,7 +68,7 @@ export async function POST(req: Request) {
                     <span style="font-size:13px;color:#71717a;font-family:'Inter',Arial,sans-serif;">Service</span>
                   </td>
                   <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;text-align:right;">
-                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${data.mainService}</span>
+                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${mainServiceLabel}</span>
                   </td>
                 </tr>
                 <tr>
@@ -73,7 +76,7 @@ export async function POST(req: Request) {
                     <span style="font-size:13px;color:#71717a;font-family:'Inter',Arial,sans-serif;">Service Type</span>
                   </td>
                   <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;text-align:right;">
-                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${data.serviceType}</span>
+                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${serviceTypeLabel}</span>
                   </td>
                 </tr>
                 <tr>
@@ -180,13 +183,13 @@ export async function POST(req: Request) {
 </body>
 </html>`;
 
-    const text = `New Enquiry — RestoRefine\n\nService: ${data.mainService}\nService Type: ${data.serviceType}\nBudget: ${data.budget}\nTimeline: ${data.timeline}\n\nContact\n-------\nName:    ${data.name}\nEmail:   ${data.email}\nPhone:   ${data.phone}\nCompany: ${data.company}\n\nMessage:\n${data.message}`;
+    const text = `New Enquiry — RestoRefine\n\nService: ${mainServiceLabel}\nService Type: ${serviceTypeLabel}\nBudget: ${data.budget}\nTimeline: ${data.timeline}\n\nContact\n-------\nName:    ${data.name}\nEmail:   ${data.email}\nPhone:   ${data.phone}\nCompany: ${data.company}\n\nMessage:\n${data.message}`;
 
     const { data: emailData, error } = await resend.emails.send({
       from: `RestoRefine Enquiries <${process.env.RESEND_FROM_EMAIL}>`,
       to: process.env.RESEND_TO_EMAIL!,
       replyTo: data.email,
-      subject: `New Enquiry from ${data.name} — ${data.mainService}`,
+      subject: `New Enquiry from ${data.name} — ${mainServiceLabel}`,
       html,
       text,
     });

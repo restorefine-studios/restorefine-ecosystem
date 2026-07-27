@@ -2,6 +2,7 @@
 
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { useFormState } from "../../contact-form-context";
+import { getMainServiceLabel, getServiceTypeLabel } from "../../service-options";
 import Link from "next/link";
 
 export function StepSix() {
@@ -11,8 +12,8 @@ export function StepSix() {
   if (!submissionData) return null;
 
   const summaryItems = [
-    { label: "Service", value: state.mainService },
-    { label: "Type", value: state.serviceType },
+    { label: "Service", value: getMainServiceLabel(state.mainService) },
+    { label: "Type", value: getServiceTypeLabel(state.mainService, state.serviceType) },
     { label: "Budget", value: state.budget },
     {
       label: "Timeline",

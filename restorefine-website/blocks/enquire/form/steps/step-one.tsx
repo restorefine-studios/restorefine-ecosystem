@@ -1,15 +1,7 @@
 "use client";
 
 import { useFormState } from "../../contact-form-context";
-
-const serviceOptions = [
-  { id: "branding", title: "Branding", desc: "Logos, identity & strategy" },
-  { id: "web", title: "Web", desc: "Design, development & SEO" },
-  { id: "media", title: "Media", desc: "Photo, video & social" },
-  { id: "print", title: "Print", desc: "Menus, flyers & packaging" },
-  { id: "merch", title: "Merch", desc: "Apparel & promotional" },
-  { id: "pos", title: "POS", desc: "Software & setup" },
-];
+import { mainServiceOptions as serviceOptions } from "../../service-options";
 
 export function StepOne() {
   const { state, dispatch } = useFormState();
