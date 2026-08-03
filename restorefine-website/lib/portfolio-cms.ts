@@ -25,6 +25,12 @@ export interface FaqItem {
   answer: string;
 }
 
+export interface StatItem {
+  value: string;
+  label: string;
+  growth?: string;
+}
+
 interface SectionBase {
   enabled: boolean;
   label?: string;
@@ -37,21 +43,26 @@ export interface PortfolioSections {
   strategy: SectionBase & { groups: StrategyGroup[] };
   execution: SectionBase & { intro: string; items: string[] };
   results: SectionBase & { items: string[] };
+  stats: SectionBase & { items: StatItem[] };
   faq: SectionBase & { items: FaqItem[] };
 }
 
 export type SectionKey = keyof PortfolioSections;
 
-/** Fixed render order. Numbering and the table of contents derive from this. */
-export const SECTION_ORDER: SectionKey[] = [
+/** The full valid key set. Used for validation/normalization, not render order. */
+export const ALL_SECTION_KEYS: SectionKey[] = [
   "overview",
   "liveWebsite",
   "challenges",
   "strategy",
   "execution",
   "results",
+  "stats",
   "faq",
 ];
+
+/** Fallback order for rows saved before section_order existed. */
+export const DEFAULT_SECTION_ORDER: SectionKey[] = [...ALL_SECTION_KEYS];
 
 export const SECTION_LABELS: Record<SectionKey, string> = {
   overview: "Project Overview",
@@ -60,6 +71,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   strategy: "How We Solved It",
   execution: "Creative Execution",
   results: "Results",
+  stats: "Stats",
   faq: "FAQs",
 };
 
@@ -78,6 +90,7 @@ export interface PortfolioProject {
   card_bg: string;
   services: ServicePill[];
   sections: PortfolioSections;
+  section_order: SectionKey[];
   cta_heading: string;
   cta_body: string;
   meta_title: string;
@@ -100,6 +113,7 @@ const EMPTY_SECTIONS: PortfolioSections = {
   strategy: { enabled: false, groups: [] },
   execution: { enabled: false, intro: "", items: [] },
   results: { enabled: false, items: [] },
+  stats: { enabled: false, items: [] },
   faq: { enabled: false, items: [] },
 };
 
@@ -117,8 +131,19 @@ function normaliseSections(raw: unknown): PortfolioSections {
     strategy: { ...EMPTY_SECTIONS.strategy, ...(stored.strategy ?? {}) },
     execution: { ...EMPTY_SECTIONS.execution, ...(stored.execution ?? {}) },
     results: { ...EMPTY_SECTIONS.results, ...(stored.results ?? {}) },
+    stats: { ...EMPTY_SECTIONS.stats, ...(stored.stats ?? {}) },
     faq: { ...EMPTY_SECTIONS.faq, ...(stored.faq ?? {}) },
   };
+}
+
+/**
+ * Repairs a stored section_order: drops unknown keys, then appends any
+ * missing keys (e.g. "stats" on a row saved before it existed) at the end.
+ */
+function normaliseSectionOrder(raw: unknown): SectionKey[] {
+  const stored = Array.isArray(raw) ? (raw as SectionKey[]).filter((k) => ALL_SECTION_KEYS.includes(k)) : [];
+  const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
+  return [...stored, ...missing];
 }
 
 function hydrate(row: PortfolioProject): PortfolioProject {
@@ -126,6 +151,7 @@ function hydrate(row: PortfolioProject): PortfolioProject {
     ...row,
     services: Array.isArray(row.services) ? row.services : [],
     sections: normaliseSections(row.sections),
+    section_order: normaliseSectionOrder(row.section_order),
   };
 }
 
