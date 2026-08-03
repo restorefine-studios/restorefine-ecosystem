@@ -9,9 +9,9 @@ import { uploadImage as uploadToStorage } from "@/lib/upload";
 import {
   emptyProject,
   normaliseSections,
+  normaliseSectionOrder,
   PORTFOLIO_CATEGORIES,
   SECTION_LABELS,
-  ALL_SECTION_KEYS,
   type PortfolioProject,
   type PortfolioSections,
   type SectionKey,
@@ -71,6 +71,13 @@ function toSeoInput(form: PortfolioProject): SeoInput {
       content: s.results.items.join(". "),
     });
   }
+  if (s.stats.enabled) {
+    content.push({
+      type: "section",
+      heading: SECTION_LABELS.stats,
+      content: s.stats.items.map((i) => `${i.value} ${i.label} ${i.growth ?? ""}`).join(" "),
+    });
+  }
   if (s.faq.enabled) {
     content.push({ type: "faq", heading: SECTION_LABELS.faq, faqs: s.faq.items });
   }
@@ -105,7 +112,12 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
 
   const [form, setForm] = useState<PortfolioProject>(
     initialData
-      ? { ...initialData, services: initialData.services ?? [], sections: normaliseSections(initialData.sections) }
+      ? {
+          ...initialData,
+          services: initialData.services ?? [],
+          sections: normaliseSections(initialData.sections),
+          section_order: normaliseSectionOrder(initialData.section_order),
+        }
       : emptyProject()
   );
 
@@ -121,6 +133,18 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
         [key]: { ...prev.sections[key], ...patch },
       } as PortfolioSections,
     }));
+  }
+
+  function moveSection(key: SectionKey, direction: -1 | 1) {
+    setForm((prev) => {
+      const order = normaliseSectionOrder(prev.section_order);
+      const i = order.indexOf(key);
+      const j = i + direction;
+      if (j < 0 || j >= order.length) return prev;
+      const next = [...order];
+      [next[i], next[j]] = [next[j], next[i]];
+      return { ...prev, section_order: next };
+    });
   }
 
   function handleClientNameChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -249,14 +273,309 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
     return () => clearTimeout(t);
   }, [savedMsg]);
 
-  // Section numbers on the live page come from enabled sections only
-  const enabledOrder = ALL_SECTION_KEYS.filter((key) => form.sections[key].enabled);
+  // Section order and numbers are per-project now, not a fixed constant.
+  const sectionOrder = normaliseSectionOrder(form.section_order);
+  const enabledOrder = sectionOrder.filter((key) => form.sections[key].enabled);
   const sectionNumber = (key: SectionKey) => {
     const i = enabledOrder.indexOf(key);
     return i === -1 ? "--" : String(i + 1).padStart(2, "0");
   };
 
   const s = form.sections;
+
+  const sectionBodies: Record<SectionKey, React.ReactNode> = {
+    overview: (
+      <Field label="Overview Text">
+        <textarea
+          value={s.overview.body}
+          onChange={(e) => updateSection("overview", { body: e.target.value })}
+          rows={5}
+          placeholder="What the project set out to do, and what RestoRefine delivered."
+          className={inputCls}
+        />
+      </Field>
+    ),
+
+    liveWebsite: (
+      <>
+        <Field label="Website URL">
+          <input
+            value={s.liveWebsite.url}
+            onChange={(e) => updateSection("liveWebsite", { url: e.target.value })}
+            placeholder="https://www.itspadel.co.uk/"
+            className={inputCls}
+          />
+        </Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Domain">
+            <input
+              value={s.liveWebsite.domain}
+              onChange={(e) => updateSection("liveWebsite", { domain: e.target.value })}
+              placeholder="itspadel.co.uk"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Label">
+            <input
+              value={s.liveWebsite.linkLabel}
+              onChange={(e) => updateSection("liveWebsite", { linkLabel: e.target.value })}
+              placeholder="It's Padel"
+              className={inputCls}
+            />
+          </Field>
+        </div>
+      </>
+    ),
+
+    challenges: (
+      <>
+        <div className="space-y-3">
+          {s.challenges.items.map((item, i) => (
+            <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  Challenge {String(i + 1).padStart(2, "0")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateSection("challenges", { items: s.challenges.items.filter((_, j) => j !== i) })}
+                  className={removeBtnCls}
+                >
+                  Remove
+                </button>
+              </div>
+              <input
+                value={item.title}
+                onChange={(e) =>
+                  updateSection("challenges", {
+                    items: s.challenges.items.map((it, j) => (j === i ? { ...it, title: e.target.value } : it)),
+                  })
+                }
+                placeholder="Lack of a Consistent Brand Identity"
+                className={inputCls}
+              />
+              <textarea
+                value={item.description}
+                onChange={(e) =>
+                  updateSection("challenges", {
+                    items: s.challenges.items.map((it, j) => (j === i ? { ...it, description: e.target.value } : it)),
+                  })
+                }
+                rows={2}
+                placeholder="What the problem was, in one or two sentences."
+                className={inputCls}
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => updateSection("challenges", { items: [...s.challenges.items, { title: "", description: "" }] })}
+          className={addBtnCls}
+        >
+          + Add Challenge
+        </button>
+        <p className="text-[11px] text-gray-400">Four challenges fill the dark block evenly.</p>
+      </>
+    ),
+
+    strategy: (
+      <>
+        <div className="space-y-3">
+          {s.strategy.groups.map((group, i) => (
+            <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  Column {String(i + 1).padStart(2, "0")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateSection("strategy", { groups: s.strategy.groups.filter((_, j) => j !== i) })}
+                  className={removeBtnCls}
+                >
+                  Remove
+                </button>
+              </div>
+              <input
+                value={group.title}
+                onChange={(e) =>
+                  updateSection("strategy", {
+                    groups: s.strategy.groups.map((g, j) => (j === i ? { ...g, title: e.target.value } : g)),
+                  })
+                }
+                placeholder="Branding"
+                className={inputCls}
+              />
+              <StringList
+                items={group.items}
+                placeholder="Designed logo and brand guidelines"
+                addLabel="+ Add Bullet"
+                onChange={(items) =>
+                  updateSection("strategy", {
+                    groups: s.strategy.groups.map((g, j) => (j === i ? { ...g, items } : g)),
+                  })
+                }
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => updateSection("strategy", { groups: [...s.strategy.groups, { title: "", items: [""] }] })}
+          className={addBtnCls}
+        >
+          + Add Column
+        </button>
+        <p className="text-[11px] text-gray-400">Three columns match the It&apos;s Padel layout.</p>
+      </>
+    ),
+
+    execution: (
+      <>
+        <Field label="Intro Line">
+          <textarea
+            value={s.execution.intro}
+            onChange={(e) => updateSection("execution", { intro: e.target.value })}
+            rows={2}
+            placeholder="Our team produced a wide range of creative assets, including:"
+            className={inputCls}
+          />
+        </Field>
+        <Field label="Deliverables">
+          <StringList
+            items={s.execution.items}
+            placeholder="Logo and brand identity design"
+            addLabel="+ Add Deliverable"
+            onChange={(items) => updateSection("execution", { items })}
+          />
+        </Field>
+      </>
+    ),
+
+    results: (
+      <StringList
+        items={s.results.items}
+        placeholder="Increased social media engagement through strategic content"
+        addLabel="+ Add Result"
+        onChange={(items) => updateSection("results", { items })}
+      />
+    ),
+
+    stats: (
+      <>
+        <div className="space-y-3">
+          {s.stats.items.map((item, i) => (
+            <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                  Stat {String(i + 1).padStart(2, "0")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateSection("stats", { items: s.stats.items.filter((_, j) => j !== i) })}
+                  className={removeBtnCls}
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  value={item.value}
+                  onChange={(e) =>
+                    updateSection("stats", {
+                      items: s.stats.items.map((it, j) => (j === i ? { ...it, value: e.target.value } : it)),
+                    })
+                  }
+                  placeholder="315.78K"
+                  className={inputCls}
+                />
+                <input
+                  value={item.label}
+                  onChange={(e) =>
+                    updateSection("stats", {
+                      items: s.stats.items.map((it, j) => (j === i ? { ...it, label: e.target.value } : it)),
+                    })
+                  }
+                  placeholder="TOTAL IMPRESSIONS"
+                  className={inputCls}
+                />
+              </div>
+              <input
+                value={item.growth ?? ""}
+                onChange={(e) =>
+                  updateSection("stats", {
+                    items: s.stats.items.map((it, j) => (j === i ? { ...it, growth: e.target.value } : it)),
+                  })
+                }
+                placeholder="+44.98% Growth"
+                className={inputCls}
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => updateSection("stats", { items: [...s.stats.items, { value: "", label: "", growth: "" }] })}
+          className={addBtnCls}
+        >
+          + Add Stat
+        </button>
+        <p className="text-[11px] text-gray-400">
+          Growth is free text; start it with &quot;-&quot; to show it in red instead of green.
+        </p>
+      </>
+    ),
+
+    faq: (
+      <>
+        <div className="space-y-3">
+          {s.faq.items.map((item, i) => (
+            <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Question {i + 1}</span>
+                <button
+                  type="button"
+                  onClick={() => updateSection("faq", { items: s.faq.items.filter((_, j) => j !== i) })}
+                  className={removeBtnCls}
+                >
+                  Remove
+                </button>
+              </div>
+              <input
+                value={item.question}
+                onChange={(e) =>
+                  updateSection("faq", {
+                    items: s.faq.items.map((it, j) => (j === i ? { ...it, question: e.target.value } : it)),
+                  })
+                }
+                placeholder="Question"
+                className={inputCls}
+              />
+              <textarea
+                value={item.answer}
+                onChange={(e) =>
+                  updateSection("faq", {
+                    items: s.faq.items.map((it, j) => (j === i ? { ...it, answer: e.target.value } : it)),
+                  })
+                }
+                rows={3}
+                placeholder="Answer"
+                className={inputCls}
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => updateSection("faq", { items: [...s.faq.items, { question: "", answer: "" }] })}
+          className={addBtnCls}
+        >
+          + Add Question
+        </button>
+        <p className="text-[11px] text-gray-400">Published as FAQ schema so it can win rich results.</p>
+      </>
+    ),
+  };
 
   return (
     <>
@@ -480,269 +799,24 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
             <div>
               <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Case Study Sections</h3>
               <p className="text-[11px] text-gray-400 mt-1">
-                Fixed order. Switch off anything this client doesn&apos;t need: numbering and the sidebar
-                contents renumber automatically.
+                Use the arrows to reorder. Switch off anything this client doesn&apos;t need:
+                numbering and the sidebar contents renumber automatically.
               </p>
             </div>
 
-            {/* 01 Overview */}
-            <SectionPanel
-              num={sectionNumber("overview")}
-              label={SECTION_LABELS.overview}
-              enabled={s.overview.enabled}
-              onToggle={(enabled) => updateSection("overview", { enabled })}
-            >
-              <Field label="Overview Text">
-                <textarea
-                  value={s.overview.body}
-                  onChange={(e) => updateSection("overview", { body: e.target.value })}
-                  rows={5}
-                  placeholder="What the project set out to do, and what RestoRefine delivered."
-                  className={inputCls}
-                />
-              </Field>
-            </SectionPanel>
-
-            {/* 02 Live Website */}
-            <SectionPanel
-              num={sectionNumber("liveWebsite")}
-              label={SECTION_LABELS.liveWebsite}
-              enabled={s.liveWebsite.enabled}
-              onToggle={(enabled) => updateSection("liveWebsite", { enabled })}
-            >
-              <Field label="Website URL">
-                <input
-                  value={s.liveWebsite.url}
-                  onChange={(e) => updateSection("liveWebsite", { url: e.target.value })}
-                  placeholder="https://www.itspadel.co.uk/"
-                  className={inputCls}
-                />
-              </Field>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Domain">
-                  <input
-                    value={s.liveWebsite.domain}
-                    onChange={(e) => updateSection("liveWebsite", { domain: e.target.value })}
-                    placeholder="itspadel.co.uk"
-                    className={inputCls}
-                  />
-                </Field>
-                <Field label="Label">
-                  <input
-                    value={s.liveWebsite.linkLabel}
-                    onChange={(e) => updateSection("liveWebsite", { linkLabel: e.target.value })}
-                    placeholder="It's Padel"
-                    className={inputCls}
-                  />
-                </Field>
-              </div>
-            </SectionPanel>
-
-            {/* 03 Challenges */}
-            <SectionPanel
-              num={sectionNumber("challenges")}
-              label={SECTION_LABELS.challenges}
-              enabled={s.challenges.enabled}
-              onToggle={(enabled) => updateSection("challenges", { enabled })}
-            >
-              <div className="space-y-3">
-                {s.challenges.items.map((item, i) => (
-                  <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                        Challenge {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => updateSection("challenges", { items: s.challenges.items.filter((_, j) => j !== i) })}
-                        className={removeBtnCls}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <input
-                      value={item.title}
-                      onChange={(e) =>
-                        updateSection("challenges", {
-                          items: s.challenges.items.map((it, j) => (j === i ? { ...it, title: e.target.value } : it)),
-                        })
-                      }
-                      placeholder="Lack of a Consistent Brand Identity"
-                      className={inputCls}
-                    />
-                    <textarea
-                      value={item.description}
-                      onChange={(e) =>
-                        updateSection("challenges", {
-                          items: s.challenges.items.map((it, j) => (j === i ? { ...it, description: e.target.value } : it)),
-                        })
-                      }
-                      rows={2}
-                      placeholder="What the problem was, in one or two sentences."
-                      className={inputCls}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => updateSection("challenges", { items: [...s.challenges.items, { title: "", description: "" }] })}
-                className={addBtnCls}
+            {sectionOrder.map((key, i) => (
+              <SectionPanel
+                key={key}
+                num={sectionNumber(key)}
+                label={SECTION_LABELS[key]}
+                enabled={s[key].enabled}
+                onToggle={(enabled) => updateSection(key, { enabled })}
+                onMoveUp={i > 0 ? () => moveSection(key, -1) : undefined}
+                onMoveDown={i < sectionOrder.length - 1 ? () => moveSection(key, 1) : undefined}
               >
-                + Add Challenge
-              </button>
-              <p className="text-[11px] text-gray-400">Four challenges fill the dark block evenly.</p>
-            </SectionPanel>
-
-            {/* 04 Strategy */}
-            <SectionPanel
-              num={sectionNumber("strategy")}
-              label={SECTION_LABELS.strategy}
-              enabled={s.strategy.enabled}
-              onToggle={(enabled) => updateSection("strategy", { enabled })}
-            >
-              <div className="space-y-3">
-                {s.strategy.groups.map((group, i) => (
-                  <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                        Column {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => updateSection("strategy", { groups: s.strategy.groups.filter((_, j) => j !== i) })}
-                        className={removeBtnCls}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <input
-                      value={group.title}
-                      onChange={(e) =>
-                        updateSection("strategy", {
-                          groups: s.strategy.groups.map((g, j) => (j === i ? { ...g, title: e.target.value } : g)),
-                        })
-                      }
-                      placeholder="Branding"
-                      className={inputCls}
-                    />
-                    <StringList
-                      items={group.items}
-                      placeholder="Designed logo and brand guidelines"
-                      addLabel="+ Add Bullet"
-                      onChange={(items) =>
-                        updateSection("strategy", {
-                          groups: s.strategy.groups.map((g, j) => (j === i ? { ...g, items } : g)),
-                        })
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => updateSection("strategy", { groups: [...s.strategy.groups, { title: "", items: [""] }] })}
-                className={addBtnCls}
-              >
-                + Add Column
-              </button>
-              <p className="text-[11px] text-gray-400">Three columns match the It&apos;s Padel layout.</p>
-            </SectionPanel>
-
-            {/* 05 Creative Execution */}
-            <SectionPanel
-              num={sectionNumber("execution")}
-              label={SECTION_LABELS.execution}
-              enabled={s.execution.enabled}
-              onToggle={(enabled) => updateSection("execution", { enabled })}
-            >
-              <Field label="Intro Line">
-                <textarea
-                  value={s.execution.intro}
-                  onChange={(e) => updateSection("execution", { intro: e.target.value })}
-                  rows={2}
-                  placeholder="Our team produced a wide range of creative assets, including:"
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Deliverables">
-                <StringList
-                  items={s.execution.items}
-                  placeholder="Logo and brand identity design"
-                  addLabel="+ Add Deliverable"
-                  onChange={(items) => updateSection("execution", { items })}
-                />
-              </Field>
-            </SectionPanel>
-
-            {/* 06 Results */}
-            <SectionPanel
-              num={sectionNumber("results")}
-              label={SECTION_LABELS.results}
-              enabled={s.results.enabled}
-              onToggle={(enabled) => updateSection("results", { enabled })}
-            >
-              <StringList
-                items={s.results.items}
-                placeholder="Increased social media engagement through strategic content"
-                addLabel="+ Add Result"
-                onChange={(items) => updateSection("results", { items })}
-              />
-            </SectionPanel>
-
-            {/* 07 FAQs */}
-            <SectionPanel
-              num={sectionNumber("faq")}
-              label={SECTION_LABELS.faq}
-              enabled={s.faq.enabled}
-              onToggle={(enabled) => updateSection("faq", { enabled })}
-            >
-              <div className="space-y-3">
-                {s.faq.items.map((item, i) => (
-                  <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Question {i + 1}</span>
-                      <button
-                        type="button"
-                        onClick={() => updateSection("faq", { items: s.faq.items.filter((_, j) => j !== i) })}
-                        className={removeBtnCls}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <input
-                      value={item.question}
-                      onChange={(e) =>
-                        updateSection("faq", {
-                          items: s.faq.items.map((it, j) => (j === i ? { ...it, question: e.target.value } : it)),
-                        })
-                      }
-                      placeholder="Question"
-                      className={inputCls}
-                    />
-                    <textarea
-                      value={item.answer}
-                      onChange={(e) =>
-                        updateSection("faq", {
-                          items: s.faq.items.map((it, j) => (j === i ? { ...it, answer: e.target.value } : it)),
-                        })
-                      }
-                      rows={3}
-                      placeholder="Answer"
-                      className={inputCls}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => updateSection("faq", { items: [...s.faq.items, { question: "", answer: "" }] })}
-                className={addBtnCls}
-              >
-                + Add Question
-              </button>
-              <p className="text-[11px] text-gray-400">Published as FAQ schema so it can win rich results.</p>
-            </SectionPanel>
+                {sectionBodies[key]}
+              </SectionPanel>
+            ))}
           </section>
 
           {/* CTA */}
@@ -868,12 +942,16 @@ function SectionPanel({
   label,
   enabled,
   onToggle,
+  onMoveUp,
+  onMoveDown,
   children,
 }: {
   num: string;
   label: string;
   enabled: boolean;
   onToggle: (enabled: boolean) => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   children: React.ReactNode;
 }) {
   return (
@@ -885,18 +963,44 @@ function SectionPanel({
             {label}
           </span>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={enabled}
-          aria-label={`${enabled ? "Hide" : "Show"} ${label}`}
-          onClick={() => onToggle(!enabled)}
-          className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${enabled ? "bg-emerald-500" : "bg-gray-300"}`}
-        >
-          <span
-            className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0"}`}
-          />
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-0.5">
+            <button
+              type="button"
+              onClick={onMoveUp}
+              disabled={!onMoveUp}
+              aria-label={`Move ${label} up`}
+              className="w-5 h-4 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-200 disabled:opacity-25 disabled:hover:bg-transparent transition"
+            >
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 5.5L4 1.5L7 5.5" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={onMoveDown}
+              disabled={!onMoveDown}
+              aria-label={`Move ${label} down`}
+              className="w-5 h-4 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-200 disabled:opacity-25 disabled:hover:bg-transparent transition"
+            >
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 2.5L4 6.5L7 2.5" />
+              </svg>
+            </button>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={enabled}
+            aria-label={`${enabled ? "Hide" : "Show"} ${label}`}
+            onClick={() => onToggle(!enabled)}
+            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${enabled ? "bg-emerald-500" : "bg-gray-300"}`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0"}`}
+            />
+          </button>
+        </div>
       </div>
       {enabled && <div className="p-4 space-y-4">{children}</div>}
     </div>
