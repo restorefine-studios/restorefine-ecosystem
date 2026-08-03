@@ -140,7 +140,7 @@ function normaliseSections(raw: unknown): PortfolioSections {
  * Repairs a stored section_order: drops unknown keys, then appends any
  * missing keys (e.g. "stats" on a row saved before it existed) at the end.
  */
-function normaliseSectionOrder(raw: unknown): SectionKey[] {
+export function normaliseSectionOrder(raw: unknown): SectionKey[] {
   const stored = Array.isArray(raw) ? (raw as SectionKey[]).filter((k) => ALL_SECTION_KEYS.includes(k)) : [];
   const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
   return [...stored, ...missing];
