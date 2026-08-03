@@ -25,6 +25,15 @@ export interface FaqItem {
   answer: string;
 }
 
+export interface StatItem {
+  /** The big number, e.g. "315.78K". */
+  value: string;
+  /** The caption below it, e.g. "TOTAL IMPRESSIONS". */
+  label: string;
+  /** Free text delta, e.g. "+44.98% Growth". Color derives from a leading "-". */
+  growth?: string;
+}
+
 /** Every section carries an on/off switch and an overridable label. */
 interface SectionBase {
   enabled: boolean;
@@ -38,21 +47,26 @@ export interface PortfolioSections {
   strategy: SectionBase & { groups: StrategyGroup[] };
   execution: SectionBase & { intro: string; items: string[] };
   results: SectionBase & { items: string[] };
+  stats: SectionBase & { items: StatItem[] };
   faq: SectionBase & { items: FaqItem[] };
 }
 
 export type SectionKey = keyof PortfolioSections;
 
-/** Fixed render order. Numbering and the table of contents derive from this. */
-export const SECTION_ORDER: SectionKey[] = [
+/** The full valid key set. Used for validation/normalization, not render order. */
+export const ALL_SECTION_KEYS: SectionKey[] = [
   "overview",
   "liveWebsite",
   "challenges",
   "strategy",
   "execution",
   "results",
+  "stats",
   "faq",
 ];
+
+/** Initial order for new projects, and the fallback/backfill order for existing rows. */
+export const DEFAULT_SECTION_ORDER: SectionKey[] = [...ALL_SECTION_KEYS];
 
 /** Default heading shown for each section when the editor hasn't overridden it. */
 export const SECTION_LABELS: Record<SectionKey, string> = {
@@ -62,6 +76,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   strategy: "How We Solved It",
   execution: "Creative Execution",
   results: "Results",
+  stats: "Stats",
   faq: "FAQs",
 };
 
@@ -80,6 +95,7 @@ export interface PortfolioProject {
   card_bg: string;
   services: ServicePill[];
   sections: PortfolioSections;
+  section_order: SectionKey[];
   cta_heading: string;
   cta_body: string;
   meta_title: string;
@@ -99,6 +115,7 @@ export function emptySections(): PortfolioSections {
     strategy: { enabled: true, groups: [{ title: "", items: [""] }] },
     execution: { enabled: true, intro: "", items: [""] },
     results: { enabled: true, items: [""] },
+    stats: { enabled: false, items: [{ value: "", label: "", growth: "" }] },
     faq: { enabled: false, items: [{ question: "", answer: "" }] },
   };
 }
@@ -118,8 +135,19 @@ export function normaliseSections(raw: unknown): PortfolioSections {
     strategy: { ...base.strategy, ...(stored.strategy ?? {}) },
     execution: { ...base.execution, ...(stored.execution ?? {}) },
     results: { ...base.results, ...(stored.results ?? {}) },
+    stats: { ...base.stats, ...(stored.stats ?? {}) },
     faq: { ...base.faq, ...(stored.faq ?? {}) },
   };
+}
+
+/**
+ * Repairs a stored section_order: drops unknown keys, then appends any
+ * missing keys (e.g. "stats" on a row saved before it existed) at the end.
+ */
+export function normaliseSectionOrder(raw: unknown): SectionKey[] {
+  const stored = Array.isArray(raw) ? (raw as SectionKey[]).filter((k) => ALL_SECTION_KEYS.includes(k)) : [];
+  const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
+  return [...stored, ...missing];
 }
 
 export function emptyProject(): PortfolioProject {
@@ -137,6 +165,7 @@ export function emptyProject(): PortfolioProject {
     card_bg: "#000000",
     services: [],
     sections: emptySections(),
+    section_order: DEFAULT_SECTION_ORDER,
     cta_heading: "Ready to Elevate Your Brand?",
     cta_body: "Get in touch and let's build something exceptional together.",
     meta_title: "",
@@ -189,6 +218,7 @@ export async function fetchProject(slug: string): Promise<PortfolioProject> {
     ...row,
     services: Array.isArray(row.services) ? row.services : [],
     sections: normaliseSections(row.sections),
+    section_order: normaliseSectionOrder(row.section_order),
   };
 }
 

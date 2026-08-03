@@ -11,7 +11,7 @@ import {
   normaliseSections,
   PORTFOLIO_CATEGORIES,
   SECTION_LABELS,
-  SECTION_ORDER,
+  ALL_SECTION_KEYS,
   type PortfolioProject,
   type PortfolioSections,
   type SectionKey,
@@ -250,7 +250,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
   }, [savedMsg]);
 
   // Section numbers on the live page come from enabled sections only
-  const enabledOrder = SECTION_ORDER.filter((key) => form.sections[key].enabled);
+  const enabledOrder = ALL_SECTION_KEYS.filter((key) => form.sections[key].enabled);
   const sectionNumber = (key: SectionKey) => {
     const i = enabledOrder.indexOf(key);
     return i === -1 ? "--" : String(i + 1).padStart(2, "0");
