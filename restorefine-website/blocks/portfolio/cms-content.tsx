@@ -2,6 +2,7 @@ import * as LucideIcons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { PortfolioBrowserPreview } from "./portfolio-browser-preview";
 import { ExpandingCta } from "./expanding-cta";
+import { ChartTileRender } from "./chart-tile";
 import { TableOfContents, type TocItem } from "@/blocks/blog/toc";
 import { FaqAccordion } from "@/blocks/blog/faq-accordion";
 import { jsonLd } from "@/lib/utils";
@@ -21,7 +22,14 @@ const SECTION_IDS: Record<SectionKey, string> = {
   execution: "execution",
   results: "results",
   stats: "stats",
+  charts: "charts",
   faq: "faqs",
+};
+
+const CHART_GRID_COLS: Record<1 | 2 | 3, string> = {
+  1: "",
+  2: "md:grid-cols-2",
+  3: "md:grid-cols-3",
 };
 
 function LightHeader({ num, label }: { num: string; label: string }) {
@@ -58,6 +66,13 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         return s.results.items.some((r) => r.trim());
       case "stats":
         return s.stats.items.some((i) => i.value.trim() || i.label.trim());
+      case "charts":
+        return s.charts.items.some((t) =>
+          t.kind === "text"
+            ? !!t.heading?.trim() || (t.bullets ?? []).some((b) => b.lead.trim() || b.body.trim())
+            : (t.categories ?? []).some((c) => c.trim()) &&
+              (t.series ?? []).some((sr) => sr.name.trim() || sr.values.some((v) => v.trim()))
+        );
       case "faq":
         return s.faq.items.some((f) => f.question.trim() && f.answer.trim());
     }
@@ -86,6 +101,13 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         })),
       }
     : null;
+
+  const visibleChartTiles = s.charts.items.filter((t) =>
+    t.kind === "text"
+      ? !!t.heading?.trim() || (t.bullets ?? []).some((b) => b.lead.trim() || b.body.trim())
+      : (t.categories ?? []).some((c) => c.trim()) &&
+        (t.series ?? []).some((sr) => sr.name.trim() || sr.values.some((v) => v.trim()))
+  );
 
   const sectionBlocks: Record<SectionKey, React.ReactNode> = {
     overview: isVisible("overview") && (
@@ -244,6 +266,40 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
                 </div>
               );
             })}
+        </div>
+      </div>
+    ),
+
+    charts: isVisible("charts") && (
+      <div id={SECTION_IDS.charts} key="charts">
+        <LightHeader num={numberFor("charts")} label={labelFor("charts")} />
+        <div className={`grid grid-cols-1 gap-6 ${CHART_GRID_COLS[s.charts.columns] ?? CHART_GRID_COLS[2]}`}>
+          {visibleChartTiles.map((tile, i) =>
+            tile.kind === "text" ? (
+              <div key={i} className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6">
+                {tile.heading && (
+                  <p className="text-sm font-black uppercase text-zinc-900 mb-4">{tile.heading}</p>
+                )}
+                <ul className="space-y-3">
+                  {(tile.bullets ?? [])
+                    .filter((b) => b.lead.trim() || b.body.trim())
+                    .map((b, j) => (
+                      <li key={j} className="flex items-start gap-2 text-xs text-zinc-600 leading-relaxed">
+                        <span className="mt-1.5 w-1 h-1 rounded-full bg-red-600 shrink-0" />
+                        <span>
+                          <span className="font-bold text-zinc-900">{b.lead}:</span> {b.body}
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            ) : (
+              <div key={i} className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6">
+                {tile.title && <p className="text-sm font-bold text-zinc-900 mb-2">{tile.title}</p>}
+                <ChartTileRender tile={tile} />
+              </div>
+            )
+          )}
         </div>
       </div>
     ),
