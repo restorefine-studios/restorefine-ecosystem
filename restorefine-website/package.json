@@ -39,6 +39,7 @@
     "react-bubble-ui": "^1.1.2",
     "react-bubble-ui-v2": "0.1.2",
     "react-dom": "^18",
+    "recharts": "^2.15.0",
     "resend": "^4.0.1",
     "sanitize-html": "^2.17.4",
     "sharp": "^0.34.4",

@@ -31,6 +31,37 @@ export interface StatItem {
   growth?: string;
 }
 
+export interface ChartSeries {
+  name: string;
+  /** Ignored for pie charts, which auto-cycle DEFAULT_CHART_PALETTE per slice. */
+  color: string;
+  values: string[];
+}
+
+export interface ChartBullet {
+  lead: string;
+  body: string;
+}
+
+export interface ChartTile {
+  kind: "chart" | "text";
+
+  chartType?: "bar" | "line" | "pie" | "area";
+  orientation?: "vertical" | "horizontal";
+  title?: string;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+  showLegend?: boolean;
+  categories?: string[];
+  series?: ChartSeries[];
+
+  heading?: string;
+  bullets?: ChartBullet[];
+}
+
+/** Auto-assigned to new chart series, and cycled per-slice for pie charts. */
+export const DEFAULT_CHART_PALETTE = ["#dc2626", "#18181b", "#f59e0b", "#059669", "#2563eb", "#7c3aed"];
+
 interface SectionBase {
   enabled: boolean;
   label?: string;
@@ -44,6 +75,7 @@ export interface PortfolioSections {
   execution: SectionBase & { intro: string; items: string[] };
   results: SectionBase & { items: string[] };
   stats: SectionBase & { items: StatItem[] };
+  charts: SectionBase & { columns: 1 | 2 | 3; items: ChartTile[] };
   faq: SectionBase & { items: FaqItem[] };
 }
 
@@ -58,6 +90,7 @@ export const ALL_SECTION_KEYS: SectionKey[] = [
   "execution",
   "results",
   "stats",
+  "charts",
   "faq",
 ];
 
@@ -72,6 +105,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   execution: "Creative Execution",
   results: "Results",
   stats: "Stats",
+  charts: "Charts",
   faq: "FAQs",
 };
 
@@ -114,6 +148,7 @@ const EMPTY_SECTIONS: PortfolioSections = {
   execution: { enabled: false, intro: "", items: [] },
   results: { enabled: false, items: [] },
   stats: { enabled: false, items: [] },
+  charts: { enabled: false, columns: 2, items: [] },
   faq: { enabled: false, items: [] },
 };
 
@@ -132,13 +167,14 @@ function normaliseSections(raw: unknown): PortfolioSections {
     execution: { ...EMPTY_SECTIONS.execution, ...(stored.execution ?? {}) },
     results: { ...EMPTY_SECTIONS.results, ...(stored.results ?? {}) },
     stats: { ...EMPTY_SECTIONS.stats, ...(stored.stats ?? {}) },
+    charts: { ...EMPTY_SECTIONS.charts, ...(stored.charts ?? {}) },
     faq: { ...EMPTY_SECTIONS.faq, ...(stored.faq ?? {}) },
   };
 }
 
 /**
  * Repairs a stored section_order: drops unknown keys, then appends any
- * missing keys (e.g. "stats" on a row saved before it existed) at the end.
+ * missing keys (e.g. "charts" on a row saved before it existed) at the end.
  */
 export function normaliseSectionOrder(raw: unknown): SectionKey[] {
   const stored = Array.isArray(raw) ? (raw as SectionKey[]).filter((k) => ALL_SECTION_KEYS.includes(k)) : [];
