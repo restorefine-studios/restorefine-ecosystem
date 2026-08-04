@@ -12,6 +12,9 @@ import {
   normaliseSectionOrder,
   PORTFOLIO_CATEGORIES,
   SECTION_LABELS,
+  DEFAULT_CHART_PALETTE,
+  type ChartSeries,
+  type ChartTile,
   type PortfolioProject,
   type PortfolioSections,
   type SectionKey,
@@ -21,6 +24,7 @@ import type { SeoInput } from "./SeoPanel";
 
 const SeoPanel = dynamic(() => import("./SeoPanel"), { ssr: false });
 const IconPicker = dynamic(() => import("./IconPicker"), { ssr: false });
+const ChartPreview = dynamic(() => import("./ChartPreview").then((m) => m.ChartPreview), { ssr: false });
 
 interface PortfolioFormProps {
   initialData?: PortfolioProject;
@@ -77,6 +81,16 @@ function toSeoInput(form: PortfolioProject): SeoInput {
       heading: SECTION_LABELS.stats,
       content: s.stats.items.map((i) => `${i.value} ${i.label} ${i.growth ?? ""}`).join(" "),
     });
+  }
+  if (s.charts.enabled) {
+    const chartText = s.charts.items
+      .map((t) =>
+        t.kind === "text"
+          ? `${t.heading ?? ""} ${(t.bullets ?? []).map((b) => `${b.lead}. ${b.body}`).join(" ")}`
+          : `${t.title ?? ""} ${(t.categories ?? []).join(" ")}`
+      )
+      .join(" ");
+    content.push({ type: "section", heading: SECTION_LABELS.charts, content: chartText });
   }
   if (s.faq.enabled) {
     content.push({ type: "faq", heading: SECTION_LABELS.faq, faqs: s.faq.items });
@@ -156,7 +170,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
     }));
   }
 
-  // ── Uploads ────────────────────────────────────────────────────────────────
+  // -- Uploads --
 
   async function handleUpload(file: File, kind: "hero" | "card") {
     const isHero = kind === "hero";
@@ -191,13 +205,13 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
         .eq("slug", originalSlug);
       queryClient.invalidateQueries({ queryKey: ["project", originalSlug] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      setSavedMsg("Image saved ✓");
+      setSavedMsg("Image saved OK");
     }
 
     setUploading(false);
   }
 
-  // ── Services ───────────────────────────────────────────────────────────────
+  // -- Services --
 
   function updateService(index: number, patch: Partial<ServicePill>) {
     setForm((prev) => ({
@@ -214,7 +228,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
     setForm((prev) => ({ ...prev, services: prev.services.filter((_, i) => i !== index) }));
   }
 
-  // ── Save / delete ──────────────────────────────────────────────────────────
+  // -- Save / delete --
 
   const saveMutation = useMutation({
     mutationFn: async (publish?: boolean) => {
@@ -282,6 +296,12 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
   };
 
   const s = form.sections;
+
+  function updateChartTile(tileIndex: number, patch: Partial<ChartTile>) {
+    updateSection("charts", {
+      items: s.charts.items.map((t, j) => (j === tileIndex ? { ...t, ...patch } : t)),
+    });
+  }
 
   const sectionBodies: Record<SectionKey, React.ReactNode> = {
     overview: (
@@ -521,7 +541,110 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           + Add Stat
         </button>
         <p className="text-[11px] text-gray-400">
-          Growth is free text; start it with &quot;-&quot; to show it in red instead of green.
+          Growth is free text; start it with "-" to show it in red instead of green.
+        </p>
+      </>
+    ),
+
+    charts: (
+      <>
+        <Field label="Grid Columns">
+          <div className="flex gap-2">
+            {([1, 2, 3] as const).map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => updateSection("charts", { columns: n })}
+                className={`px-4 py-2 rounded-lg border text-xs font-bold uppercase tracking-widest transition ${
+                  s.charts.columns === n
+                    ? "border-gray-900 bg-gray-900 text-white"
+                    : "border-gray-200 text-gray-500 hover:border-gray-400"
+                }`}
+              >
+                {n} Column{n > 1 ? "s" : ""}
+              </button>
+            ))}
+          </div>
+        </Field>
+
+        <div className="space-y-4">
+          {s.charts.items.map((tile, i) => (
+            <div key={i} className="border border-gray-100 rounded-xl p-4 space-y-3 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => updateChartTile(i, { kind: "chart" })}
+                    className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition ${
+                      tile.kind === "chart" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-500"
+                    }`}
+                  >
+                    Chart
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateChartTile(i, { kind: "text" })}
+                    className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition ${
+                      tile.kind === "text" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-500"
+                    }`}
+                  >
+                    Text Card
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateSection("charts", { items: s.charts.items.filter((_, j) => j !== i) })}
+                  className={removeBtnCls}
+                >
+                  Remove Tile
+                </button>
+              </div>
+
+              <ChartOrTextTile tile={tile} onChange={(patch) => updateChartTile(i, patch)} />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              updateSection("charts", {
+                items: [
+                  ...s.charts.items,
+                  {
+                    kind: "chart",
+                    chartType: "bar",
+                    orientation: "vertical",
+                    title: "",
+                    xAxisLabel: "",
+                    yAxisLabel: "",
+                    showLegend: true,
+                    categories: [""],
+                    series: [{ name: "", color: DEFAULT_CHART_PALETTE[0], values: [""] }],
+                  },
+                ],
+              })
+            }
+            className={addBtnCls}
+          >
+            + Add Chart
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              updateSection("charts", {
+                items: [...s.charts.items, { kind: "text", heading: "", bullets: [{ lead: "", body: "" }] }],
+              })
+            }
+            className={addBtnCls}
+          >
+            + Add Text Card
+          </button>
+        </div>
+        <p className="text-[11px] text-gray-400">
+          Pie charts use one series (categories become slices); other chart types support any
+          number of series.
         </p>
       </>
     ),
@@ -580,7 +703,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
   return (
     <>
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-8 items-start">
-        {/* ── Left: form ── */}
+        {/* -- Left: form -- */}
         <div className="space-y-6">
 
           {/* Project details */}
@@ -794,7 +917,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
             <button type="button" onClick={addService} className={addBtnCls}>+ Add Service</button>
           </section>
 
-          {/* ── Case study sections ── */}
+          {/* -- Case study sections -- */}
           <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
             <div>
               <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Case Study Sections</h3>
@@ -886,13 +1009,13 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           </section>
         </div>
 
-        {/* ── Right: SEO panel ── */}
+        {/* -- Right: SEO panel -- */}
         <div className="hidden xl:block sticky top-6 self-start max-h-[calc(100vh-5rem)] overflow-y-auto pr-1 scrollbar-thin">
           <SeoPanel form={toSeoInput(form)} onKeyphrase={(v) => update("seo_keyphrase", v)} />
         </div>
       </div>
 
-      {/* ── Actions — fixed bottom bar ── */}
+      {/* -- Actions - fixed bottom bar -- */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-200">
         <div className="max-w-screen-2xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -935,7 +1058,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
   );
 }
 
-// ── Sub-components ───────────────────────────────────────────────────────────
+// -- Sub-components --
 
 function SectionPanel({
   num,
@@ -1044,6 +1167,263 @@ function StringList({
       <button type="button" onClick={() => onChange([...items, ""])} className={addBtnCls}>
         {addLabel}
       </button>
+    </div>
+  );
+}
+
+/** Routes a charts-section tile to its chart config editor or its text card editor. */
+function ChartOrTextTile({
+  tile,
+  onChange,
+}: {
+  tile: ChartTile;
+  onChange: (patch: Partial<ChartTile>) => void;
+}) {
+  if (tile.kind === "text") {
+    const bullets = tile.bullets ?? [];
+    return (
+      <div className="space-y-3">
+        <Field label="Heading">
+          <input
+            value={tile.heading ?? ""}
+            onChange={(e) => onChange({ heading: e.target.value })}
+            placeholder="Audience Demographics & Geography"
+            className={inputCls}
+          />
+        </Field>
+        <div className="space-y-2">
+          {bullets.map((b, i) => (
+            <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-white">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Bullet {i + 1}</span>
+                <button
+                  type="button"
+                  onClick={() => onChange({ bullets: bullets.filter((_, j) => j !== i) })}
+                  className={removeBtnCls}
+                >
+                  Remove
+                </button>
+              </div>
+              <input
+                value={b.lead}
+                onChange={(e) => onChange({ bullets: bullets.map((bb, j) => (j === i ? { ...bb, lead: e.target.value } : bb)) })}
+                placeholder="Geographic Dominance"
+                className={inputCls}
+              />
+              <textarea
+                value={b.body}
+                onChange={(e) => onChange({ bullets: bullets.map((bb, j) => (j === i ? { ...bb, body: e.target.value } : bb)) })}
+                rows={2}
+                placeholder="92.17% of overall audience is located in the UK."
+                className={inputCls}
+              />
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => onChange({ bullets: [...bullets, { lead: "", body: "" }] })}
+          className={addBtnCls}
+        >
+          + Add Bullet
+        </button>
+      </div>
+    );
+  }
+  return <ChartTileEditor tile={tile} onChange={onChange} />;
+}
+
+/** Chart-type-specific fields plus the category/series spreadsheet editor and live preview. */
+function ChartTileEditor({
+  tile,
+  onChange,
+}: {
+  tile: ChartTile;
+  onChange: (patch: Partial<ChartTile>) => void;
+}) {
+  const categories = tile.categories ?? [];
+  const series = tile.series ?? [];
+  const isPie = tile.chartType === "pie";
+  const isBar = tile.chartType === "bar";
+
+  function addCategory() {
+    onChange({
+      categories: [...categories, ""],
+      series: series.map((sr) => ({ ...sr, values: [...sr.values, ""] })),
+    });
+  }
+  function removeCategory(i: number) {
+    onChange({
+      categories: categories.filter((_, j) => j !== i),
+      series: series.map((sr) => ({ ...sr, values: sr.values.filter((_, j) => j !== i) })),
+    });
+  }
+  function updateCategory(i: number, value: string) {
+    onChange({ categories: categories.map((c, j) => (j === i ? value : c)) });
+  }
+  function addSeries() {
+    const color = DEFAULT_CHART_PALETTE[series.length % DEFAULT_CHART_PALETTE.length];
+    onChange({ series: [...series, { name: "", color, values: categories.map(() => "") }] });
+  }
+  function removeSeries(i: number) {
+    onChange({ series: series.filter((_, j) => j !== i) });
+  }
+  function updateSeries(i: number, patch: Partial<ChartSeries>) {
+    onChange({ series: series.map((sr, j) => (j === i ? { ...sr, ...patch } : sr)) });
+  }
+  function updateValue(seriesIndex: number, catIndex: number, value: string) {
+    onChange({
+      series: series.map((sr, j) =>
+        j === seriesIndex ? { ...sr, values: sr.values.map((v, k) => (k === catIndex ? value : v)) } : sr
+      ),
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Chart Type">
+          <select
+            value={tile.chartType ?? "bar"}
+            onChange={(e) => onChange({ chartType: e.target.value as ChartTile["chartType"] })}
+            className={inputCls}
+          >
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+            <option value="area">Area</option>
+            <option value="pie">Pie / Donut</option>
+          </select>
+        </Field>
+        {isBar && (
+          <Field label="Orientation">
+            <select
+              value={tile.orientation ?? "vertical"}
+              onChange={(e) => onChange({ orientation: e.target.value as ChartTile["orientation"] })}
+              className={inputCls}
+            >
+              <option value="vertical">Vertical</option>
+              <option value="horizontal">Horizontal</option>
+            </select>
+          </Field>
+        )}
+      </div>
+
+      <Field label="Chart Title">
+        <input
+          value={tile.title ?? ""}
+          onChange={(e) => onChange({ title: e.target.value })}
+          placeholder="Cross-Platform Performance Breakdown"
+          className={inputCls}
+        />
+      </Field>
+
+      {!isPie && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="X Axis Label">
+            <input
+              value={tile.xAxisLabel ?? ""}
+              onChange={(e) => onChange({ xAxisLabel: e.target.value })}
+              placeholder="Platform"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Y Axis Label">
+            <input
+              value={tile.yAxisLabel ?? ""}
+              onChange={(e) => onChange({ yAxisLabel: e.target.value })}
+              placeholder="Impressions (%)"
+              className={inputCls}
+            />
+          </Field>
+        </div>
+      )}
+
+      <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={tile.showLegend ?? true}
+          onChange={(e) => onChange({ showLegend: e.target.checked })}
+          className="w-4 h-4 rounded border-gray-300"
+        />
+        Show legend
+      </label>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr>
+              <th className="text-left p-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                {isPie ? "Slice" : "Category"}
+              </th>
+              {series.map((sr, si) => (
+                <th key={si} className="p-2 min-w-[160px]">
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(sr.color) ? sr.color : "#000000"}
+                      onChange={(e) => updateSeries(si, { color: e.target.value })}
+                      className="w-7 h-7 rounded border border-gray-200 bg-white p-0.5 cursor-pointer flex-shrink-0"
+                    />
+                    <input
+                      value={sr.name}
+                      onChange={(e) => updateSeries(si, { name: e.target.value })}
+                      placeholder={isPie ? "Value" : `Series ${si + 1}`}
+                      className={inputCls}
+                    />
+                    {!isPie && (
+                      <button type="button" onClick={() => removeSeries(si)} className={removeBtnCls}>
+                        &times;
+                      </button>
+                    )}
+                  </div>
+                </th>
+              ))}
+              <th className="p-2 align-bottom">
+                {!isPie && (
+                  <button type="button" onClick={addSeries} className={addBtnCls}>+ Series</button>
+                )}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.map((cat, ci) => (
+              <tr key={ci} className="border-t border-gray-100">
+                <td className="p-2">
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      value={cat}
+                      onChange={(e) => updateCategory(ci, e.target.value)}
+                      placeholder={isPie ? "Slice label" : "Category"}
+                      className={inputCls}
+                    />
+                    <button type="button" onClick={() => removeCategory(ci)} className={removeBtnCls}>
+                      &times;
+                    </button>
+                  </div>
+                </td>
+                {series.map((sr, si) => (
+                  <td key={si} className="p-2">
+                    <input
+                      value={sr.values[ci] ?? ""}
+                      onChange={(e) => updateValue(si, ci, e.target.value)}
+                      placeholder="0"
+                      className={inputCls}
+                    />
+                  </td>
+                ))}
+                <td />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" onClick={addCategory} className={addBtnCls}>
+        + Add {isPie ? "Slice" : "Category"}
+      </button>
+
+      <div className="border border-gray-100 rounded-xl p-4 bg-white">
+        <ChartPreview tile={tile} />
+      </div>
     </div>
   );
 }
