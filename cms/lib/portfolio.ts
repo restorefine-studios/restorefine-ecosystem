@@ -34,6 +34,47 @@ export interface StatItem {
   growth?: string;
 }
 
+export interface ChartSeries {
+  /** Legend label, e.g. "Impressions". */
+  name: string;
+  /** Hex color. Ignored for pie charts, which auto-cycle DEFAULT_CHART_PALETTE per slice. */
+  color: string;
+  /** One value per category, stored as text, parsed with Number(...) at render time. */
+  values: string[];
+}
+
+export interface ChartBullet {
+  /** Bold lead-in, e.g. "Geographic Dominance". */
+  lead: string;
+  body: string;
+}
+
+export interface ChartTile {
+  kind: "chart" | "text";
+
+  // kind === "chart"
+  chartType?: "bar" | "line" | "pie" | "area";
+  /** Bar only, ignored otherwise. */
+  orientation?: "vertical" | "horizontal";
+  title?: string;
+  /** Ignored for pie. */
+  xAxisLabel?: string;
+  /** Ignored for pie. */
+  yAxisLabel?: string;
+  showLegend?: boolean;
+  /** X-axis labels, or pie slice names. */
+  categories?: string[];
+  /** Pie charts use exactly series[0]; its values are slice sizes. */
+  series?: ChartSeries[];
+
+  // kind === "text"
+  heading?: string;
+  bullets?: ChartBullet[];
+}
+
+/** Auto-assigned to new chart series, and cycled per-slice for pie charts. */
+export const DEFAULT_CHART_PALETTE = ["#dc2626", "#18181b", "#f59e0b", "#059669", "#2563eb", "#7c3aed"];
+
 /** Every section carries an on/off switch and an overridable label. */
 interface SectionBase {
   enabled: boolean;
@@ -48,6 +89,7 @@ export interface PortfolioSections {
   execution: SectionBase & { intro: string; items: string[] };
   results: SectionBase & { items: string[] };
   stats: SectionBase & { items: StatItem[] };
+  charts: SectionBase & { columns: 1 | 2 | 3; items: ChartTile[] };
   faq: SectionBase & { items: FaqItem[] };
 }
 
@@ -62,6 +104,7 @@ export const ALL_SECTION_KEYS: SectionKey[] = [
   "execution",
   "results",
   "stats",
+  "charts",
   "faq",
 ];
 
@@ -77,6 +120,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   execution: "Creative Execution",
   results: "Results",
   stats: "Stats",
+  charts: "Charts",
   faq: "FAQs",
 };
 
@@ -116,6 +160,23 @@ export function emptySections(): PortfolioSections {
     execution: { enabled: true, intro: "", items: [""] },
     results: { enabled: true, items: [""] },
     stats: { enabled: false, items: [{ value: "", label: "", growth: "" }] },
+    charts: {
+      enabled: false,
+      columns: 2,
+      items: [
+        {
+          kind: "chart",
+          chartType: "bar",
+          orientation: "vertical",
+          title: "",
+          xAxisLabel: "",
+          yAxisLabel: "",
+          showLegend: true,
+          categories: [""],
+          series: [{ name: "", color: DEFAULT_CHART_PALETTE[0], values: [""] }],
+        },
+      ],
+    },
     faq: { enabled: false, items: [{ question: "", answer: "" }] },
   };
 }
@@ -136,13 +197,14 @@ export function normaliseSections(raw: unknown): PortfolioSections {
     execution: { ...base.execution, ...(stored.execution ?? {}) },
     results: { ...base.results, ...(stored.results ?? {}) },
     stats: { ...base.stats, ...(stored.stats ?? {}) },
+    charts: { ...base.charts, ...(stored.charts ?? {}) },
     faq: { ...base.faq, ...(stored.faq ?? {}) },
   };
 }
 
 /**
  * Repairs a stored section_order: drops unknown keys, then appends any
- * missing keys (e.g. "stats" on a row saved before it existed) at the end.
+ * missing keys (e.g. "charts" on a row saved before it existed) at the end.
  */
 export function normaliseSectionOrder(raw: unknown): SectionKey[] {
   const stored = Array.isArray(raw) ? (raw as SectionKey[]).filter((k) => ALL_SECTION_KEYS.includes(k)) : [];
