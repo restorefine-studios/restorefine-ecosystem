@@ -42,7 +42,7 @@ export function ChartTileRender({ tile }: { tile: ChartTile }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
-  return <div ref={ref}>{isInView && <ChartBody tile={tile} />}</div>;
+  return <div ref={ref} className="min-h-[280px]">{isInView && <ChartBody tile={tile} />}</div>;
 }
 
 function ChartBody({ tile }: { tile: ChartTile }) {

@@ -1370,7 +1370,7 @@ function ChartTileEditor({
                       placeholder={isPie ? "Value" : `Series ${si + 1}`}
                       className={inputCls}
                     />
-                    {!isPie && (
+                    {(!isPie || series.length > 1) && (
                       <button type="button" onClick={() => removeSeries(si)} className={removeBtnCls}>
                         &times;
                       </button>

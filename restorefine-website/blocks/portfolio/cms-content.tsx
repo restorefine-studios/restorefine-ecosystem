@@ -9,6 +9,7 @@ import { jsonLd } from "@/lib/utils";
 import {
   normaliseSectionOrder,
   SECTION_LABELS,
+  type ChartTile,
   type PortfolioProject,
   type SectionKey,
 } from "@/lib/portfolio-cms";
@@ -31,6 +32,14 @@ const CHART_GRID_COLS: Record<1 | 2 | 3, string> = {
   2: "md:grid-cols-2",
   3: "md:grid-cols-3",
 };
+
+/** Whether a charts-section tile has enough content to render. */
+function isChartTileVisible(t: ChartTile): boolean {
+  return t.kind === "text"
+    ? !!t.heading?.trim() || (t.bullets ?? []).some((b) => b.lead.trim() || b.body.trim())
+    : (t.categories ?? []).some((c) => c.trim()) &&
+      (t.series ?? []).some((sr) => sr.name.trim() || sr.values.some((v) => v.trim()));
+}
 
 function LightHeader({ num, label }: { num: string; label: string }) {
   return (
@@ -67,12 +76,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
       case "stats":
         return s.stats.items.some((i) => i.value.trim() || i.label.trim());
       case "charts":
-        return s.charts.items.some((t) =>
-          t.kind === "text"
-            ? !!t.heading?.trim() || (t.bullets ?? []).some((b) => b.lead.trim() || b.body.trim())
-            : (t.categories ?? []).some((c) => c.trim()) &&
-              (t.series ?? []).some((sr) => sr.name.trim() || sr.values.some((v) => v.trim()))
-        );
+        return s.charts.items.some(isChartTileVisible);
       case "faq":
         return s.faq.items.some((f) => f.question.trim() && f.answer.trim());
     }
@@ -102,12 +106,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
       }
     : null;
 
-  const visibleChartTiles = s.charts.items.filter((t) =>
-    t.kind === "text"
-      ? !!t.heading?.trim() || (t.bullets ?? []).some((b) => b.lead.trim() || b.body.trim())
-      : (t.categories ?? []).some((c) => c.trim()) &&
-        (t.series ?? []).some((sr) => sr.name.trim() || sr.values.some((v) => v.trim()))
-  );
+  const visibleChartTiles = s.charts.items.filter(isChartTileVisible);
 
   const sectionBlocks: Record<SectionKey, React.ReactNode> = {
     overview: isVisible("overview") && (
@@ -287,7 +286,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
                       <li key={j} className="flex items-start gap-2 text-xs text-zinc-600 leading-relaxed">
                         <span className="mt-1.5 w-1 h-1 rounded-full bg-red-600 shrink-0" />
                         <span>
-                          <span className="font-bold text-zinc-900">{b.lead}:</span> {b.body}
+                          {b.lead.trim() && <span className="font-bold text-zinc-900">{b.lead}: </span>}{b.body}
                         </span>
                       </li>
                     ))}

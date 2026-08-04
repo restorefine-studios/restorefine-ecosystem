@@ -41,6 +41,28 @@ export function ChartPreview({ tile }: { tile: ChartTile }) {
   const series = tile.series ?? [];
   const showLegend = tile.showLegend ?? true;
 
+  if (tile.title) {
+    return (
+      <div>
+        <p className="text-sm font-bold text-gray-900 mb-2">{tile.title}</p>
+        <ChartBodyOnly tile={tile} categories={categories} series={series} showLegend={showLegend} />
+      </div>
+    );
+  }
+  return <ChartBodyOnly tile={tile} categories={categories} series={series} showLegend={showLegend} />;
+}
+
+function ChartBodyOnly({
+  tile,
+  categories,
+  series,
+  showLegend,
+}: {
+  tile: ChartTile;
+  categories: string[];
+  series: NonNullable<ChartTile["series"]>;
+  showLegend: boolean;
+}) {
   if (tile.chartType === "pie") {
     const data = categories.map((name, i) => ({
       name,
