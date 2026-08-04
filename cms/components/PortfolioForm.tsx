@@ -541,7 +541,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           + Add Stat
         </button>
         <p className="text-[11px] text-gray-400">
-          Growth is free text; start it with "-" to show it in red instead of green.
+          Growth is free text; start it with &quot;-&quot; to show it in red instead of green.
         </p>
       </>
     ),
