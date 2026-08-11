@@ -45,7 +45,7 @@ export function DayTodayContent() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr] gap-x-14 xl:gap-x-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[300px_1fr] gap-x-14 xl:gap-x-16">
           <TableOfContents title="Day Today Case Study" items={tocItems} />
 
           <div className="space-y-16">

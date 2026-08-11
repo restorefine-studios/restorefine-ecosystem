@@ -91,7 +91,7 @@ export function PortfolioStoryClient({
         viewport={{ once: true }}
         className={`relative mt-16 w-full overflow-hidden hero-full-bleed ${
           isCleanHero
-            ? "aspect-[32/15] xl:aspect-auto xl:min-h-[900px] xl:max-h-[1100px]"
+            ? "aspect-[32/15] max-h-[1200px]"
             : "min-h-[55vh] md:min-h-[900px] md:max-h-[1100px]"
         }`}
       >
@@ -102,7 +102,7 @@ export function PortfolioStoryClient({
             alt={project.clientName}
             fill
             priority
-            className="object-contain object-center"
+            className={`object-center ${isCleanHero ? "object-cover" : "object-contain"}`}
             sizes="100vw"
           />
         </motion.div>

@@ -51,7 +51,7 @@ export function ZaCleaningContent() {
       </div>
 
       {/* Two-column: TOC sidebar + content */}
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr] gap-x-14 xl:gap-x-16">
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[300px_1fr] gap-x-14 xl:gap-x-16">
 
         {/* TOC */}
         <TableOfContents title="ZA Cleaning Team Case Study" items={tocItems} />

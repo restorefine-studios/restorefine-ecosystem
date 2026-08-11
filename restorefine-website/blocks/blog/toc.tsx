@@ -60,7 +60,7 @@ export function TableOfContents({ title, items }: TocProps) {
   return (
     <aside className="hidden lg:block">
       <div className="sticky top-28">
-        <div className="bg-white border border-zinc-100 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
+        <div className="bg-white border border-zinc-100 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
           <p className="text-[9px] font-black uppercase tracking-[0.35em] text-zinc-400 mb-3">
             Guide Contents
           </p>
