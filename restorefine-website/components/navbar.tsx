@@ -234,27 +234,21 @@ export function NavBarContent({ height = "h-20" }: { height?: string }) {
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link href="/portfolio" legacyBehavior passHref>
-                <NavigationMenuLink className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
-                  Portfolio
-                </NavigationMenuLink>
-              </Link>
+              <NavigationMenuLink asChild className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+                <Link href="/portfolio">Portfolio</Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link href="/resources" legacyBehavior passHref>
-                <NavigationMenuLink className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
-                  Resources
-                </NavigationMenuLink>
-              </Link>
+              <NavigationMenuLink asChild className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+                <Link href="/resources">Resources</Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <Link href="/contact" legacyBehavior passHref>
-                <NavigationMenuLink className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
-                  Contact
-                </NavigationMenuLink>
-              </Link>
+              <NavigationMenuLink asChild className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+                <Link href="/contact">Contact</Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
 
           </NavigationMenuList>
