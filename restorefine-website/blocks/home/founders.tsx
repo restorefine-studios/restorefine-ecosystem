@@ -148,17 +148,23 @@ export function Founders({ headline, subtext, founders }: FoundersProps) {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Switcher */}
-              <div className="flex gap-10 border-t border-zinc-200 pt-6 mt-10">
+              {/* Switcher: even-width grid on mobile so tabs fill the row instead of
+                  bunching to the left with dead space beside them; reverts to
+                  natural auto-width spacing once there's room to breathe on md+. */}
+              <div className="grid grid-cols-2 md:flex md:gap-10 border-t border-zinc-200 pt-6 mt-10">
                 {founders.map((founder, i) => {
                   const isActive = i === active;
                   return (
-                    <button key={i} onClick={() => setActive(i)} className="text-left group">
+                    <button
+                      key={i}
+                      onClick={() => setActive(i)}
+                      className={`text-left group ${i > 0 ? "pl-5 md:pl-0 border-l border-zinc-200 md:border-l-0" : "pr-5 md:pr-0"}`}
+                    >
                       <span className={`block text-[10px] font-black tabular-nums transition-colors duration-300 ${isActive ? "text-red-600" : "text-zinc-300 group-hover:text-zinc-400"}`}>
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span
-                        className={`block font-black uppercase tracking-tight text-lg md:text-xl mt-1 transition-colors duration-300 ${
+                        className={`block font-black uppercase tracking-tight leading-tight text-sm sm:text-base md:text-xl mt-1 transition-colors duration-300 ${
                           isActive ? "text-zinc-950" : "text-zinc-400 group-hover:text-zinc-600"
                         }`}
                       >

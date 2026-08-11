@@ -33,8 +33,15 @@ function MobileClientSpotlight() {
     <div className="section-bleed lg:hidden bg-zinc-50 pb-14 overflow-hidden">
       {/* Header */}
       <div className="flex flex-col items-center px-5 pt-10 mb-6 text-center">
-        <span className="text-red-600 font-black text-lg tracking-widest uppercase">Featured</span>
-        <span className="text-sm tracking-[0.3em] uppercase text-zinc-400 font-medium mt-1">Client Spotlights</span>
+        <h2 className="font-black text-zinc-950 leading-none" style={{ fontSize: "clamp(1.6rem, 8vw, 2.25rem)" }}>
+          <span
+            className="text-red-600 font-normal normal-case"
+            style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(2rem, 10vw, 2.75rem)" }}
+          >
+            Proof
+          </span>
+          , NOT PROMISES.
+        </h2>
       </div>
 
       {/* Big image card, full width, no side padding */}
@@ -83,33 +90,25 @@ function MobileClientSpotlight() {
                 {String(active + 1).padStart(2, "0")} / {String(clients.length).padStart(2, "0")}
               </span>
             </div>
-
-            {/* Client name */}
-            {!c.isSvg && (
-              <div className="absolute bottom-4 left-5">
-                <p className="font-black text-white text-xl uppercase leading-tight drop-shadow">
-                  {c.title}{" "}
-                  <span className="font-light" style={{ fontFamily: "var(--font-holiday), serif" }}>
-                    {c.titleAccent}
-                  </span>
-                </p>
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Dots */}
-      <div className="flex items-center gap-1.5 px-5 mt-4 mb-5">
-        {clients.map((_, i) => (
-          <button key={i} onClick={() => go(i)}>
-            <motion.div
-              animate={{ width: i === active ? 20 : 6, backgroundColor: i === active ? "#dc2626" : "#d4d4d8" }}
-              transition={{ duration: 0.3 }}
-              className="h-1 rounded-full"
-            />
-          </button>
-        ))}
+      {/* Progress rail (same numbered-tick style as desktop) */}
+      <div className="flex items-center justify-center gap-5 px-5 mt-4 mb-5">
+        {clients.map((_, i) => {
+          const isActive = i === active;
+          return (
+            <button key={i} onClick={() => go(i)} className="flex items-center gap-2">
+              <span className={`text-[11px] font-black tabular-nums transition-colors duration-300 ${isActive ? "text-red-600" : "text-zinc-300"}`}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span
+                className={`h-px bg-red-600 origin-left transition-all duration-500 ease-out ${isActive ? "w-5 opacity-100" : "w-0 opacity-0"}`}
+              />
+            </button>
+          );
+        })}
       </div>
 
       {/* Text content, animates with card */}
@@ -133,7 +132,10 @@ function MobileClientSpotlight() {
             <p className="text-[9px] tracking-[0.35em] uppercase text-red-600 font-semibold mb-2">{c.tag}</p>
             <h3 className="font-black text-zinc-950 text-3xl leading-none tracking-tight">
               <span className="uppercase">{c.title}</span>{" "}
-              <span className="font-light text-red-600 normal-case" style={{ fontFamily: "var(--font-holiday), serif" }}>
+              <span
+                className="font-light text-red-600 normal-case"
+                style={c.id === "masalamoves" ? undefined : { fontFamily: "var(--font-holiday), serif" }}
+              >
                 {c.titleAccent}
               </span>
             </h3>
@@ -154,9 +156,12 @@ function MobileClientSpotlight() {
           </div>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {c.services.map((s) => (
-              <span key={s} className="inline-flex px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-200 text-[10px] font-medium text-zinc-600">
+              <span
+                key={s}
+                className="inline-flex whitespace-nowrap px-3.5 py-1.5 rounded-full bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-600"
+              >
                 {s}
               </span>
             ))}
@@ -266,7 +271,10 @@ function DesktopClientSpotlight() {
                   <p className="text-red-600 text-xs font-black uppercase tracking-[0.3em]">{c.tag}</p>
                   <h3 className="font-black text-zinc-950 tracking-tight leading-none mt-3" style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)" }}>
                     <span className="uppercase">{c.title}</span>{" "}
-                    <span className="text-red-600 font-normal normal-case" style={{ fontFamily: "var(--font-holiday), serif" }}>
+                    <span
+                      className="text-red-600 font-normal normal-case"
+                      style={c.id === "masalamoves" ? undefined : { fontFamily: "var(--font-holiday), serif" }}
+                    >
                       {c.titleAccent}
                     </span>
                   </h3>

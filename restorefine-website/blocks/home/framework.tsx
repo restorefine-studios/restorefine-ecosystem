@@ -19,6 +19,7 @@ const PHASE_START = 0.06;
 const PHASE = 0.22;
 const PLATE_GAP = 64;
 const PLATE_SIZE = 300;
+const MOBILE_PLATE_SIZE = 252;
 
 function activeIndexFor(progress: number) {
   return Math.min(features.length - 1, Math.max(0, Math.floor((progress - PHASE_START) / PHASE)));
@@ -27,7 +28,17 @@ function activeIndexFor(progress: number) {
 /* ------------------------------------------------------------------ */
 /* One isometric plate in the 3D stack                                 */
 /* ------------------------------------------------------------------ */
-function Plate({ index, progress, isActive }: { index: number; progress: MotionValue<number>; isActive: boolean }) {
+function Plate({
+  index,
+  progress,
+  isActive,
+  compact = false,
+}: {
+  index: number;
+  progress: MotionValue<number>;
+  isActive: boolean;
+  compact?: boolean;
+}) {
   const start = PHASE_START + index * PHASE;
   const z = useTransform(progress, [start, start + 0.1], [index * PLATE_GAP + 150, index * PLATE_GAP]);
   const opacity = useTransform(progress, [start, start + 0.05], [0, 1]);
@@ -42,22 +53,26 @@ function Plate({ index, progress, isActive }: { index: number; progress: MotionV
           boxShadow: isActive ? "0 0 70px 6px rgba(220,38,38,0.45)" : "0 30px 60px -30px rgba(0,0,0,0.6)",
         }}
         transition={{ duration: 0.35 }}
-        className="w-full h-full rounded-[28px] border flex items-start justify-between p-6"
+        className={`w-full h-full rounded-[28px] border flex items-start justify-between gap-2 ${compact ? "p-4" : "p-6"}`}
       >
-        <div>
+        <div className="min-w-0">
           <p className={`text-[10px] font-black tracking-[0.3em] transition-colors duration-300 ${isActive ? "text-white/60" : "text-zinc-400"}`}>
             {String(index + 1).padStart(2, "0")}
           </p>
-          <p className={`mt-1 font-black uppercase leading-none text-xl transition-colors duration-300 ${isActive ? "text-white" : "text-zinc-900"}`}>
+          <p
+            className={`mt-1 font-black uppercase leading-none transition-colors duration-300 ${compact ? "text-base" : "text-xl"} ${
+              isActive ? "text-white" : "text-zinc-900"
+            }`}
+          >
             {features[index].title}
           </p>
         </div>
         <div
-          className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-colors duration-300 ${
-            isActive ? "bg-white/15 border-white/30 text-white" : "bg-zinc-50 border-zinc-200 text-red-600"
-          }`}
+          className={`rounded-xl border flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
+            compact ? "w-8 h-8" : "w-10 h-10"
+          } ${isActive ? "bg-white/15 border-white/30 text-white" : "bg-zinc-50 border-zinc-200 text-red-600"}`}
         >
-          <Icon size={18} />
+          <Icon size={compact ? 15 : 18} />
         </div>
       </motion.div>
     </motion.div>
@@ -204,63 +219,106 @@ function DesktopFramework() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Mobile: stacked cards with scroll-in animation                      */
+/* Mobile: same pinned-scroll isometric stack as desktop (plates drop  */
+/* in as you scroll), single column. The pinned panel fills the screen */
+/* and centers its content, so leftover space is split evenly above    */
+/* and below rather than all pooling under the card.                   */
 /* ------------------------------------------------------------------ */
 function MobileFramework() {
-  return (
-    <div className="lg:hidden px-6 py-20">
-      <div className="flex items-center gap-2 mb-6">
-        <span className="w-6 h-px bg-red-600" />
-        <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 font-medium">{eyebrow}</span>
-      </div>
-      <h2 className="font-black text-white tracking-tight leading-[1.05] text-4xl">
-        <span className="block uppercase">{headline.prefix}</span>
-        <span className="block text-red-600 font-normal normal-case text-5xl whitespace-nowrap" style={{ fontFamily: "var(--font-holiday), serif" }}>
-          {headline.accent}
-        </span>
-      </h2>
-      <p className="text-zinc-400 text-sm leading-relaxed mt-5 mb-10">{intro}</p>
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const [active, setActive] = useState(0);
 
-      <div className="flex flex-col gap-4">
-        {features.map((f, i) => {
-          const Icon = iconMap[f.icon];
-          return (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 32, rotateX: 8 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6"
-            >
-              <span className="absolute -top-3 right-3 font-black text-white/5 text-7xl select-none">{String(i + 1).padStart(2, "0")}</span>
-              <div className="relative w-10 h-10 rounded-xl bg-red-600/15 border border-red-600/30 flex items-center justify-center text-red-500 mb-4">
-                <Icon size={18} />
-              </div>
-              <h3 className="relative font-black uppercase text-white text-xl mb-1">{f.title}</h3>
-              <p className="relative text-red-400 text-xs font-semibold mb-2">{f.tagline}</p>
-              <p className="relative text-zinc-400 text-sm leading-relaxed">{f.description}</p>
+  useMotionValueEvent(scrollYProgress, "change", (v) => setActive(activeIndexFor(v)));
+
+  const stackRotateZ = useTransform(scrollYProgress, [0, 1], [-32, -48]);
+  const poweredOpacity = useTransform(scrollYProgress, [0.84, 0.94], [0, 1]);
+  const poweredY = useTransform(scrollYProgress, [0.84, 0.94], [16, 0]);
+
+  return (
+    <div ref={ref} className="lg:hidden relative h-[180vh]">
+      <div className="sticky top-0 min-h-[100dvh] flex flex-col justify-center px-6 py-10 overflow-hidden">
+        {/* Ambient glows */}
+        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-screen overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-16 w-72 h-72 rounded-full bg-red-600/10 blur-[90px]" />
+          <div className="absolute -bottom-28 -left-16 w-64 h-64 rounded-full bg-red-600/5 blur-[80px]" />
+        </div>
+
+        {/* Header */}
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-6 h-px bg-red-600" />
+            <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 font-medium">{eyebrow}</span>
+          </div>
+          <h2 className="font-black text-white tracking-tight leading-[1.05] text-[2.15rem]">
+            <span className="block uppercase">{headline.prefix}</span>
+            <span className="block text-red-600 font-normal normal-case text-[2.85rem] whitespace-nowrap" style={{ fontFamily: "var(--font-holiday), serif" }}>
+              {headline.accent}
+            </span>
+          </h2>
+          <p className="text-zinc-400 text-sm leading-relaxed mt-3">{intro}</p>
+        </div>
+
+        {/* Isometric stack: the raised plates render well outside their layout box
+            (translateZ + the float loop), so it needs real clearance top and bottom
+            to keep off the intro copy above and the step list below. */}
+        <div className="relative z-10 flex items-center justify-center pt-28 pb-14" style={{ perspective: 1000 }}>
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            style={{ width: MOBILE_PLATE_SIZE, height: MOBILE_PLATE_SIZE }}
+            className="relative"
+          >
+            <motion.div style={{ rotateX: 55, rotateZ: stackRotateZ, transformStyle: "preserve-3d" }} className="absolute inset-0">
+              <BasePlate />
+              {features.map((_, i) => (
+                <Plate key={i} index={i} progress={scrollYProgress} isActive={i === active} compact />
+              ))}
             </motion.div>
-          );
-        })}
+          </motion.div>
+        </div>
+
+        {/* Steps */}
+        <div className="relative z-10">
+          {features.map((f, i) => {
+            const isActive = i === active;
+            return (
+              <div key={f.title} className={`border-b py-3 transition-colors duration-300 ${isActive ? "border-red-600/40" : "border-white/10"}`}>
+                <div className="flex items-baseline gap-3">
+                  <span className={`text-[11px] font-black tabular-nums transition-colors duration-300 ${isActive ? "text-red-500" : "text-zinc-600"}`}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3
+                    className={`font-black uppercase tracking-tight transition-all duration-300 ${
+                      isActive ? "text-white text-xl" : "text-zinc-600 text-lg"
+                    }`}
+                  >
+                    {f.title}
+                  </h3>
+                </div>
+                <motion.div
+                  initial={false}
+                  animate={{ height: isActive ? "auto" : 0, opacity: isActive ? 1 : 0 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="overflow-hidden"
+                >
+                  <p className="text-red-400 text-[13px] font-semibold mt-2 pl-6">{f.tagline}</p>
+                  <p className="text-zinc-400 text-[13px] leading-relaxed mt-1 pl-6 pb-0.5">{f.description}</p>
+                </motion.div>
+              </div>
+            );
+          })}
+        </div>
 
         {/* Powered by Technology */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-2xl border border-red-600/30 bg-zinc-950 p-6"
-        >
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{ backgroundImage: "radial-gradient(circle, rgba(220,38,38,0.6) 1px, transparent 1px)", backgroundSize: "18px 18px" }}
-          />
-          <div className="relative flex items-center gap-2 text-red-500 mb-2">
-            <Cpu size={14} />
-            <span className="text-[10px] font-black tracking-[0.25em] uppercase">{poweredBy.title}</span>
+        <motion.div style={{ opacity: poweredOpacity, y: poweredY }} className="relative z-10 mt-6">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-4">
+            <Cpu size={15} className="text-red-500 flex-shrink-0" />
+            <p className="text-zinc-400 text-xs leading-relaxed">
+              <span className="text-red-500 font-black tracking-[0.2em] uppercase mr-1.5">{poweredBy.title}</span>
+              {poweredBy.description}
+            </p>
           </div>
-          <p className="relative text-zinc-400 text-xs leading-relaxed">{poweredBy.description}</p>
         </motion.div>
       </div>
     </div>
