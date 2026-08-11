@@ -14,9 +14,10 @@ import type { Metadata } from "next";
 
 const BASE = "https://www.restorefine.co.uk";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const canonical = `${BASE}/portfolio/${params.slug}`;
-  const project = portfolioItems.find((item) => item.id === params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const canonical = `${BASE}/portfolio/${slug}`;
+  const project = portfolioItems.find((item) => item.id === slug);
 
   if (project) {
     return {
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
-  const cms = await getPortfolioProject(params.slug);
+  const cms = await getPortfolioProject(slug);
   if (!cms) return {};
 
   const title = cms.meta_title || `${cms.title || cms.client_name}: Portfolio`;
@@ -92,9 +93,10 @@ export async function generateStaticParams() {
   ];
 }
 
-export default async function ProjectPage({ params }: { params: { slug: string } }) {
+export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   // Hardcoded projects resolve without touching Supabase
-  const project = portfolioItems.find((item) => item.id === params.slug);
+  const project = portfolioItems.find((item) => item.id === slug);
 
   if (project) {
     const idx = portfolioItems.indexOf(project);
@@ -108,7 +110,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     );
   }
 
-  const cms = await getPortfolioProject(params.slug);
+  const cms = await getPortfolioProject(slug);
   if (!cms) notFound();
 
   // CMS projects lead the running order (newest work first), then the curated list

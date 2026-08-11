@@ -12,12 +12,13 @@ import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
 import { BLOCKS } from '@contentful/rich-text-types'
 import type { Metadata } from "next"
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   const BASE = "https://www.restorefine.co.uk";
-  const canonical = `${BASE}/resources/${params.slug}`;
+  const canonical = `${BASE}/resources/${slug}`;
 
   // 1. Supabase CMS post — checked first so edits reflect immediately
-  const supaPost = await getSupaPost(params.slug);
+  const supaPost = await getSupaPost(slug);
   if (supaPost) {
     const title = supaPost.meta_title || supaPost.title;
     const description = supaPost.meta_description || supaPost.excerpt || `Read "${supaPost.title}" on the RestoRefine blog.`;
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
-  const entry = await getEntry(params.slug);
+  const entry = await getEntry(slug);
   if (!entry) return {};
   const title = entry.fields?.title || "Blog Post";
   const thumbnail = entry.fields?.blogThumbnail
@@ -93,8 +94,9 @@ export async function generateStaticParams() {
   ];
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const supaPost = await getSupaPost(params.slug);
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const supaPost = await getSupaPost(slug);
 
   if (supaPost) {
     // structured_data is cleared when a post is edited via the CMS — use SupabasePost for editable rich text
@@ -107,7 +109,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     return <SupabasePost post={supaPost} />;
   }
 
-  const entry = await getEntry(params.slug);
+  const entry = await getEntry(slug);
 
   if (!entry) {
     notFound()
