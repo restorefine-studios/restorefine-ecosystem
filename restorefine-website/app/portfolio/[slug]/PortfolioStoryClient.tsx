@@ -26,6 +26,7 @@ import { SpudKingzContent } from "@/blocks/portfolio/spudkingz-content";
 import { ZaCleaningContent } from "@/blocks/portfolio/za-cleaning-content";
 import { DayTodayContent } from "@/blocks/portfolio/day-today-content";
 import { CmsPortfolioContent } from "@/blocks/portfolio/cms-content";
+import { ParallaxHeroMedia } from "@/blocks/portfolio/case-study-motion";
 import type { PortfolioProject } from "@/lib/portfolio-cms";
 
 function getImageSrc(img: string | StaticImageData): string {
@@ -97,14 +98,27 @@ export function PortfolioStoryClient({
       >
         {/* Background image */}
         <motion.div variants={slowFade} className="absolute inset-0 z-0">
-          <Image
-            src={getImageSrc(heroBg)}
-            alt={project.clientName}
-            fill
-            priority
-            className={`object-center ${isCleanHero ? "object-cover" : "object-contain"}`}
-            sizes="100vw"
-          />
+          {isCleanHero ? (
+            <ParallaxHeroMedia>
+              <Image
+                src={getImageSrc(heroBg)}
+                alt={project.clientName}
+                fill
+                priority
+                className="object-cover object-center"
+                sizes="100vw"
+              />
+            </ParallaxHeroMedia>
+          ) : (
+            <Image
+              src={getImageSrc(heroBg)}
+              alt={project.clientName}
+              fill
+              priority
+              className="object-contain object-center"
+              sizes="100vw"
+            />
+          )}
         </motion.div>
 
         {/* Dark gradient overlay */}
@@ -211,7 +225,7 @@ export function PortfolioStoryClient({
         {project.id === "day-today-tiktok-marketing-case-study" && <DayTodayContent />}
         {project.id === "za-cleaning" && <ZaCleaningContent />}
 
-        {/* ── Challenge + Solution — hidden when hardcoded content block exists ── */}
+        {/* Challenge + Solution - hidden when hardcoded content block exists */}
         {!hasCustomContent && (project.challenge || project.solution) && (
           <div className="border-b border-zinc-100">
             <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-24">
@@ -257,8 +271,8 @@ export function PortfolioStoryClient({
           </div>
         )}
 
-        {/* ── Image gallery — skipped entirely when there are no assets, so the
-             "Project Assets" label never appears over an empty space ── */}
+        {/* Image gallery - skipped entirely when there are no assets, so the
+             "Project Assets" label never appears over an empty space */}
         {project.images.length > 0 && (
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-20">
           <motion.p
@@ -295,7 +309,7 @@ export function PortfolioStoryClient({
         </div>
         )}
 
-        {/* ── Outcome block — hidden when hardcoded content block exists ── */}
+        {/* Outcome block - hidden when hardcoded content block exists */}
         {!hasCustomContent && project.outcome && (
           <div className="border-t border-zinc-100">
             <motion.div

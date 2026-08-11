@@ -3,6 +3,8 @@ import type { LucideIcon } from "lucide-react";
 import { PortfolioBrowserPreview } from "./portfolio-browser-preview";
 import { ExpandingCta } from "./expanding-cta";
 import { ChartTileRender } from "./chart-tile";
+import { RevealBlock } from "./case-study-motion";
+import { AnimatedStatValue } from "./animated-stat-value";
 import { TableOfContents, type TocItem } from "@/blocks/blog/toc";
 import { FaqAccordion } from "@/blocks/blog/faq-accordion";
 import { jsonLd } from "@/lib/utils";
@@ -112,7 +114,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
     overview: isVisible("overview") && (
       <div id={SECTION_IDS.overview} key="overview">
         <LightHeader num={numberFor("overview")} label={labelFor("overview")} />
-        <p className="text-zinc-600 text-base leading-relaxed max-w-3xl whitespace-pre-line">
+        <p className="max-w-[68rem] whitespace-pre-line text-base leading-relaxed text-zinc-600">
           {s.overview.body}
         </p>
       </div>
@@ -255,7 +257,10 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
                   key={i}
                   className="flex flex-col items-center text-center gap-2 bg-zinc-50 border border-zinc-100 rounded-2xl p-6"
                 >
-                  <span className="text-3xl md:text-4xl font-black text-zinc-900 tabular-nums">{item.value}</span>
+                  <AnimatedStatValue
+                    value={item.value}
+                    className="text-3xl md:text-4xl font-black text-zinc-900 tabular-nums"
+                  />
                   <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">{item.label}</span>
                   {growth && (
                     <span className={`text-xs font-semibold ${isNegative ? "text-red-500" : "text-emerald-600"}`}>
@@ -317,7 +322,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }} />
       )}
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-zinc-100">
+      <div className="portfolio-content-bleed max-w-[104rem] mx-auto py-16 border-t border-zinc-100">
 
         {/* Services */}
         {project.services.length > 0 && (
@@ -339,10 +344,14 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[300px_1fr] gap-x-14 xl:gap-x-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)] gap-x-8 xl:gap-x-12">
           <TableOfContents title="Case Study" items={tocItems} />
           <div className="space-y-16">
-            {order.map((key) => sectionBlocks[key])}
+            {visible.map((key, i) => (
+              <RevealBlock key={key} delay={Math.min(i, 5) * 0.04}>
+                {sectionBlocks[key]}
+              </RevealBlock>
+            ))}
           </div>
         </div>
       </div>

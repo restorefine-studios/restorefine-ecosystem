@@ -85,6 +85,15 @@ body {
   margin-right: -13rem;
   width: calc(100% + 26rem);
 }
+
+@media (min-width: 1201px) {
+  .portfolio-content-bleed {
+    width: min(104rem, calc(100vw - 8rem));
+    max-width: min(104rem, calc(100vw - 8rem));
+    margin-left: calc(50% - min(52rem, calc((100vw - 8rem) / 2)));
+    margin-right: calc(50% - min(52rem, calc((100vw - 8rem) / 2)));
+  }
+}
 @media (max-width: 1200px) {
   .hero-full-bleed {
     margin-left: -3.25rem;
