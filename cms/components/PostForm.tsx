@@ -621,6 +621,22 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
           className="bg-gray-900 text-white text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-700 transition disabled:opacity-50">
           {form.published ? "Update & Publish" : "Publish"}
         </button>
+        {mode === "edit" && (
+          <button
+            type="button"
+            onClick={async () => {
+              const url = `https://www.restorefine.co.uk/preview/blog/${originalSlug}`;
+              try {
+                await navigator.clipboard.writeText(url);
+              } catch {}
+              window.open(url, "_blank", "noopener,noreferrer");
+              setSavedMsg("Preview link copied");
+            }}
+            className="bg-white text-gray-700 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-100 transition border border-gray-200"
+          >
+            Preview
+          </button>
+        )}
         {savedMsg && (
           <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />

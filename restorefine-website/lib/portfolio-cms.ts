@@ -182,7 +182,7 @@ export function normaliseSectionOrder(raw: unknown): SectionKey[] {
   return [...stored, ...missing];
 }
 
-function hydrate(row: PortfolioProject): PortfolioProject {
+export function hydrate(row: PortfolioProject): PortfolioProject {
   return {
     ...row,
     services: Array.isArray(row.services) ? row.services : [],
