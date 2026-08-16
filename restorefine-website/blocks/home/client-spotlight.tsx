@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, useSpring, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValue, useMotionValueEvent, useSpring, useTransform } from "framer-motion";
+import type { MotionValue } from "framer-motion";
 import { homeContent } from "@/lib/data";
 
 const clients = homeContent.clientSpotlight;
+type SpotlightClient = (typeof clients)[number];
 
 /* ─── Mobile: swipeable card with prev/next nav buttons ─────────────────── */
 
@@ -204,9 +206,73 @@ function MobileClientSpotlight() {
 
 /* ─── Desktop: pinned showcase, scroll advances through the clients ─────── */
 
+function DesktopSpotlightTextLayer({
+  client,
+  index,
+  total,
+  scrollYProgress,
+  color = "white",
+}: {
+  client: SpotlightClient;
+  index: number;
+  total: number;
+  scrollYProgress: MotionValue<number>;
+  color?: "white" | "black";
+}) {
+  const y = useTransform(scrollYProgress, (value) => {
+    const step = 1 / total;
+    const enter = index / total;
+    const progress = Math.min(1, Math.max(0, (value - enter) / step));
+
+    if (index === 0) {
+      const firstProgress = Math.min(1, Math.max(0, value / step));
+      return `${firstProgress * -82}%`;
+    }
+
+    return `${72 - progress * 154}%`;
+  });
+
+  const opacity = useTransform(scrollYProgress, (value) => {
+    const step = 1 / total;
+    const enter = index / total;
+    const progress = (value - enter) / step;
+
+    if (index === 0) {
+      if (progress > 0.88) return Math.max(0, (1 - progress) / 0.12);
+      return 1;
+    }
+
+    if (progress < 0 || progress > 1) return 0;
+    if (progress < 0.14) return progress / 0.14;
+    if (progress > 0.86) return (1 - progress) / 0.14;
+    return 1;
+  });
+
+  const label = `${client.title} ${client.titleAccent}`.replace(/\./g, "");
+  const serviceLabel = client.services.slice(0, 3).join("   ");
+
+  return (
+    <motion.div
+      style={{ y, opacity }}
+      className={`absolute inset-x-0 top-1/2 -translate-y-1/2 text-center ${color === "white" ? "text-white" : "text-red-600"}`}
+    >
+      <p className="whitespace-nowrap font-black uppercase leading-[0.76] text-[7.5rem] xl:text-[11rem] 2xl:text-[13.5rem]">
+        {index === 0 ? "PROOF" : client.tag}
+      </p>
+      <p className="whitespace-nowrap font-black uppercase leading-[0.78] text-[5.75rem] xl:text-[8.5rem] 2xl:text-[10.75rem]">
+        {label}
+      </p>
+      <p className="mt-5 whitespace-nowrap font-black uppercase leading-none text-2xl xl:text-4xl">
+        {serviceLabel}
+      </p>
+    </motion.div>
+  );
+}
+
 function DesktopClientSpotlight() {
   const pinRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const [cursorVisible, setCursorVisible] = useState(false);
 
   const { scrollYProgress } = useScroll({ target: pinRef, offset: ["start start", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (v) => {
@@ -217,11 +283,51 @@ function DesktopClientSpotlight() {
   const progressX = useSpring(scrollYProgress, { stiffness: 120, damping: 26 });
   const hintOpacity = useTransform(scrollYProgress, [0.82, 0.95], [1, 0]);
   const imageY = useTransform(scrollYProgress, [0, 1], ["-3%", "3%"]);
+  const cursorX = useMotionValue(-120);
+  const cursorY = useMotionValue(-120);
+  const cursorSpringX = useSpring(cursorX, { stiffness: 520, damping: 38, mass: 0.35 });
+  const cursorSpringY = useSpring(cursorY, { stiffness: 520, damping: 38, mass: 0.35 });
 
   const c = clients[active];
+  const handlePointerMove = (event: PointerEvent<HTMLElement>) => {
+    cursorX.set(event.clientX);
+    cursorY.set(event.clientY);
+    setCursorVisible(true);
+  };
+
+  const handleSectionClick = (event: MouseEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("a, button")) return;
+    window.location.href = c.href;
+  };
+
+  const handleSectionKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    window.location.href = c.href;
+  };
 
   return (
-    <section className="hidden lg:block bg-white">
+    <section
+      className="hidden cursor-none bg-white lg:block"
+      role="link"
+      tabIndex={0}
+      aria-label={`View ${c.meta.Client} case study`}
+      onClick={handleSectionClick}
+      onKeyDown={handleSectionKeyDown}
+      onPointerEnter={() => setCursorVisible(true)}
+      onPointerLeave={() => setCursorVisible(false)}
+      onPointerMove={handlePointerMove}
+    >
+      <motion.div
+        aria-hidden="true"
+        style={{ x: cursorSpringX, y: cursorSpringY }}
+        animate={{ opacity: cursorVisible ? 1 : 0, scale: cursorVisible ? 1 : 0.82 }}
+        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+        className="pointer-events-none fixed left-0 top-0 z-[9999] hidden h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-red-600 text-center text-[10px] font-black uppercase leading-[0.95] tracking-[0.08em] text-white shadow-[0_10px_24px_rgba(220,38,38,0.22)] lg:flex"
+      >
+        View<br />case study
+      </motion.div>
       <div ref={pinRef} className="relative h-[320vh]">
         <div className="sticky top-0 h-screen flex flex-col justify-center">
           {/* Header */}
@@ -240,9 +346,11 @@ function DesktopClientSpotlight() {
             </p>
           </div>
 
-          <div className="grid grid-cols-[2.5rem_1fr_1.25fr] gap-10 xl:gap-16 items-center">
+          <div className="relative mx-auto flex min-h-[58vh] w-full max-w-[1500px] items-center justify-center bg-white px-8">
+            <div className="absolute inset-0 z-0 bg-white" />
+
             {/* Progress rail */}
-            <div className="flex flex-col gap-5">
+            <div className="absolute left-8 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-5 xl:left-12">
               {clients.map((_, i) => {
                 const isActive = i === active;
                 return (
@@ -258,90 +366,71 @@ function DesktopClientSpotlight() {
               })}
             </div>
 
-            {/* Case details */}
-            <div className="relative">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={active}
-                  initial={{ opacity: 0, y: 28 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -28 }}
-                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <p className="text-red-600 text-xs font-black uppercase tracking-[0.3em]">{c.tag}</p>
-                  <h3 className="font-black text-zinc-950 tracking-tight leading-none mt-3" style={{ fontSize: "clamp(2.5rem, 4vw, 4rem)" }}>
-                    <span className="uppercase">{c.title}</span>{" "}
-                    <span
-                      className="text-red-600 font-normal normal-case"
-                      style={c.id === "masalamoves" ? undefined : { fontFamily: "var(--font-holiday), serif" }}
+            {/* Image stage: the photo stays anchored, while oversized type is allowed
+                to run outside the card edge like the reference composition. */}
+            <div className="relative z-10 aspect-[4/3] w-[min(46vw,760px)]">
+              <div className="absolute inset-0 rounded-3xl overflow-hidden bg-zinc-100" style={{ filter: "grayscale(1)" }}>
+                <motion.div style={{ y: imageY }} className="absolute inset-0">
+                  {clients.map((client, i) => (
+                    <motion.div
+                      key={client.id}
+                      initial={false}
+                      animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1.04 : 1.1 }}
+                      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                      className="absolute inset-0"
                     >
-                      {c.titleAccent}
-                    </span>
-                  </h3>
-                  <p className="text-zinc-500 text-sm xl:text-base leading-relaxed mt-6 max-w-md">{c.description}</p>
-
-                  {/* Meta */}
-                  <div className="flex gap-10 mt-8 border-t border-zinc-100 pt-6">
-                    {Object.entries(c.meta).map(([k, v]) => (
-                      <div key={k}>
-                        <p className="text-[10px] tracking-[0.2em] uppercase text-zinc-400 font-medium mb-1">{k}</p>
-                        <p className="text-xs font-black text-zinc-900">{v}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Services */}
-                  <div className="flex flex-wrap gap-2 mt-6">
-                    {c.services.map((s) => (
-                      <span key={s} className="inline-flex px-3 py-1.5 rounded-full bg-zinc-50 border border-zinc-200 text-[11px] font-medium text-zinc-600">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  <Link
-                    href={c.href}
-                    className="inline-flex items-center gap-2 text-sm font-bold text-red-600 hover:text-red-500 transition-colors mt-8 group"
-                  >
-                    View Case Study
-                    <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </Link>
+                      <Image
+                        src={client.image}
+                        alt={`${client.title} ${client.titleAccent}`}
+                        fill
+                        className={client.isSvg ? "object-contain p-12" : "object-cover"}
+                        style={client.isSvg ? { background: "#0f1a14" } : undefined}
+                        sizes="55vw"
+                      />
+                    </motion.div>
+                  ))}
                 </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Image stage: all images stacked, active fades in with a slow zoom.
-                The whole stack drifts continuously with scroll (parallax). */}
-            <div className="relative aspect-[16/10] rounded-3xl overflow-hidden bg-zinc-100">
-              <motion.div style={{ y: imageY }} className="absolute inset-0">
-                {clients.map((client, i) => (
-                  <motion.div
-                    key={client.id}
-                    initial={false}
-                    animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1.04 : 1.1 }}
-                    transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0"
-                  >
-                    <Image
-                      src={client.image}
-                      alt={`${client.title} ${client.titleAccent}`}
-                      fill
-                      className={client.isSvg ? "object-contain p-12" : "object-cover"}
-                      style={client.isSvg ? { background: "#0f1a14" } : undefined}
-                      sizes="55vw"
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-white/5 pointer-events-none" />
+              </div>
 
               {/* Case link */}
               <Link
                 href={c.href}
-                className="absolute bottom-5 right-5 z-10 w-11 h-11 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center hover:bg-white/25 transition-colors"
+                className="absolute bottom-5 right-5 z-40 w-11 h-11 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center hover:bg-white/25 transition-colors"
               >
                 <ArrowUpRight size={17} className="text-white" />
               </Link>
+            </div>
+
+            {/* Black text layer — visible outside the card on the white page bg */}
+            <div className="absolute left-1/2 top-1/2 z-20 h-[58vh] w-[min(96vw,1540px)] -translate-x-1/2 -translate-y-1/2 overflow-visible select-none pointer-events-none">
+              {clients.map((client, i) => (
+                <DesktopSpotlightTextLayer
+                  key={client.id}
+                  client={client}
+                  index={i}
+                  total={clients.length}
+                  scrollYProgress={scrollYProgress}
+                  color="black"
+                />
+              ))}
+            </div>
+
+            {/* White text layer — clipped to card bounds, sits on top of the image */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 aspect-[4/3] w-[min(46vw,760px)] overflow-hidden rounded-3xl pointer-events-none select-none">
+              <div className="absolute left-1/2 top-1/2 h-[58vh] w-[min(96vw,1540px)] -translate-x-1/2 -translate-y-1/2 overflow-visible">
+                {clients.map((client, i) => (
+                  <DesktopSpotlightTextLayer
+                    key={client.id}
+                    client={client}
+                    index={i}
+                    total={clients.length}
+                    scrollYProgress={scrollYProgress}
+                    color="white"
+                  />
+                ))}
+              </div>
             </div>
           </div>
 

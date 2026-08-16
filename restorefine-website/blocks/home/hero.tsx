@@ -1,166 +1,223 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { NotchNav } from "@/components/navbar";
+import { ArrowRight, ExternalLink } from "lucide-react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+} from "motion/react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
-/* Only one <video> is ever mounted at a time: with both the desktop and
- * mobile clips pointing at the same file, rendering them both (even one
- * hidden via CSS) made the browser fetch the video twice on every load. */
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+type ServiceId = "brand" | "content" | "performance";
 
-  useEffect(() => {
-    const mql = window.matchMedia("(min-width: 1024px)");
-    setIsDesktop(mql.matches);
-    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
+type HeroService = {
+  id: ServiceId;
+  label: string;
+  displayTitle: string;
+  headline: string;
+  headlineLines: string[];
+  subcopy: string;
+  href: string;
+};
 
-  return isDesktop;
+const services: HeroService[] = [
+  {
+    id: "brand",
+    label: "Brand",
+    displayTitle: "Brand",
+    headline: "We don’t follow trends, we build",
+    headlineLines: ["We don’t follow", "trends, we build"],
+    subcopy: "Identity systems, menus, packaging, print, and digital foundations made for hospitality.",
+    href: "/services/brand",
+  },
+  {
+    id: "content",
+    label: "Content",
+    displayTitle: "Content",
+    headline: "We don’t chase attention, we create",
+    headlineLines: ["We don’t chase", "attention, we create"],
+    subcopy: "Reels, campaigns, photography, and launch assets that make the brand feel alive.",
+    href: "/services/content",
+  },
+  {
+    id: "performance",
+    label: "Performance",
+    displayTitle: "Performance",
+    headline: "We don’t guess growth, we drive",
+    headlineLines: ["We don’t guess", "growth, we drive"],
+    subcopy: "Websites, SEO, paid ads, analytics, and conversion paths built around enquiries.",
+    href: "/services/performance",
+  },
+];
+
+function CharacterText({
+  text,
+  reduceMotion,
+  className = "",
+  style,
+  delayBase = 0,
+}: {
+  text: string;
+  reduceMotion: boolean;
+  className?: string;
+  style?: CSSProperties;
+  delayBase?: number;
+}) {
+  const characters = Array.from(text);
+
+  return (
+    <span className={className} style={style} aria-label={text}>
+      {characters.map((character, index) => (
+        <motion.span
+          key={`${text}-${character}-${index}`}
+          aria-hidden="true"
+          className="inline-block"
+          initial={
+            reduceMotion
+              ? false
+              : {
+                  opacity: 0,
+                  y: "0.42em",
+                  rotateX: -62,
+                  filter: "blur(10px)",
+                }
+          }
+          animate={{
+            opacity: 1,
+            y: "0em",
+            rotateX: 0,
+            filter: "blur(0px)",
+          }}
+          exit={
+            reduceMotion
+              ? undefined
+              : {
+                  opacity: 0,
+                  y: "-0.32em",
+                  rotateX: 54,
+                  filter: "blur(10px)",
+                }
+          }
+          transition={{
+            duration: 0.52,
+            delay: delayBase + index * 0.018,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          {character === " " ? "\u00A0" : character}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+function HeroHeadline({
+  active,
+  heroWord,
+  reduceMotion,
+}: {
+  active: HeroService;
+  heroWord: string;
+  reduceMotion: boolean;
+}) {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.h1
+        key={active.id}
+        className="text-[clamp(3.2rem,6.2vw,7.9rem)] font-black leading-[0.92] tracking-[-0.055em] text-zinc-950"
+        initial={false}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 1 }}
+      >
+        <span className="mx-auto block">
+          {active.headlineLines.map((line, index) => (
+            <CharacterText
+              key={`${active.id}-${line}`}
+              text={line}
+              reduceMotion={reduceMotion}
+              className="block whitespace-nowrap"
+              delayBase={index * 0.08}
+            />
+          ))}
+        </span>
+        <CharacterText
+          text={heroWord}
+          reduceMotion={reduceMotion}
+          className="mt-1 block pb-8 font-normal leading-[0.78] tracking-normal text-red-600 sm:pb-10"
+          style={{ fontFamily: "var(--font-holiday), serif" }}
+          delayBase={0.16}
+        />
+      </motion.h1>
+    </AnimatePresence>
+  );
 }
 
 export default function Hero() {
-  const isDesktop = useIsDesktop();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const reduceMotion = useReducedMotion();
+  const reduce = Boolean(reduceMotion);
+  const active = useMemo(() => services[activeIndex] ?? services[0], [activeIndex]);
+  const heroWord = active.id === "brand" ? "Brands" : active.displayTitle;
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveIndex((index) => (index + 1) % services.length);
+    }, 4400);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   return (
-    <div className="relative w-screen ml-[calc(-50vw+50%)]">
-      {/* Rounded panel, inset ~20px from the true viewport edges, clipping everything inside it */}
-      <div className="relative mx-5 mt-5 mb-5 rounded-[28px] md:rounded-[32px] overflow-hidden min-h-[calc(100vh-2.5rem)] bg-white lg:bg-[#ecebe8]">
-        {/* Desktop: full-bleed background video, shielded behind the text column */}
-        {isDesktop && (
-          <video
-            className="absolute inset-0 z-0 hidden h-full w-full object-cover lg:block lg:left-[32%] lg:right-0 lg:w-[68%]"
-            src="/heroVideo.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            disablePictureInPicture
-            aria-hidden="true"
-            tabIndex={-1}
-          />
-        )}
-        {/* Desktop: shield just the text column, leave the rest of the video clear */}
+    <section className="relative w-screen ml-[calc(-50vw+50%)]">
+      <div className="relative min-h-[100dvh] overflow-hidden bg-[#f2f4f6] px-[clamp(1rem,2.5vw,3.5rem)] pb-7 pt-32 lg:pt-40">
         <div
-          className="absolute inset-0 z-0 hidden lg:block pointer-events-none"
-          style={{ background: "linear-gradient(to right, rgba(236,235,232,1) 0%, rgba(236,235,232,1) 32%, rgba(236,235,232,0) 62%)" }}
+          aria-hidden="true"
+          className="absolute inset-0 opacity-[0.11]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(9,9,11,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(9,9,11,0.18) 1px, transparent 1px)",
+            backgroundSize: "74px 74px",
+          }}
         />
-
-        {/* Notch navbar: carved into the hero's silhouette (shared with the standalone header). */}
-        <NotchNav />
-
-        <style>{`
-          @keyframes rr-slideUp {
-            from { transform: translateY(110%); }
-            to   { transform: translateY(0); }
-          }
-          @keyframes rr-fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes rr-drawLine {
-            from { transform: scaleX(0); }
-            to   { transform: scaleX(1); }
-          }
-
-          .rr-line-wrap       { overflow: hidden; padding-bottom: 0.22em; margin-bottom: -0.22em; }
-          .rr-line-wrap-large { overflow: hidden; padding-bottom: 0.3em;  margin-bottom: -0.3em;  }
-
-          .rr-l1 { animation: rr-slideUp 1s cubic-bezier(0.16,1,0.3,1) 0.05s both; }
-          .rr-l2 { animation: rr-slideUp 1s cubic-bezier(0.16,1,0.3,1) 0.2s  both; }
-          .rr-l3 { animation: rr-slideUp 1s cubic-bezier(0.16,1,0.3,1) 0.35s both; }
-          .rr-l4 { animation: rr-slideUp 1s cubic-bezier(0.16,1,0.3,1) 0.55s both; }
-          .rr-divider { transform-origin: left; animation: rr-drawLine 0.6s cubic-bezier(0.16,1,0.3,1) 0.5s both; }
-          .rr-label  { animation: rr-fadeIn  0.8s ease 0.05s both; }
-          .rr-bottom { animation: rr-fadeIn  0.9s ease 1s   both; }
-        `}</style>
-
-        {/* ── MOBILE ─────────────────────────────────────────────────────── */}
-        <div className="relative z-10 lg:hidden flex flex-col pt-28 pb-12 px-6">
-          <div className="text-center">
-            <h1 className="leading-none">
-              <div className="rr-line-wrap overflow-visible mb-2">
-                <div className="rr-l1 text-zinc-950 whitespace-nowrap" style={{ fontSize: "clamp(0.85rem, 4vw, 1.5rem)", lineHeight: 1, letterSpacing: "0.02em", fontFamily: "inherit", fontWeight: 500 }}>
-                  WE DON&apos;T FOLLOW TRENDS
-                </div>
-              </div>
-              <div className="rr-line-wrap-large overflow-visible">
-                <div className="rr-l3 mt-2 text-zinc-950 whitespace-nowrap" style={{ fontSize: "clamp(2.2rem, 13vw, 4.2rem)", lineHeight: 0.95, letterSpacing: "-0.02em", fontFamily: "inherit", fontWeight: 900 }}>
-                  WE BUILD
-                </div>
-              </div>
-              <div className="rr-line-wrap-large" style={{ marginTop: "-0.6rem", overflow: "visible" }}>
-                <div className="rr-l4 text-red-600 whitespace-nowrap" style={{ fontSize: "clamp(2.8rem, 16vw, 5rem)", lineHeight: 0.85, fontFamily: "var(--font-holiday), serif", fontWeight: 400 }}>
-                  Brands
-                </div>
-              </div>
-            </h1>
-          </div>
-
-          <p className="rr-bottom text-zinc-400 text-[13px] leading-relaxed text-center mt-6">From hospitality and leisure to ambitious businesses across the UK, we bring strategy, brand, marketing, and digital experience together to create connected, sustainable growth.</p>
-
-          {/* Video card: contained, portrait, in normal document flow */}
-          <div className="rr-bottom relative w-full aspect-[3/4] rounded-2xl overflow-hidden mt-6 bg-zinc-100">
-            {isDesktop === false && (
-              <video
-                className="absolute inset-0 h-full w-full object-cover"
-                src="/heroVideo.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                disablePictureInPicture
-                aria-hidden="true"
-                tabIndex={-1}
-              />
-            )}
-          </div>
-
-          <Link href="/enquire-now" className="rr-bottom inline-flex items-center justify-center gap-4 bg-red-600 hover:bg-red-500 transition-colors rounded-full px-7 py-4 group mt-6 self-center">
-            <span className="text-white font-semibold text-xs tracking-[0.2em] uppercase">Enquire Now</span>
-            <span className="text-white group-hover:translate-x-1 transition-transform duration-200 ml-4">→</span>
-          </Link>
-        </div>
-
-        {/* ── DESKTOP ─────────────────────────────────────────────────────── */}
-        <div className="relative z-10 hidden lg:flex min-h-[calc(100vh-2.5rem)] pt-32">
-          {/* Left: headline + CTA */}
-          <div className="flex flex-col flex-1 pl-10 xl:pl-20 pr-10">
-            {/* All content vertically centered */}
-            <div className="flex flex-col justify-center flex-1 gap-5">
-              <h1 className="leading-none">
-                <div className="rr-line-wrap">
-                  <div className="rr-l1 text-zinc-950" style={{ fontSize: "clamp(1.1rem, 2vw, 2rem)", lineHeight: 1, letterSpacing: "0.04em", fontFamily: "inherit", fontWeight: 500 }}>
-                    WE DON&apos;T FOLLOW TRENDS
-                  </div>
-                </div>
-                <div className="rr-line-wrap-large mt-3">
-                  <div className="rr-l3 text-zinc-950" style={{ fontSize: "clamp(3.5rem, 6.5vw, 7.5rem)", lineHeight: 0.9, letterSpacing: "-0.03em", fontFamily: "inherit", fontWeight: 900 }}>
-                    WE BUILD
-                  </div>
-                </div>
-                <div className="rr-line-wrap-large" style={{ marginTop: "-1.2rem", overflow: "visible" }}>
-                  <div className="rr-l4 text-red-600" style={{ fontSize: "clamp(4rem, 8vw, 8.8rem)", lineHeight: 0.85, fontFamily: "var(--font-holiday), serif", fontWeight: 400 }}>
-                    Brands
-                  </div>
-                </div>
-              </h1>
-
-              <div className="rr-bottom flex flex-col gap-3">
-                <p className="text-zinc-400 text-base leading-relaxed max-w-md">From hospitality and leisure to ambitious businesses across the UK, we bring strategy, brand, marketing, and digital experience together to create connected, sustainable growth.</p>
-                <Link href="/enquire-now" className="group inline-flex items-center gap-4 bg-red-600 hover:bg-red-500 transition-all duration-300 rounded-full px-8 py-4 self-start">
-                  <span className="text-white font-medium text-sm tracking-[0.22em] uppercase whitespace-nowrap">Enquire Now</span>
-                  <span className="text-white group-hover:translate-x-1 transition-transform duration-200">→</span>
-                </Link>
-              </div>
+        <div className="relative z-10 mx-auto flex min-h-[calc(100dvh-8rem)] w-full max-w-[1800px] flex-col justify-center pt-3">
+          <div className="mx-auto max-w-[1180px] text-center">
+            <div className="relative mx-auto flex min-h-[clamp(20rem,31vw,33rem)] items-center justify-center">
+              <HeroHeadline active={active} heroWord={heroWord} reduceMotion={reduce} />
+            </div>
+            <div className="mx-auto mt-5 flex min-h-[4.5rem] max-w-[43rem] items-start justify-center sm:min-h-[3.75rem]">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={active.id}
+                  className="text-base font-medium leading-relaxed text-zinc-500 sm:text-lg"
+                  initial={reduce ? false : { opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? undefined : { opacity: 0, y: -10 }}
+                  transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {active.subcopy}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/enquire-now"
+                className="group inline-flex items-center justify-center gap-3 rounded-full bg-red-600 px-6 py-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-red-500 active:translate-y-px"
+              >
+                Enquire Now
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link
+                href={active.href}
+                className="group inline-flex items-center justify-center gap-2 rounded-full border border-zinc-950/12 bg-white/58 px-5 py-4 text-sm font-semibold text-zinc-950 transition-colors hover:bg-white"
+              >
+                Explore {active.label}
+                <ExternalLink className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

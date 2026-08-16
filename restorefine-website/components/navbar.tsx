@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   Palette, Printer, Package, Layers, Shirt,
   Video, Share2, Rocket, LayoutList, Camera,
@@ -20,10 +19,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
-
-const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`;
 
 /* ------------------------------------------------------------------ */
 /* Data                                                                 */
@@ -91,6 +87,9 @@ export const pillars: NavPillar[] = [
 
 /* keep old export so mobile-menu doesn't break during transition */
 export const services = pillars.flatMap((p) => p.services);
+
+const navItemClass =
+  "relative bg-transparent px-0 font-semibold text-zinc-950/58 underline-offset-4 transition-colors duration-300 ease-out after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-red-600 after:transition-transform after:duration-300 after:ease-out hover:bg-transparent hover:text-red-600 hover:no-underline hover:after:scale-x-100 data-[state=open]:bg-transparent data-[state=open]:text-red-600 data-[state=open]:after:scale-x-100";
 
 /* ------------------------------------------------------------------ */
 /* Mega-menu: left rail of pillars drives the service pane on the right */
@@ -215,9 +214,16 @@ function ServicesMegaMenu() {
 /* ------------------------------------------------------------------ */
 export function NavBarContent({ height = "h-20" }: { height?: string }) {
   return (
-    <div className={cn("grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-8", height)}>
-      {/* Nav links — left column */}
-      <div className="justify-self-start hidden md:block">
+    <div className={cn("grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-5", height)}>
+      {/* Brand */}
+      <Link href="/" className="flex items-center gap-3 justify-self-start no-underline" aria-label="RestoRefine home">
+        <span className="flex h-9 w-9 items-center justify-center">
+          <Image src={navlogo || "/placeholder.svg"} alt="" width={24} height={24} />
+        </span>
+      </Link>
+
+      {/* Nav links — exact centre column */}
+      <div className="hidden justify-self-center md:block">
         <NavigationMenu>
           <NavigationMenuList className="flex items-center gap-x-7">
 
@@ -225,7 +231,7 @@ export function NavBarContent({ height = "h-20" }: { height?: string }) {
             <NavigationMenuItem>
               {/* Trigger opens the panel only, it deliberately does not route
                   anywhere while the Services landing page is being built. */}
-              <NavigationMenuTrigger className="bg-transparent px-0 font-medium text-zinc-500 hover:bg-transparent hover:text-zinc-900 data-[state=open]:bg-transparent data-[state=open]:text-zinc-900">
+              <NavigationMenuTrigger className={navItemClass}>
                 Services
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -234,19 +240,19 @@ export function NavBarContent({ height = "h-20" }: { height?: string }) {
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink asChild className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+              <NavigationMenuLink asChild className={navItemClass}>
                 <Link href="/portfolio">Portfolio</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink asChild className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+              <NavigationMenuLink asChild className={navItemClass}>
                 <Link href="/resources">Resources</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink asChild className="bg-transparent px-0 text-zinc-500 hover:bg-transparent hover:text-zinc-900">
+              <NavigationMenuLink asChild className={navItemClass}>
                 <Link href="/contact">Contact</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -255,84 +261,33 @@ export function NavBarContent({ height = "h-20" }: { height?: string }) {
         </NavigationMenu>
       </div>
 
-      {/* Logo — exact centre column */}
-      <Link href="/" passHref className="justify-self-center flex items-center">
-        <Image src={navlogo || "/placeholder.svg"} alt="RestoRefine" width={25} height={25} />
-      </Link>
-
-      {/* Right: CTAs + mobile trigger, right column */}
-      <div className="justify-self-end flex items-center gap-4">
-        <a
-          href={WHATSAPP_HREF}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat on WhatsApp"
-          className="hidden md:inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#25D366] transition-opacity hover:opacity-90"
+      {/* Right: CTA + mobile trigger */}
+      <div className="flex items-center gap-3 justify-self-end">
+        <Link
+          href="/enquire-now"
+          className="group hidden items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(220,38,38,0.18)] transition-transform hover:-translate-y-0.5 hover:bg-red-500 active:translate-y-px md:inline-flex"
         >
-          <Image src="/whatsapp.svg" alt="" width={20} height={20} className="brightness-0 invert" />
-        </a>
-        <Button asChild className="hidden md:inline-flex items-center gap-2 rounded-full bg-red-600 text-white hover:bg-red-500 px-5">
-          <Link href="/enquire-now">
-            Enquire Now
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </Button>
+          Enquire Now
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
         <MobileMenu />
       </div>
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Notched nav bar: the white bar with a straight top edge, rounded    */
-/* bottom corners, and tangent concave ears at both top sides so the   */
-/* backdrop it sits on curves smoothly into its edges. Positioned      */
-/* absolutely against the top of whatever relative panel contains it   */
-/* (the homepage hero, or the beige strip in the standalone header).   */
-/* ------------------------------------------------------------------ */
-const NOTCH_RADIUS = 24;
-
-function earMask(side: "left" | "right"): React.CSSProperties {
-  const corner = side === "left" ? "bottom left" : "bottom right";
-  const gradient = `radial-gradient(circle ${NOTCH_RADIUS}px at ${corner}, transparent ${NOTCH_RADIUS - 1}px, black ${NOTCH_RADIUS}px)`;
-  return { maskImage: gradient, WebkitMaskImage: gradient };
-}
-
 export function NotchNav({ shadow = false }: { shadow?: boolean }) {
   return (
-    <>
-      {/* Mobile: plain flush bar, no notch/ears, same as the pre-redesign header.
-          Simple two-item row (logo far left, menu trigger far right) instead of
-          reusing the desktop grid, which centred the logo oddly with nothing in
-          the left column. */}
-      <div className={cn("md:hidden absolute top-0 left-0 right-0 z-20 h-16 bg-white flex items-center justify-between px-4", shadow && "shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)]")}>
-        <Link href="/" className="flex items-center">
-          <Image src={navlogo || "/placeholder.svg"} alt="RestoRefine" width={25} height={25} />
-        </Link>
-        <MobileMenu />
+    <div className="absolute left-0 right-0 top-0 z-20 px-4 pt-4 sm:px-6 lg:px-8">
+      <div
+        className={cn(
+          "mx-auto w-full max-w-[1500px] rounded-[1.75rem] border border-white/45 bg-white/36 text-zinc-950 backdrop-blur-2xl",
+          shadow && "shadow-[0_18px_70px_rgba(15,23,42,0.08)]",
+        )}
+      >
+        <NavBarContent height="h-16" />
       </div>
-
-      {/* Desktop: notch carved into the backdrop it sits on */}
-      <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 z-20 w-[72%] md:w-[65%] h-[104px]">
-        {/* Junction ears */}
-        <div
-          className="absolute top-0 bg-white pointer-events-none"
-          style={{ left: -NOTCH_RADIUS, width: NOTCH_RADIUS, height: NOTCH_RADIUS, ...earMask("left") }}
-        />
-        <div
-          className="absolute top-0 bg-white pointer-events-none"
-          style={{ right: -NOTCH_RADIUS, width: NOTCH_RADIUS, height: NOTCH_RADIUS, ...earMask("right") }}
-        />
-
-        {/* Bar */}
-        <div
-          className={cn("relative h-full bg-white", shadow && "shadow-[0_16px_40px_-12px_rgba(0,0,0,0.12)]")}
-          style={{ borderBottomLeftRadius: NOTCH_RADIUS, borderBottomRightRadius: NOTCH_RADIUS }}
-        >
-          <NavBarContent height="h-[104px]" />
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -343,8 +298,8 @@ export function NotchNav({ shadow = false }: { shadow?: boolean }) {
 /* fixed bar additionally stays hidden until the hero is scrolled past */
 /* (otherwise the two navs would briefly stack on top of each other).  */
 /* ------------------------------------------------------------------ */
-function useNavVisibility(isHome: boolean) {
-  const [visible, setVisible] = React.useState(!isHome);
+function useNavVisibility() {
+  const [visible, setVisible] = React.useState(true);
 
   React.useEffect(() => {
     let lastY = window.scrollY;
@@ -352,21 +307,15 @@ function useNavVisibility(isHome: boolean) {
       const y = window.scrollY;
       const goingDown = y > lastY + 4;
       const goingUp = y < lastY - 4;
-      if (isHome) {
-        if (y < window.innerHeight * 0.6) setVisible(false);
-        else if (goingUp) setVisible(true);
-        else if (goingDown) setVisible(false);
-      } else {
-        if (y < 80) setVisible(true);
-        else if (goingDown) setVisible(false);
-        else if (goingUp) setVisible(true);
-      }
+      if (y < 80) setVisible(true);
+      else if (goingDown) setVisible(false);
+      else if (goingUp) setVisible(true);
       lastY = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isHome]);
+  }, []);
 
   return visible;
 }
@@ -380,9 +329,7 @@ function useNavVisibility(isHome: boolean) {
 /* (whose own notch nav covers the top of the page).                   */
 /* ------------------------------------------------------------------ */
 export function Navbar() {
-  const pathname = usePathname();
-  const isHome = pathname === "/";
-  const visible = useNavVisibility(isHome);
+  const visible = useNavVisibility();
 
   return (
     <header

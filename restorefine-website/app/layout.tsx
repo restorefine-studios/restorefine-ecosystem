@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { CookieConsentProvider } from "@/components/cookie-consent-provider";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { AnalyticsScripts } from "@/components/analytics-scripts";
+import { IntroLoader } from "@/components/IntroLoader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -167,6 +168,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} ${holiday.variable}`}>
+        <IntroLoader />
         <CookieConsentProvider>
           <Navbar /> {children}
           <AdNoticeModal />
