@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Link2, Check } from "lucide-react";
+import { pushGTMEvent } from "@/lib/gtm";
 
 interface ShareBarProps {
   title: string;
@@ -82,6 +83,11 @@ export function ShareBar({ title, url }: ShareBarProps) {
           target="_blank"
           rel="noopener noreferrer"
           title={`Share on ${p.name}`}
+          onClick={() => {
+            if (p.name === "WhatsApp") {
+              pushGTMEvent("whatsapp_click", { location: "page" });
+            }
+          }}
           className={`w-8 h-8 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 transition-all duration-200 hover:border-zinc-400 ${p.color}`}
         >
           {p.icon}

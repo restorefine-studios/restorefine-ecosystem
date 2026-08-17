@@ -6,9 +6,10 @@ import { useFormState } from "../../contact-form-context";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { pushGTMEvent } from "@/lib/gtm";
 
 export function StepFive() {
-  const { state, dispatch } = useFormState();
+  const { state, dispatch, trackStepComplete } = useFormState();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
@@ -62,6 +63,8 @@ export function StepFive() {
         },
       });
       dispatch({ type: "SET_STEP", payload: 6 });
+      trackStepComplete({ step: 5 });
+      pushGTMEvent("enquiry_submitted", { category: state.mainService });
       toast({ title: "Success", description: "Your enquiry has been sent!" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";

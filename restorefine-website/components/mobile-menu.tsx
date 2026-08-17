@@ -7,6 +7,7 @@ import { pillars } from "./navbar";
 import Image from "next/image";
 import navlogo from "@/public/restorefine-logoblack.svg";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { pushGTMEvent } from "@/lib/gtm";
 
 const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`;
 
@@ -125,6 +126,7 @@ export function MobileMenu() {
             href={WHATSAPP_HREF}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => pushGTMEvent("whatsapp_click", { location: "header" })}
             className="flex items-center gap-2 text-zinc-600"
           >
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#25D366]">

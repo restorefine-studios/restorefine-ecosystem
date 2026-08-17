@@ -4,7 +4,7 @@ import { useFormState } from "../../contact-form-context";
 import { mainServiceOptions as serviceOptions } from "../../service-options";
 
 export function StepOne() {
-  const { state, dispatch } = useFormState();
+  const { state, dispatch, trackStepComplete } = useFormState();
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -23,6 +23,7 @@ export function StepOne() {
               key={option.id}
               onClick={() => {
                 dispatch({ type: "SET_MAIN_SERVICE", payload: option.id });
+                trackStepComplete({ step: 1, category: option.id });
                 dispatch({ type: "SET_STEP", payload: 2 });
               }}
               className={`flex flex-col items-start px-6 py-4 rounded-2xl border transition-all duration-200 text-left min-w-[140px]

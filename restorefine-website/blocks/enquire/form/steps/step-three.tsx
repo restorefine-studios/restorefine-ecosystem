@@ -12,7 +12,7 @@ const budgetOptions = [
 ];
 
 export function StepThree() {
-  const { state, dispatch } = useFormState();
+  const { state, dispatch, trackStepComplete } = useFormState();
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -34,6 +34,7 @@ export function StepThree() {
               key={option.id}
               onClick={() => {
                 dispatch({ type: "SET_BUDGET", payload: option.id });
+                trackStepComplete({ step: 3 });
                 dispatch({ type: "SET_STEP", payload: 4 });
               }}
               className={`px-6 py-3 rounded-full border text-sm font-medium transition-all duration-200

@@ -4,13 +4,15 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { AdNoticeModal } from "@/components/ad-notice-modal";
-import Image from "next/image";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { CookieConsentProvider } from "@/components/cookie-consent-provider";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { AnalyticsScripts } from "@/components/analytics-scripts";
 import { IntroLoader } from "@/components/IntroLoader";
+import { GTMOutboundClickTracker } from "@/components/gtm-outbound-click-tracker";
+import { GTMScrollDepthTracker } from "@/components/gtm-scroll-depth-tracker";
+import { WhatsAppFloatingButton } from "@/components/whatsapp-floating-button";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -151,6 +153,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Google Tag Manager */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KT4JDFLF');`,
+          }}
+        />
+        {/* End Google Tag Manager */}
         <script
           id="organization-schema"
           type="application/ld+json"
@@ -168,19 +181,23 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} ${holiday.variable}`}>
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-KT4JDFLF"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
+        {/* End Google Tag Manager (noscript) */}
+        <GTMOutboundClickTracker />
+        <GTMScrollDepthTracker />
         <IntroLoader />
         <CookieConsentProvider>
           <Navbar /> {children}
           <AdNoticeModal />
-          <a
-            href={`https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Chat with RestoRefine Studios on WhatsApp"
-            className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform duration-200 hover:scale-110 hover:shadow-xl"
-          >
-            <Image src="/whatsapp.svg" alt="WhatsApp" width={28} height={28} className="brightness-0 invert" />
-          </a>
+          <WhatsAppFloatingButton />
           <SpeedInsights />
           <Analytics />
           <AnalyticsScripts />

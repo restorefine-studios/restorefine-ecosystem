@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { pushGTMEvent } from "@/lib/gtm";
 
 export interface ClientCard {
   id: string;
@@ -86,9 +87,16 @@ function ClientCard({ client }: { client: ClientCard }) {
     ...(hasHex ? { backgroundColor: client.cardColorHex } : {}),
   };
 
-  if (client.portfolioId) {
+  const portfolioId = client.portfolioId;
+
+  if (portfolioId) {
     return (
-      <Link href={`/portfolio/${client.portfolioId}`} className={`${baseClass} cursor-pointer block`} style={style}>
+      <Link
+        href={`/portfolio/${portfolioId}`}
+        onClick={() => pushGTMEvent("portfolio_item_click", { item: portfolioId })}
+        className={`${baseClass} cursor-pointer block`}
+        style={style}
+      >
         <ClientCardInner client={client} gradient={gradient} colorClass={colorClass} lightCard={client.lightCard} />
       </Link>
     );

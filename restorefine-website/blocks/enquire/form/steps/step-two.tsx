@@ -5,7 +5,7 @@ import { useFormState } from "../../contact-form-context";
 import { serviceTypeOptions, getMainServiceLabel } from "../../service-options";
 
 export function StepTwo() {
-  const { state, dispatch } = useFormState();
+  const { state, dispatch, trackStepComplete } = useFormState();
   const options = state.mainService
     ? serviceTypeOptions[state.mainService] ?? []
     : [];
@@ -30,6 +30,7 @@ export function StepTwo() {
               key={option.id}
               onClick={() => {
                 dispatch({ type: "SET_SERVICE_TYPE", payload: option.id });
+                trackStepComplete({ step: 2 });
                 dispatch({ type: "SET_STEP", payload: 3 });
               }}
               className={`px-5 py-3 rounded-full border text-sm font-medium transition-all duration-200

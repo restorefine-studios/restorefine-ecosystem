@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Instagram, Linkedin, MapPin, Mail } from "lucide-react";
 import { useCookieConsent } from "./cookie-consent-provider";
+import { pushGTMEvent } from "@/lib/gtm";
 
 const services = [
   { name: "Social Media Reels", href: "/services" },
@@ -33,9 +34,9 @@ const legal = [
 ];
 
 const socialLinks = [
-  { name: "Instagram", icon: Instagram, href: "https://www.instagram.com/restorefine/" },
-  { name: "LinkedIn", icon: Linkedin, href: "https://uk.linkedin.com/company/restorefine" },
-];
+  { name: "Instagram", network: "instagram", icon: Instagram, href: "https://www.instagram.com/restorefine/" },
+  { name: "LinkedIn", network: "linkedin", icon: Linkedin, href: "https://uk.linkedin.com/company/restorefine" },
+] as const;
 
 const trustBadges = [
   { label: "Google Reviews", sub: "5.0 ★★★★★" },
@@ -76,7 +77,11 @@ export function Footer() {
                   G51 2SN, Scotland
                 </span>
               </span>
-              <Link href="mailto:hello@restorefine.com" className="flex items-center gap-2 hover:text-zinc-300 transition-colors">
+              <Link
+                href="mailto:hello@restorefine.com"
+                onClick={() => pushGTMEvent("email_click", { location: "footer" })}
+                className="flex items-center gap-2 hover:text-zinc-300 transition-colors"
+              >
                 <Mail size={12} className="text-red-600 shrink-0" />
                 hello@restorefine.com
               </Link>
@@ -100,7 +105,11 @@ export function Footer() {
                   Get Directions →
                 </Link>
               </div>
-              <Link href="mailto:hello@restorefine.com" className="text-zinc-400 hover:text-white text-xs transition-colors">
+              <Link
+                href="mailto:hello@restorefine.com"
+                onClick={() => pushGTMEvent("email_click", { location: "footer" })}
+                className="text-zinc-400 hover:text-white text-xs transition-colors"
+              >
                 hello@restorefine.com
               </Link>
               <Link href="/enquire-now" className="text-zinc-400 hover:text-white text-xs transition-colors">
@@ -188,7 +197,15 @@ export function Footer() {
           {/* Right — social icons */}
           <div className="flex items-center gap-2.5">
             {socialLinks.map((s) => (
-              <Link key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name} className="flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-colors">
+              <Link
+                key={s.name}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.name}
+                onClick={() => pushGTMEvent("social_click", { network: s.network })}
+                className="flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-colors"
+              >
                 <s.icon size={14} />
               </Link>
             ))}

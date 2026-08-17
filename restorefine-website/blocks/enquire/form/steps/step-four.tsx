@@ -15,7 +15,7 @@ const timelineOptions = [
 ];
 
 export function StepFour() {
-  const { state, dispatch } = useFormState();
+  const { state, dispatch, trackStepComplete } = useFormState();
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [customTimeline, setCustomTimeline] = useState("");
 
@@ -26,6 +26,7 @@ export function StepFour() {
     } else {
       setShowCustomInput(false);
       dispatch({ type: "SET_TIMELINE", payload: value });
+      trackStepComplete({ step: 4 });
       dispatch({ type: "SET_STEP", payload: 5 });
     }
   };
@@ -73,6 +74,7 @@ export function StepFour() {
             onClick={() => {
               if (customTimeline.trim()) {
                 dispatch({ type: "SET_CUSTOM_TIMELINE", payload: customTimeline });
+                trackStepComplete({ step: 4 });
                 dispatch({ type: "SET_STEP", payload: 5 });
               }
             }}

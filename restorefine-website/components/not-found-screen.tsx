@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { GTMNotFoundTracker } from "@/components/gtm-not-found-tracker";
 
 const quickLinks = [
   { label: "Home", href: "/" },
@@ -38,6 +39,7 @@ export function NotFoundScreen({
 }: NotFoundScreenProps) {
   return (
     <main className="bg-white min-h-screen flex flex-col">
+      <GTMNotFoundTracker />
       {/* Hero */}
       <section className="flex-1 flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 py-32 text-center relative overflow-hidden">
         {/* Background number */}

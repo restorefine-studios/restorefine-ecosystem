@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useCallback, useContext, useReducer, useRef } from "react";
+import { pushGTMEvent, type GTMEventMap } from "@/lib/gtm";
 
 type FormState = {
   currentStep: number;
@@ -44,6 +45,7 @@ const FormContext = createContext<
   | {
       state: FormState;
       dispatch: React.Dispatch<FormAction>;
+      trackStepComplete: (params: GTMEventMap["enquiry_step_complete"]) => void;
     }
   | undefined
 >(undefined);
@@ -77,9 +79,16 @@ export function ContactFormProvider({
   children: React.ReactNode;
 }) {
   const [state, dispatch] = useReducer(formReducer, initialState);
+  const completedGtmSteps = useRef(new Set<number>());
+
+  const trackStepComplete = useCallback((params: GTMEventMap["enquiry_step_complete"]) => {
+    if (completedGtmSteps.current.has(params.step)) return;
+    completedGtmSteps.current.add(params.step);
+    pushGTMEvent("enquiry_step_complete", params);
+  }, []);
 
   return (
-    <FormContext.Provider value={{ state, dispatch }}>
+    <FormContext.Provider value={{ state, dispatch, trackStepComplete }}>
       {children}
     </FormContext.Provider>
   );

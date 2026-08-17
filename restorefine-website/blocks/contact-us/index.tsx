@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRight, Mail, MapPin, ArrowUpRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { pushGTMEvent } from "@/lib/gtm";
 
 const OFFICE_ADDRESS = "(Unit 54) 24 Fairley Street, Glasgow, G51 2SN, Scotland";
 const MAPS_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(OFFICE_ADDRESS)}&output=embed`;
@@ -41,6 +42,7 @@ export function ContactSection() {
       if (result.success === true) {
         setFormStatus({ type: "success", message: "Message sent! We'll be in touch shortly." });
         form.reset();
+        pushGTMEvent("contact_form_submitted");
       }
     } catch (error) {
       setFormStatus({ type: "error", message: "Failed to send. Please try again." });
@@ -81,7 +83,11 @@ export function ContactSection() {
             <div>
               <h3 className="font-black uppercase tracking-tight text-zinc-900 mb-1.5">Chat to us</h3>
               <p className="text-xs text-zinc-400 mb-2 leading-relaxed">Our team is here to help</p>
-              <a href="mailto:hello@restorefine.com" className="group inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 hover:text-red-600 transition-colors">
+              <a
+                href="mailto:hello@restorefine.com"
+                onClick={() => pushGTMEvent("email_click", { location: "contact" })}
+                className="group inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 hover:text-red-600 transition-colors"
+              >
                 <Mail className="w-3.5 h-3.5 text-zinc-400 group-hover:text-red-600 transition-colors" />
                 hello@restorefine.com
               </a>
@@ -89,7 +95,11 @@ export function ContactSection() {
             <div>
               <h3 className="font-black uppercase tracking-tight text-zinc-900 mb-1.5">Careers</h3>
               <p className="text-xs text-zinc-400 mb-2 leading-relaxed">Come work with us</p>
-              <a href="mailto:hello@restorefine.com" className="group inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 hover:text-red-600 transition-colors">
+              <a
+                href="mailto:hello@restorefine.com"
+                onClick={() => pushGTMEvent("email_click", { location: "contact" })}
+                className="group inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 hover:text-red-600 transition-colors"
+              >
                 <Mail className="w-3.5 h-3.5 text-zinc-400 group-hover:text-red-600 transition-colors" />
                 hello@restorefine.com
               </a>
@@ -201,6 +211,7 @@ export function ContactSection() {
                 href={MAPS_DIRECTIONS_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => pushGTMEvent("directions_click")}
                 className="pointer-events-auto inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-500 transition-colors mt-2"
               >
                 Get Directions <ArrowUpRight className="w-3 h-3" />
