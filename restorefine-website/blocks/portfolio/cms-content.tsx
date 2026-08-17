@@ -29,12 +29,6 @@ const SECTION_IDS: Record<SectionKey, string> = {
   faq: "faqs",
 };
 
-const CHART_GRID_COLS: Record<1 | 2 | 3, string> = {
-  1: "",
-  2: "md:grid-cols-2",
-  3: "md:grid-cols-3",
-};
-
 /** Whether a charts-section tile has enough content to render. */
 function isChartTileVisible(t: ChartTile): boolean {
   return t.kind === "text"
@@ -277,7 +271,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
     charts: isVisible("charts") && (
       <div id={SECTION_IDS.charts} key="charts">
         <LightHeader num={numberFor("charts")} label={labelFor("charts")} />
-        <div className={`grid grid-cols-1 gap-6 ${CHART_GRID_COLS[s.charts.columns] ?? CHART_GRID_COLS[2]}`}>
+        <div className="flex flex-col gap-6">
           {visibleChartTiles.map((tile, i) =>
             tile.kind === "text" ? (
               <div key={i} className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6">
@@ -299,7 +293,12 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
               </div>
             ) : (
               <div key={i} className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6">
-                {tile.title && <p className="text-sm font-bold text-zinc-900 mb-2">{tile.title}</p>}
+                {tile.title && (
+                  <p className="text-sm font-bold text-zinc-900 mb-2">
+                    {tile.title}
+                    {tile.year && <span className="text-zinc-400 font-normal"> — {tile.year}</span>}
+                  </p>
+                )}
                 <ChartTileRender tile={tile} />
               </div>
             )

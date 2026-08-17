@@ -548,25 +548,6 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
 
     charts: (
       <>
-        <Field label="Grid Columns">
-          <div className="flex gap-2">
-            {([1, 2, 3] as const).map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => updateSection("charts", { columns: n })}
-                className={`px-4 py-2 rounded-lg border text-xs font-bold uppercase tracking-widest transition ${
-                  s.charts.columns === n
-                    ? "border-gray-900 bg-gray-900 text-white"
-                    : "border-gray-200 text-gray-500 hover:border-gray-400"
-                }`}
-              >
-                {n} Column{n > 1 ? "s" : ""}
-              </button>
-            ))}
-          </div>
-        </Field>
-
         <div className="space-y-4">
           {s.charts.items.map((tile, i) => (
             <div key={i} className="border border-gray-100 rounded-xl p-4 space-y-3 bg-gray-50">
@@ -619,6 +600,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
                     title: "",
                     xAxisLabel: "",
                     yAxisLabel: "",
+                    categoryMode: "custom",
                     showLegend: true,
                     categories: [""],
                     series: [{ name: "", color: DEFAULT_CHART_PALETTE[0], values: [""] }],
@@ -1261,6 +1243,7 @@ function ChartTileEditor({
   const series = tile.series ?? [];
   const isPie = tile.chartType === "pie";
   const isBar = tile.chartType === "bar";
+  const isMonth = !isPie && tile.categoryMode === "month";
 
   function addCategory() {
     onChange({
@@ -1334,7 +1317,40 @@ function ChartTileEditor({
       </Field>
 
       {!isPie && (
-        <div className="grid grid-cols-2 gap-4">
+        <Field label="Category Type">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => onChange({ categoryMode: "custom" })}
+              className={`px-4 py-2 rounded-lg border text-xs font-bold uppercase tracking-widest transition ${
+                !isMonth
+                  ? "border-gray-900 bg-gray-900 text-white"
+                  : "border-gray-200 text-gray-500 hover:border-gray-400"
+              }`}
+            >
+              Custom
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ categoryMode: "month" })}
+              className={`px-4 py-2 rounded-lg border text-xs font-bold uppercase tracking-widest transition ${
+                isMonth
+                  ? "border-gray-900 bg-gray-900 text-white"
+                  : "border-gray-200 text-gray-500 hover:border-gray-400"
+              }`}
+            >
+              By Month
+            </button>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-1.5">
+            &quot;Custom&quot; lets you type any x-axis label (e.g. platform names). &quot;By Month&quot;
+            adds a single year and turns each row into a month picker.
+          </p>
+        </Field>
+      )}
+
+      {!isPie && (
+        <div className={`grid gap-4 ${isMonth ? "grid-cols-3" : "grid-cols-2"}`}>
           <Field label="X Axis Label">
             <input
               value={tile.xAxisLabel ?? ""}
@@ -1351,6 +1367,17 @@ function ChartTileEditor({
               className={inputCls}
             />
           </Field>
+          {isMonth && (
+            <Field label="Year">
+              <input
+                type="number"
+                value={tile.year ?? ""}
+                onChange={(e) => onChange({ year: e.target.value })}
+                placeholder={String(new Date().getFullYear())}
+                className={inputCls}
+              />
+            </Field>
+          )}
         </div>
       )}
 
@@ -1369,7 +1396,7 @@ function ChartTileEditor({
           <thead>
             <tr>
               <th className="text-left p-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                {isPie ? "Slice" : "Category"}
+                {isPie ? "Slice" : isMonth ? "Month" : "Category"}
               </th>
               {series.map((sr, si) => (
                 <th key={si} className="p-2 min-w-[160px]">
@@ -1406,12 +1433,25 @@ function ChartTileEditor({
               <tr key={ci} className="border-t border-gray-100">
                 <td className="p-2">
                   <div className="flex items-center gap-1.5">
-                    <input
-                      value={cat}
-                      onChange={(e) => updateCategory(ci, e.target.value)}
-                      placeholder={isPie ? "Slice label" : "Category"}
-                      className={inputCls}
-                    />
+                    {isMonth ? (
+                      <select value={cat} onChange={(e) => updateCategory(ci, e.target.value)} className={inputCls}>
+                        <option value="" disabled>
+                          Month
+                        </option>
+                        {MONTH_NAMES.map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        value={cat}
+                        onChange={(e) => updateCategory(ci, e.target.value)}
+                        placeholder={isPie ? "Slice label" : "Category"}
+                        className={inputCls}
+                      />
+                    )}
                     <button type="button" onClick={() => removeCategory(ci)} className={removeBtnCls}>
                       &times;
                     </button>
@@ -1434,7 +1474,7 @@ function ChartTileEditor({
         </table>
       </div>
       <button type="button" onClick={addCategory} className={addBtnCls}>
-        + Add {isPie ? "Slice" : "Category"}
+        + Add {isPie ? "Slice" : isMonth ? "Month" : "Category"}
       </button>
 
       <div className="border border-gray-100 rounded-xl p-4 bg-white">
@@ -1452,6 +1492,21 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+
+const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 const inputCls = "w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:border-gray-400 placeholder:text-gray-400 resize-none";
 const uploadBtnCls = "text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-700 px-3 py-2.5 rounded-lg hover:bg-gray-200 transition whitespace-nowrap disabled:opacity-50";

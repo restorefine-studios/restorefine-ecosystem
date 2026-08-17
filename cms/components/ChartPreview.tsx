@@ -44,7 +44,10 @@ export function ChartPreview({ tile }: { tile: ChartTile }) {
   if (tile.title) {
     return (
       <div>
-        <p className="text-sm font-bold text-gray-900 mb-2">{tile.title}</p>
+        <p className="text-sm font-bold text-gray-900 mb-2">
+          {tile.title}
+          {tile.year && <span className="text-gray-400 font-normal"> — {tile.year}</span>}
+        </p>
         <ChartBodyOnly tile={tile} categories={categories} series={series} showLegend={showLegend} />
       </div>
     );

@@ -51,7 +51,12 @@ export interface ChartTile {
   title?: string;
   xAxisLabel?: string;
   yAxisLabel?: string;
+  /** "month" means categories are month names, paired with `year`. Ignored for pie. */
+  categoryMode?: "month" | "custom";
+  /** The single year this chart's data covers. Only used when categoryMode is "month". */
+  year?: string;
   showLegend?: boolean;
+  /** X-axis labels (month names when categoryMode is "month"), or pie slice names. */
   categories?: string[];
   series?: ChartSeries[];
 
@@ -75,7 +80,7 @@ export interface PortfolioSections {
   execution: SectionBase & { intro: string; items: string[] };
   results: SectionBase & { items: string[] };
   stats: SectionBase & { items: StatItem[] };
-  charts: SectionBase & { columns: 1 | 2 | 3; items: ChartTile[] };
+  charts: SectionBase & { items: ChartTile[] };
   faq: SectionBase & { items: FaqItem[] };
 }
 
@@ -148,7 +153,7 @@ const EMPTY_SECTIONS: PortfolioSections = {
   execution: { enabled: false, intro: "", items: [] },
   results: { enabled: false, items: [] },
   stats: { enabled: false, items: [] },
-  charts: { enabled: false, columns: 2, items: [] },
+  charts: { enabled: false, items: [] },
   faq: { enabled: false, items: [] },
 };
 

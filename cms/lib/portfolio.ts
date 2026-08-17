@@ -61,8 +61,16 @@ export interface ChartTile {
   xAxisLabel?: string;
   /** Ignored for pie. */
   yAxisLabel?: string;
+  /**
+   * "month" switches the category editor to a year + month picker (for
+   * time-series data); "custom"/undefined keeps free-text categories
+   * (e.g. platform names). Ignored for pie, which is always custom.
+   */
+  categoryMode?: "month" | "custom";
+  /** The single year this chart's data covers. Only used when categoryMode is "month". */
+  year?: string;
   showLegend?: boolean;
-  /** X-axis labels, or pie slice names. */
+  /** X-axis labels (month names when categoryMode is "month"), or pie slice names. */
   categories?: string[];
   /** Pie charts use exactly series[0]; its values are slice sizes. */
   series?: ChartSeries[];
@@ -89,7 +97,7 @@ export interface PortfolioSections {
   execution: SectionBase & { intro: string; items: string[] };
   results: SectionBase & { items: string[] };
   stats: SectionBase & { items: StatItem[] };
-  charts: SectionBase & { columns: 1 | 2 | 3; items: ChartTile[] };
+  charts: SectionBase & { items: ChartTile[] };
   faq: SectionBase & { items: FaqItem[] };
 }
 
@@ -162,7 +170,6 @@ export function emptySections(): PortfolioSections {
     stats: { enabled: false, items: [{ value: "", label: "", growth: "" }] },
     charts: {
       enabled: false,
-      columns: 2,
       items: [
         {
           kind: "chart",
@@ -171,6 +178,7 @@ export function emptySections(): PortfolioSections {
           title: "",
           xAxisLabel: "",
           yAxisLabel: "",
+          categoryMode: "custom",
           showLegend: true,
           categories: [""],
           series: [{ name: "", color: DEFAULT_CHART_PALETTE[0], values: [""] }],
