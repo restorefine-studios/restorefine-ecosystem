@@ -16,6 +16,17 @@ const STORAGE_KEY = "rcn-cookie-consent";
 
 const CookieConsentContext = createContext<CookieConsentContextValue | null>(null);
 
+function pushConsentUpdate(value: "accepted" | "rejected") {
+  const w = window as typeof window & { gtag?: (...args: unknown[]) => void };
+  const state = value === "accepted" ? "granted" : "denied";
+  w.gtag?.("consent", "update", {
+    ad_storage: state,
+    ad_user_data: state,
+    ad_personalization: state,
+    analytics_storage: state,
+  });
+}
+
 export function CookieConsentProvider({ children }: { children: ReactNode }) {
   const [consent, setConsent] = useState<ConsentValue>(null);
   const [bannerOpen, setBannerOpen] = useState(false);
@@ -30,6 +41,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 
     if (stored === "accepted" || stored === "rejected") {
       setConsent(stored);
+      pushConsentUpdate(stored);
     } else {
       setBannerOpen(true);
     }
@@ -38,6 +50,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
   const persist = (value: "accepted" | "rejected") => {
     setConsent(value);
     setBannerOpen(false);
+    pushConsentUpdate(value);
     try {
       localStorage.setItem(STORAGE_KEY, value);
     } catch {
