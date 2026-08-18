@@ -16,6 +16,8 @@ import {
   type SectionKey,
 } from "@/lib/portfolio-cms";
 
+const BASE = "https://www.restorefine.co.uk";
+
 /** Anchor ids, kept stable so a section keeps its link when others are toggled off. */
 const SECTION_IDS: Record<SectionKey, string> = {
   overview: "overview",
@@ -101,6 +103,31 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         })),
       }
     : null;
+
+  const image = project.hero_image || project.card_logo;
+  const caseStudySchema = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title || project.client_name,
+    headline: project.title || project.client_name,
+    about: project.client_name,
+    author: {
+      "@type": "Organization",
+      name: "RestoRefine",
+      url: BASE,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "RestoRefine",
+      url: BASE,
+      logo: `${BASE}/restorefine-logoblack.svg`,
+    },
+    ...(project.project_date ? { datePublished: project.project_date } : {}),
+    ...(project.updated_at || project.project_date
+      ? { dateModified: project.updated_at || project.project_date }
+      : {}),
+    ...(image ? { image } : {}),
+  };
 
   const visibleChartTiles = s.charts.items.filter(isChartTileVisible);
 
@@ -317,6 +344,8 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(caseStudySchema) }} />
+
       {faqSchema && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }} />
       )}

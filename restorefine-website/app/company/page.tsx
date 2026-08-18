@@ -8,16 +8,6 @@ export const metadata: Metadata = {
   title: "About Us",
   description:
     "Learn about RestoRefine — the story, the team, and the mission behind the UK's leading branding agency for restaurants and hospitality businesses.",
-  keywords: [
-    "about RestoRefine",
-    "restaurant branding agency team",
-    "UK hospitality design studio",
-    "who is RestoRefine",
-    "restaurant agency UK",
-    "hospitality creative agency",
-    "food brand design studio UK",
-    "RestoRefine story",
-  ],
   alternates: { canonical: "https://www.restorefine.co.uk/company" },
   openGraph: {
     title: "About Us | RestoRefine",

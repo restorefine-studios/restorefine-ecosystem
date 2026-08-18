@@ -13,6 +13,16 @@ import { PortfolioStoryClient } from "./PortfolioStoryClient";
 import type { Metadata } from "next";
 
 const BASE = "https://www.restorefine.co.uk";
+const BRAND_TITLE = "RestoRefine";
+
+function stripBrandSuffix(title: string) {
+  return title.replace(/(?:\s*\|\s*(?:RestoRefine|Restorefine)\s*)+$/i, "").trim();
+}
+
+function withBrandSuffix(title: string) {
+  const cleanTitle = stripBrandSuffix(title);
+  return `${cleanTitle} | ${BRAND_TITLE}`;
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -20,22 +30,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const project = portfolioItems.find((item) => item.id === slug);
 
   if (project) {
+    const title = stripBrandSuffix(project.title ?? project.id);
+    const socialTitle = withBrandSuffix(title);
+
     return {
-      title: `${project.title ?? project.id}: Portfolio`,
+      title,
       description: project.description
         ? `${project.description}`.slice(0, 160)
         : `See how RestoRefine delivered brand-defining work for ${project.title ?? project.id}.`,
-      keywords: [
-        project.title ?? project.id,
-        "restaurant branding case study",
-        "hospitality brand design portfolio",
-        "restaurant logo design UK",
-        "RestoRefine portfolio",
-        "restaurant brand identity work",
-      ],
       alternates: { canonical },
       openGraph: {
-        title: `${project.title ?? project.id} | RestoRefine Portfolio`,
+        title: socialTitle,
         description: project.description
           ? `${project.description}`.slice(0, 160)
           : `Portfolio case study: ${project.title ?? project.id}`,
@@ -45,13 +50,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             ? [{ url: project.thumbnail }]
             : [],
       },
+      twitter: {
+        card: "summary_large_image",
+        title: socialTitle,
+        description: project.description
+          ? `${project.description}`.slice(0, 160)
+          : `Portfolio case study: ${project.title ?? project.id}`,
+        images:
+          project.thumbnail && typeof project.thumbnail === "string"
+            ? [project.thumbnail]
+            : [],
+      },
     };
   }
 
   const cms = await getPortfolioProject(slug);
   if (!cms) return {};
 
-  const title = cms.meta_title || `${cms.title || cms.client_name}: Portfolio`;
+  const title = stripBrandSuffix(cms.meta_title || cms.title || cms.client_name);
+  const socialTitle = withBrandSuffix(title);
   const description =
     cms.meta_description ||
     (cms.description ? cms.description.slice(0, 160) : `Portfolio case study: ${cms.client_name}`);
@@ -60,17 +77,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title,
     description,
-    keywords: [
-      cms.client_name,
-      cms.title,
-      "restaurant branding case study",
-      "hospitality brand design portfolio",
-      "RestoRefine portfolio",
-    ].filter(Boolean),
     alternates: { canonical },
     robots: { index: !cms.noindex, follow: true },
     openGraph: {
-      title: `${cms.title || cms.client_name} | RestoRefine Portfolio`,
+      title: socialTitle,
       description,
       url: canonical,
       type: "article",
@@ -78,7 +88,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: socialTitle,
       description,
       images: image ? [image] : [],
     },

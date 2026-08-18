@@ -4,7 +4,7 @@ import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { useCookieConsent } from "./cookie-consent-provider";
 
-const GA_ID = "G-87QRBLHJXR";
+const GA_ID = "G-P47F8VLXVQ";
 const CLARITY_ID = "x8w68zirez";
 
 export function AnalyticsScripts() {

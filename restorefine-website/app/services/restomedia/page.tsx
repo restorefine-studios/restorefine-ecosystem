@@ -9,17 +9,6 @@ export const metadata: Metadata = {
   title: "RestoMedia — Restaurant Photography & Videography",
   description:
     "Elevate your restaurant's visual presence with RestoRefine's RestoMedia service. Professional food photography, restaurant videography, and content creation tailored for hospitality brands.",
-  keywords: [
-    "restaurant food photography UK",
-    "restaurant videography UK",
-    "food photography agency",
-    "hospitality photography UK",
-    "restaurant content creation",
-    "food brand photography",
-    "café photography UK",
-    "RestoMedia",
-    "restaurant video marketing UK",
-  ],
   alternates: { canonical: "https://www.restorefine.co.uk/services/restomedia" },
   openGraph: {
     title: "RestoMedia | RestoRefine",

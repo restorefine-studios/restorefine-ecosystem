@@ -7,15 +7,6 @@ export const metadata: Metadata = {
   title: "Contact Us",
   description:
     "Get in touch with RestoRefine. We'd love to hear about your restaurant, café, or hospitality brand project. Let's build something great together.",
-  keywords: [
-    "contact RestoRefine",
-    "restaurant branding agency contact",
-    "hire restaurant branding agency UK",
-    "restaurant web design enquiry",
-    "hospitality agency UK contact",
-    "get in touch RestoRefine",
-    "restaurant brand project UK",
-  ],
   alternates: { canonical: "https://www.restorefine.co.uk/contact" },
   openGraph: {
     title: "Contact Us | RestoRefine",

@@ -8,17 +8,6 @@ export const metadata: Metadata = {
   title: "Our Services",
   description:
     "Explore RestoRefine's full suite of services for restaurants and hospitality brands — branding, web design, print, merchandise, social media, and photography.",
-  keywords: [
-    "restaurant branding services UK",
-    "restaurant web design services",
-    "hospitality agency services",
-    "restaurant print design",
-    "restaurant merchandise design",
-    "restaurant social media management",
-    "food photography UK",
-    "restaurant brand identity services",
-    "RestoRefine services",
-  ],
   alternates: { canonical: "https://www.restorefine.co.uk/services" },
   openGraph: {
     title: "Our Services | RestoRefine",

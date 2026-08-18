@@ -5,17 +5,6 @@ export const metadata: Metadata = {
   title: "RestoMerch — Branded Merchandise for Restaurants",
   description:
     "Turn your restaurant into a lifestyle brand with RestoRefine's RestoMerch service. Custom branded merchandise — uniforms, tote bags, packaging, and more — designed for hospitality businesses.",
-  keywords: [
-    "restaurant branded merchandise UK",
-    "restaurant uniform design",
-    "custom restaurant packaging",
-    "hospitality merchandise design",
-    "restaurant branded tote bags",
-    "café merchandise UK",
-    "food brand merchandise",
-    "RestoMerch",
-    "restaurant lifestyle brand UK",
-  ],
   alternates: { canonical: "https://www.restorefine.co.uk/services/restomerch" },
   openGraph: {
     title: "RestoMerch | RestoRefine",

@@ -6,20 +6,6 @@ export const metadata: Metadata = {
   title: "RestoRefine | Creative Agency for Growing Ambitious Brands",
   description:
     "RestoRefine helps ambitious UK businesses grow through strategy, branding, marketing, and digital experiences. Trusted across hospitality, leisure, and beyond.",
-  keywords: [
-    "creative agency UK",
-    "branding agency",
-    "brand strategy",
-    "marketing agency",
-    "digital agency",
-    "web design agency",
-    "RestoRefine",
-    "growth agency",
-    "crm providers",
-    "hospitality partners",
-    "launch campaigns",
-    "graphics designs",
-  ],
   alternates: { canonical: "https://www.restorefine.co.uk" },
   openGraph: {
     title: "RestoRefine | Creative Growth Agency for Ambitious Brands",

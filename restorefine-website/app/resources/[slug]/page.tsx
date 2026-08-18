@@ -12,6 +12,17 @@ import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
 import { BLOCKS } from '@contentful/rich-text-types'
 import type { Metadata } from "next"
 
+const BRAND_TITLE = "RestoRefine";
+
+function stripBrandSuffix(title: string) {
+  return title.replace(/(?:\s*\|\s*(?:RestoRefine|Restorefine)\s*)+$/i, "").trim();
+}
+
+function withBrandSuffix(title: string) {
+  const cleanTitle = stripBrandSuffix(title);
+  return `${cleanTitle} | ${BRAND_TITLE}`;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const BASE = "https://www.restorefine.co.uk";
@@ -20,7 +31,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // 1. Supabase CMS post — checked first so edits reflect immediately
   const supaPost = await getSupaPost(slug);
   if (supaPost) {
-    const title = supaPost.meta_title || supaPost.title;
+    const title = stripBrandSuffix(supaPost.meta_title || supaPost.title);
+    const socialTitle = withBrandSuffix(title);
     const description = supaPost.meta_description || supaPost.excerpt || `Read "${supaPost.title}" on the RestoRefine blog.`;
     const ogImage = supaPost.thumbnail?.startsWith("http")
       ? supaPost.thumbnail
@@ -33,7 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       alternates: { canonical },
       robots: { index: !supaPost.noindex, follow: true },
       openGraph: {
-        title,
+        title: socialTitle,
         description,
         url: canonical,
         type: "article",
@@ -43,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       },
       twitter: {
         card: "summary_large_image",
-        title,
+        title: socialTitle,
         description,
         images: [ogImage],
       },
@@ -52,28 +64,27 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const entry = await getEntry(slug);
   if (!entry) return {};
-  const title = entry.fields?.title || "Blog Post";
+  const title = stripBrandSuffix(`${entry.fields?.title || "Blog Post"}`);
+  const socialTitle = withBrandSuffix(title);
   const thumbnail = entry.fields?.blogThumbnail
     ? "https:" + entry.fields.blogThumbnail.fields.file.url
     : undefined;
   return {
     title: `${title}`,
     description: `Read "${title}" on the RestoRefine blog — insights on restaurant branding, design, and hospitality marketing.`,
-    keywords: [
-      "restaurant branding tips",
-      "hospitality marketing advice",
-      "restaurant brand strategy UK",
-      "food brand design blog",
-      "RestoRefine blog",
-      "restaurant industry insights UK",
-    ],
     alternates: { canonical },
     openGraph: {
-      title: `${title} | RestoRefine`,
+      title: socialTitle,
       description: `Read "${title}" on the RestoRefine blog.`,
       url: canonical,
       type: "article",
       images: thumbnail ? [{ url: thumbnail }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: socialTitle,
+      description: `Read "${title}" on the RestoRefine blog.`,
+      images: thumbnail ? [thumbnail] : [],
     },
   };
 }

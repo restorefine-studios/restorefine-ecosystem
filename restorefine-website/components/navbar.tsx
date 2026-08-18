@@ -63,6 +63,7 @@ export const pillars: NavPillar[] = [
     icon: Video,
     services: [
       { title: "Short-form Content", href: "/services/content", icon: Video },
+      { title: "RestoMedia", href: "/services/restomedia", icon: Camera },
       { title: "Social Media Management", href: "/services/content", icon: Share2 },
       { title: "Launch Campaigns", href: "/services/launch-campaigns", icon: Rocket },
       { title: "Content Strategy", href: "/services/content", icon: LayoutList },
