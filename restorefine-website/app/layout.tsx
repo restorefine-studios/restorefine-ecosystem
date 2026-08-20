@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
-import { AdNoticeModal } from "@/components/ad-notice-modal";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { CookieConsentProvider } from "@/components/cookie-consent-provider";
@@ -195,7 +194,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <IntroLoader />
         <CookieConsentProvider>
           <Navbar /> {children}
-          <AdNoticeModal />
           <WhatsAppFloatingButton />
           <SpeedInsights />
           <Analytics />

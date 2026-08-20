@@ -271,6 +271,21 @@ export function NavBarContent({ height = "h-20" }: { height?: string }) {
           Enquire Now
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
+        {/* Animated Shiny Red Outline Button */}
+        <div className="relative group hidden md:inline-flex items-center justify-center p-[2px] rounded-full overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.75)]">
+          {/* Rotating shiny red border gradient */}
+          <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#ef4444_0%,#f87171_25%,transparent_50%,#dc2626_75%,#ef4444_100%)]" />
+          
+          <a
+            href="https://talent.restorefine.co.uk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative flex items-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors duration-300 group-hover:bg-red-600"
+          >
+            <span>Join Talent Network</span>
+            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </a>
+        </div>
         <MobileMenu />
       </div>
     </div>

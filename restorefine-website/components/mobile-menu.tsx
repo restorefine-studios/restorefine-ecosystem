@@ -115,9 +115,26 @@ export function MobileMenu() {
             </Link>
           ))}
 
-          <Link href="/contact" onClick={close} className="py-5 text-lg text-zinc-900">
+          <Link href="/contact" onClick={close} className="py-5 border-b border-zinc-100 text-lg text-zinc-900">
             Contact
           </Link>
+
+          <a
+            href="https://talent.restorefine.co.uk"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={close}
+            className="py-5 text-lg font-medium text-zinc-900 flex items-center justify-between group"
+          >
+            <span className="flex items-center gap-2.5">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600"></span>
+              </span>
+              <span>Join Talent Network</span>
+            </span>
+            <ArrowUpRight className="w-5 h-5 text-red-600 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </a>
         </div>
 
         {/* Footer: secondary WhatsApp link + primary CTA, side by side */}
