@@ -6,7 +6,7 @@ import { Menu, ChevronDown, ArrowUpRight, ArrowRight } from "lucide-react";
 import { pillars } from "./navbar";
 import Image from "next/image";
 import navlogo from "@/public/restorefine-logoblack.svg";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { pushGTMEvent } from "@/lib/gtm";
 
 const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`;
@@ -27,15 +27,19 @@ export function MobileMenu() {
 
       <SheetContent
         side="top"
+        hideDefaultClose
         className="left-3 right-3 top-3 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-[420px] max-h-[85vh] overflow-y-auto rounded-b-[28px] border-0 bg-white text-zinc-900 flex flex-col p-0 shadow-2xl"
       >
         <SheetTitle className="sr-only">Menu</SheetTitle>
 
-        {/* Header: logo top-left, built-in close (X) sits top-right */}
-        <div className="flex items-center px-6 pt-6 pb-2">
+        {/* Header: logo top-left, hamburger open/close icon top-right */}
+        <div className="flex items-center justify-between px-6 pt-5 pb-2">
           <Link href="/" onClick={close}>
             <Image src={navlogo} alt="RestoRefine" width={28} height={28} />
           </Link>
+          <SheetClose className="p-2 text-zinc-900 hover:opacity-70 transition-opacity" aria-label="Close menu">
+            <Menu className="w-7 h-7" />
+          </SheetClose>
         </div>
 
         {/* Links */}
