@@ -215,7 +215,7 @@ function ServicesMegaMenu() {
 /* ------------------------------------------------------------------ */
 export function NavBarContent({ height = "h-20" }: { height?: string }) {
   return (
-    <div className={cn("grid grid-cols-[1fr_auto_1fr] items-center px-4 md:px-5", height)}>
+    <div className={cn("flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] px-4 md:px-5", height)}>
       {/* Brand */}
       <Link href="/" className="flex items-center gap-3 justify-self-start no-underline" aria-label="RestoRefine home">
         <span className="flex h-9 w-9 items-center justify-center">
