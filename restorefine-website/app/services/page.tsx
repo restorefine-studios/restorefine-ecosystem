@@ -7,12 +7,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Our Services",
   description:
-    "Explore RestoRefine's full suite of services for restaurants and hospitality brands — branding, web design, print, merchandise, social media, and photography.",
+    "Explore RestoRefine's full suite of services for restaurants and hospitality brands: branding, web design, print, merchandise, social media, and photography.",
   alternates: { canonical: "https://www.restorefine.co.uk/services" },
   openGraph: {
     title: "Our Services | RestoRefine",
     description:
-      "Branding, web design, print, merchandise, social media, and photography — built exclusively for the hospitality industry.",
+      "Branding, web design, print, merchandise, social media, and photography, built exclusively for the hospitality industry.",
     url: "https://www.restorefine.co.uk/services",
   },
 };
@@ -82,21 +82,17 @@ async function Services() {
     });
   }
 
-  const heroHeadline = entry?.fields?.heroHeadline || 'Transforming Visions Into Impactful Brands';
-  const heroSubtext = entry?.fields?.heroSubtext || 'From concept to creation, we craft brands that resonate, inspire, and drive results.';
-  const heroImage = entry?.fields?.heroImage ? 'https:' + entry.fields.heroImage.fields.file.url : '/servicesherographic.svg';
-  const heroMarquee = entry?.fields?.heroMarquee || 'RestoWeb. RestoBranding. RestoPrinting. RestoMerch. RestoMedia.';
+  const heroHeadline = 'Where Identity Becomes Impact';
+  const heroSubtext = 'Brand, content, and performance, engineered as one system, not three separate services.';
 
-  const serviceHeadline = entry?.fields?.serviceHeadline || 'Our Services';
-  const serviceSubtext = entry?.fields?.serviceSubtext || 'Shaping Brands with Purpose and Precision';
+  const serviceHeadline = 'Three Disciplines, One Team';
+  const serviceSubtext = 'No handoffs between disconnected teams. Brand, content, and performance move together, from day one.';
 
   return (
     <main>
       <RestoServices
         heroHeadline={heroHeadline}
         heroSubtext={heroSubtext}
-        heroImage={heroImage}
-        heroMarquee={heroMarquee}
         serviceHeadline={serviceHeadline}
         serviceSubtext={serviceSubtext}
         subServices={subServices}

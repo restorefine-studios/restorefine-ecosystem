@@ -125,7 +125,7 @@ function HeroHeadline({
     <AnimatePresence mode="wait">
       <motion.h1
         key={active.id}
-        className="text-[clamp(3.2rem,6.2vw,7.9rem)] font-black leading-[0.92] tracking-[-0.055em] text-zinc-950"
+        className="text-[clamp(2.3rem,9vw,7.9rem)] font-black leading-[0.98] tracking-[-0.03em] text-zinc-950 sm:leading-[0.92] sm:tracking-[-0.055em]"
         initial={false}
         animate={{ opacity: 1 }}
         exit={{ opacity: 1 }}
@@ -136,7 +136,7 @@ function HeroHeadline({
               key={`${active.id}-${line}`}
               text={line}
               reduceMotion={reduceMotion}
-              className="block whitespace-nowrap"
+              className="block whitespace-normal sm:whitespace-nowrap"
               delayBase={index * 0.08}
             />
           ))}

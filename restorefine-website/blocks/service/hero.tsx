@@ -1,33 +1,32 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ServicesHeroProps {
   headline: string;
   subtext: string;
-  image: string;
-  marquee: string;
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 32 },
   visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
   }),
 };
 
-function ServicesHero({ headline, subtext, image, marquee }: ServicesHeroProps) {
+function ServicesHero({ headline, subtext }: ServicesHeroProps) {
+  const words = headline.trim().split(" ");
+  const line1 = words.slice(0, -1).join(" ") || words[0];
+  const line2 = words.length > 1 ? words[words.length - 1] : "";
+
   return (
-    <section className="bg-white pt-36 pb-0 overflow-hidden">
-      <div className="px-6 md:px-12 lg:px-24 max-w-7xl mx-auto">
-        {/* Eyebrow */}
+    <section className="bg-white flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 pt-24 pb-24 relative overflow-hidden">
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-red-50 via-violet-50 to-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <div className="max-w-4xl w-full mx-auto relative flex flex-col items-center">
         <motion.span
-          className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-6"
+          className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-8"
           initial="hidden"
           animate="visible"
           variants={fadeUp}
@@ -35,80 +34,35 @@ function ServicesHero({ headline, subtext, image, marquee }: ServicesHeroProps) 
           Our Services
         </motion.span>
 
-        {/* Two-column layout */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12 pb-16 border-b border-zinc-200">
-          <div className="flex-1">
-            <motion.h1
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight text-zinc-900 leading-[0.9] max-w-2xl"
-              initial="hidden"
-              animate="visible"
-              custom={1}
-              variants={fadeUp}
-            >
-              {headline.split(" ").map((word, i) => (
-                <span key={i} className={i === 0 ? "text-red-600" : ""}>
-                  {word}{" "}
-                </span>
-              ))}
-            </motion.h1>
-
-            <motion.p
-              className="mt-8 max-w-sm text-sm text-zinc-500 leading-relaxed"
-              initial="hidden"
-              animate="visible"
-              custom={2}
-              variants={fadeUp}
-            >
-              {subtext}
-            </motion.p>
-
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              custom={3}
-              variants={fadeUp}
-            >
-              <Link href="/enquire-now" className="inline-flex items-center gap-2 mt-8 group">
-                <span className="text-sm font-black uppercase tracking-[0.15em] bg-zinc-900 text-white px-7 py-3.5 rounded-full group-hover:bg-red-600 transition-colors duration-300">
-                  Let&apos;s Craft Something
-                </span>
-                <span className="w-11 h-11 rounded-full bg-red-600 flex items-center justify-center group-hover:bg-zinc-900 transition-colors duration-300">
-                  <ArrowRight className="w-5 h-5 text-white" />
-                </span>
-              </Link>
-            </motion.div>
-          </div>
-
-          <motion.div
-            className="w-full lg:w-[45%] xl:w-[40%]"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Image
-              src={image || "/placeholder.svg"}
-              alt="Services Hero Graphic"
-              width={750}
-              height={750}
-              className="w-full h-auto"
-              priority
-            />
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Marquee strip */}
-      <div className="bg-zinc-900 py-5 mt-0 overflow-hidden">
-        <div className="flex whitespace-nowrap animate-marquee">
-          {[0, 1, 2, 3].map((i) => (
+        <motion.h1
+          className="font-black uppercase tracking-tight text-zinc-900 mb-10"
+          initial="hidden"
+          animate="visible"
+          custom={1}
+          variants={fadeUp}
+        >
+          <span className="block relative z-0 text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] xl:text-[7rem] leading-[0.9]">
+            {line1}
+          </span>
+          {line2 && (
             <span
-              key={i}
-              className="text-2xl md:text-3xl font-black uppercase tracking-[0.2em] text-white/20 mx-8 flex-shrink-0"
+              className="block relative z-10 font-light text-red-600 normal-case leading-[1.15] whitespace-nowrap pb-2"
+              style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(3.5rem, 11vw, 8.5rem)", marginTop: "-1rem" }}
             >
-              {marquee}
+              {line2}
             </span>
-          ))}
-        </div>
+          )}
+        </motion.h1>
+
+        <motion.p
+          className="max-w-lg text-sm text-zinc-500 leading-relaxed"
+          initial="hidden"
+          animate="visible"
+          custom={2}
+          variants={fadeUp}
+        >
+          {subtext}
+        </motion.p>
       </div>
     </section>
   );

@@ -6,8 +6,6 @@ import Cta from "@/components/cta";
 interface RestoServicesProps {
   heroHeadline: string;
   heroSubtext: string;
-  heroImage: string;
-  heroMarquee: string;
   serviceHeadline: string;
   serviceSubtext: string;
   subServices: any[];
@@ -20,8 +18,6 @@ function RestoServices(props: RestoServicesProps) {
       <ServicesHero
         headline={props.heroHeadline}
         subtext={props.heroSubtext}
-        image={props.heroImage}
-        marquee={props.heroMarquee}
       />
       <ServiceTypes
         headline={props.serviceHeadline}
