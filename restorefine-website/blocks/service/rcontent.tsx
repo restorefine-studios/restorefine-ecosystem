@@ -3,90 +3,76 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Play } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { CaseStudiesSection } from "./resto-services/case-studies";
 import { ProcessTimeline } from "./process-timeline";
 import type { PortfolioItem } from "@/lib/portfolio";
-import { brandPillarContent } from "@/lib/pillar-content/brand-pillar";
-
-// ─── Motion ─────────────────────────────────────────────────────────────────
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 32 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
-  }),
-};
+import { contentPillarContent } from "@/lib/pillar-content/content-pillar";
 
 const holiday = { fontFamily: "var(--font-holiday), serif" };
 
 // ─── Hero ───────────────────────────────────────────────────────────────────
-// Split hero. Right side is a self-contained "brand board" mockup built from
-// the site's own tokens (no stock photo needed for a page about identity work).
+// Split hero. Right side is a content-grid mockup built from the site's own
+// service imagery, styled like a feed preview rather than a stock photo.
 
-function BrandBoard() {
-  const swatches = [
-    { className: "bg-red-600" },
-    { className: "bg-zinc-900" },
-    { className: "bg-stone-300" },
-    { className: "bg-zinc-100 border border-zinc-300" },
+function ContentGrid() {
+  const tiles = [
+    { image: "/services/media/pexels-cottonbro-3296434.webp", alt: "Short-form content still", play: true },
+    { image: "/content-card-img.png", alt: "Social media management" },
+    { image: "/services/media/pexels-fauxels-3184431.webp", alt: "Launch campaign content" },
+    { image: "/services/media/restophotography.webp", alt: "Brand photography" },
   ];
 
   return (
     <div className="relative w-full max-w-md mx-auto">
       <div className="absolute -right-4 top-6 w-full h-full rounded-3xl bg-zinc-100 border border-zinc-200 rotate-[4deg]" aria-hidden />
       <motion.div
-        className="relative rounded-3xl bg-white border border-zinc-200 shadow-2xl shadow-zinc-900/10 p-8 md:p-10"
+        className="relative rounded-3xl bg-white border border-zinc-200 shadow-2xl shadow-zinc-900/10 p-6 md:p-7"
         initial={{ opacity: 0, y: 24, rotate: -2 }}
         whileInView={{ opacity: 1, y: 0, rotate: -1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       >
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-4">Colour Palette</p>
-        <div className="flex gap-3 mb-10">
-          {swatches.map((s, i) => (
-            <span key={i} className={`w-9 h-9 rounded-full ${s.className}`} />
+        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-4">Feed Preview</p>
+        <div className="grid grid-cols-2 gap-3">
+          {tiles.map((tile) => (
+            <div key={tile.image} className="relative aspect-square rounded-xl overflow-hidden bg-zinc-100">
+              <Image src={tile.image} alt={tile.alt} fill className="object-cover" sizes="200px" />
+              {tile.play && (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/20">
+                  <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
+                    <Play className="w-3.5 h-3.5 text-zinc-900 fill-zinc-900 ml-0.5" />
+                  </span>
+                </div>
+              )}
+            </div>
           ))}
-        </div>
-
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-4">Typography</p>
-        <div className="flex items-baseline gap-5 mb-10">
-          <span className="text-6xl font-black text-zinc-900 leading-none">Aa</span>
-          <span className="text-5xl font-light text-red-600 normal-case leading-none" style={holiday}>Aa</span>
-        </div>
-
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-4">Mark</p>
-        <div className="w-14 h-14 rounded-full border-[3px] border-zinc-900 flex items-center justify-center">
-          <span className="w-3 h-3 rounded-full bg-red-600" />
         </div>
       </motion.div>
     </div>
   );
 }
 
-function BrandHero() {
-  const { hero } = brandPillarContent;
+function ContentHero() {
+  const { hero } = contentPillarContent;
   return (
     <section className="bg-white min-h-[100dvh] flex items-center px-6 md:px-12 lg:px-24 pt-24 pb-16">
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] items-center gap-16 lg:gap-12">
         <div>
           <motion.span
             className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-8"
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
             {hero.eyebrow}
           </motion.span>
           <motion.h1
             className="font-black uppercase tracking-tight text-zinc-900 mb-8"
-            initial="hidden"
-            animate="visible"
-            custom={1}
-            variants={fadeUp}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.08 }}
           >
             <span className="block relative z-0 text-5xl sm:text-6xl lg:text-7xl leading-[0.95] pb-1">{hero.line1}</span>
             <span
@@ -98,14 +84,17 @@ function BrandHero() {
           </motion.h1>
           <motion.p
             className="max-w-md text-sm text-zinc-500 leading-relaxed mb-8"
-            initial="hidden"
-            animate="visible"
-            custom={2}
-            variants={fadeUp}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.16 }}
           >
             {hero.subtext}
           </motion.p>
-          <motion.div initial="hidden" animate="visible" custom={3} variants={fadeUp}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.24 }}
+          >
             <Link href="/enquire-now" className="inline-flex items-center gap-2 group">
               <span className="text-sm font-black uppercase tracking-[0.15em] bg-zinc-900 text-white px-7 py-3.5 rounded-full group-hover:bg-red-600 transition-colors duration-300">
                 {hero.ctaLabel}
@@ -117,17 +106,18 @@ function BrandHero() {
           </motion.div>
         </div>
 
-        <BrandBoard />
+        <ContentGrid />
       </div>
     </section>
   );
 }
 
 // ─── Overview ───────────────────────────────────────────────────────────────
-// Full-width statement, no side image (the hero already carries the visual).
+// Full-width statement with the four pitfalls as a marked list, not checkmarks
+// (these are problems to avoid, not deliverables).
 
-function BrandOverview() {
-  const { overview } = brandPillarContent;
+function ContentOverview() {
+  const { overview } = contentPillarContent;
   return (
     <section className="section-bleed bg-zinc-50 py-24">
       <div className="max-w-5xl mx-auto">
@@ -142,54 +132,51 @@ function BrandOverview() {
         </motion.p>
 
         <motion.h2
-          className="text-4xl md:text-6xl font-black uppercase tracking-tight text-zinc-900 leading-[0.95] mb-12 max-w-4xl"
+          className="text-4xl md:text-6xl font-black uppercase tracking-tight text-zinc-900 leading-[1.05] mb-12 max-w-4xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Build a Brand That{" "}
+          Your business has something worth saying. Your content should say it with{" "}
           <span className="font-light normal-case text-red-600" style={holiday}>
-            Means
-          </span>{" "}
-          Something
+            purpose
+          </span>
+          .
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 mb-12">
-          {overview.body.map((paragraph, i) => (
-            <motion.p
-              key={i}
-              className="text-sm text-zinc-500 leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.15 + i * 0.08 }}
-            >
-              {paragraph}
-            </motion.p>
-          ))}
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+          <motion.p
+            className="text-sm text-zinc-500 leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+          >
+            {overview.body}
+          </motion.p>
 
-        <motion.div
-          className="inline-flex items-start gap-4 rounded-2xl border border-zinc-200 bg-white px-6 py-5"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest text-zinc-400 mb-1">{overview.caption.label}</p>
-            <p className="text-sm font-semibold text-zinc-900 max-w-sm">{overview.caption.text}</p>
+          <div className="space-y-4">
+            {overview.problems.map((problem, i) => (
+              <motion.div
+                key={problem}
+                className="flex items-start gap-3 border-l-2 border-red-600 pl-4"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
+              >
+                <p className="text-sm text-zinc-700 leading-relaxed">{problem}</p>
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
 }
 
 // ─── Services ───────────────────────────────────────────────────────────────
-// Bento grid: two feature tiles (one dark/typographic, one photo) up top,
-// three compact cards below. No repeated zigzag rows.
 
 function ServiceTags({ items, dark = false }: { items: string[]; dark?: boolean }) {
   return (
@@ -198,9 +185,7 @@ function ServiceTags({ items, dark = false }: { items: string[]; dark?: boolean 
         <span
           key={item}
           className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] rounded-full ${
-            dark
-              ? "text-white/80 border border-white/20"
-              : "text-zinc-600 border border-zinc-200 bg-white"
+            dark ? "text-white/80 border border-white/20" : "text-zinc-600 border border-zinc-200 bg-white"
           }`}
         >
           {item}
@@ -229,8 +214,8 @@ function ServiceCta({ label, href, light = false }: { label: string; href: strin
   );
 }
 
-function BrandServices() {
-  const [strategy, identity, ...rest] = brandPillarContent.subServices;
+function ContentServices() {
+  const [shortForm, socialMedia, ...rest] = contentPillarContent.subServices;
 
   return (
     <section className="bg-white py-24 px-6 md:px-12 lg:px-24">
@@ -242,64 +227,54 @@ function BrandServices() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          Our{" "}
-          <span className="font-light normal-case text-red-600" style={holiday}>
-            Branding
-          </span>{" "}
-          Services
+          Our Services
         </motion.h2>
 
         {/* Row 1: feature tiles */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
           <motion.div
-            className="lg:col-span-2 rounded-3xl bg-zinc-900 p-8 md:p-10 flex flex-col justify-between min-h-[380px]"
+            className="lg:col-span-3 relative rounded-3xl overflow-hidden min-h-[380px]"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400 mb-4">
-                {strategy.number} - {strategy.category}
-              </p>
-              <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white leading-[0.95] mb-4">
-                {strategy.title}
-              </h3>
-              <p className="text-sm text-white/65 leading-relaxed">{strategy.description}</p>
-            </div>
-            <div className="mt-8">
-              <ServiceTags items={strategy.includes} dark />
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="lg:col-span-3 relative rounded-3xl overflow-hidden min-h-[380px]"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          >
             <Image
-              src={identity.image}
-              alt={identity.title}
+              src={shortForm.image}
+              alt={shortForm.title}
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 60vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/25 to-transparent" />
             <div className="absolute inset-0 p-8 md:p-10 flex flex-col justify-end">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400 mb-3">
-                {identity.number} - {identity.category}
-              </p>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400 mb-3">{shortForm.number}</p>
               <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white leading-[0.95] mb-3">
-                {identity.title}
+                {shortForm.title}
               </h3>
-              <p className="text-sm text-white/80 leading-relaxed mb-5 max-w-md">{identity.description}</p>
-              <div className="mb-6">
-                <ServiceTags items={identity.includes} dark />
-              </div>
-              {identity.ctaHref && identity.ctaLabel && (
-                <ServiceCta label={identity.ctaLabel} href={identity.ctaHref} light />
+              <p className="text-sm text-white/80 leading-relaxed mb-5 max-w-md">{shortForm.description}</p>
+              <ServiceTags items={shortForm.includes} dark />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="lg:col-span-2 rounded-3xl bg-zinc-900 p-8 md:p-10 flex flex-col justify-between min-h-[380px]"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-400 mb-4">{socialMedia.number}</p>
+              <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white leading-[0.95] mb-4">
+                {socialMedia.title}
+              </h3>
+              <p className="text-sm text-white/65 leading-relaxed">{socialMedia.description}</p>
+            </div>
+            <div className="mt-8 space-y-6">
+              <ServiceTags items={socialMedia.includes} dark />
+              {socialMedia.ctaHref && socialMedia.ctaLabel && (
+                <ServiceCta label={socialMedia.ctaLabel} href={socialMedia.ctaHref} light />
               )}
             </div>
           </motion.div>
@@ -325,9 +300,7 @@ function BrandServices() {
                   sizes="(max-width: 640px) 100vw, 33vw"
                 />
               </div>
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600 mb-3">
-                {service.number} - {service.category}
-              </p>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600 mb-3">{service.number}</p>
               <h3 className="text-xl font-black uppercase tracking-tight text-zinc-900 leading-[0.95] mb-3">
                 {service.title}
               </h3>
@@ -347,10 +320,10 @@ function BrandServices() {
 }
 
 // ─── Process ────────────────────────────────────────────────────────────────
-// Connected steps: a line ties the three numbered nodes together.
+// Four connected steps (Strategy, Create, Distribute, Measure & Refine).
 
-function BrandProcess() {
-  const { process } = brandPillarContent;
+function ContentProcess() {
+  const { process } = contentPillarContent;
   return (
     <section className="section-bleed py-24 bg-zinc-50">
       <div className="max-w-6xl mx-auto">
@@ -361,11 +334,10 @@ function BrandProcess() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          A{" "}
+          From Strategy to Content That{" "}
           <span className="font-light normal-case text-red-600" style={holiday}>
-            Simple
-          </span>{" "}
-          Process, Built Around You.
+            Performs
+          </span>
         </motion.h2>
 
         <motion.p
@@ -385,9 +357,8 @@ function BrandProcess() {
 }
 
 // ─── Closing CTA ────────────────────────────────────────────────────────────
-// Compact bar, echoes the navbar's "Not sure where to start?" strip in red.
 
-function BrandClosingCta() {
+function ContentClosingCta() {
   return (
     <section className="pb-24 px-6 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
@@ -421,38 +392,34 @@ function BrandClosingCta() {
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
-function RBrand({ caseStudies = [] }: { caseStudies?: PortfolioItem[] }) {
+function RContent({ caseStudies = [] }: { caseStudies?: PortfolioItem[] }) {
   return (
     <main className="bg-white">
-      <BrandHero />
-      <BrandOverview />
-      <BrandServices />
-      <BrandProcess />
+      <ContentHero />
+      <ContentOverview />
+      <ContentServices />
+      <ContentProcess />
 
       <CaseStudiesSection
         hideEyebrow
         heading={
           <>
+            Content That Creates More Than{" "}
             <span className="font-light normal-case text-red-600" style={holiday}>
-              Branding
-            </span>{" "}
-            for Businesses in Glasgow & Beyond
+              Attention
+            </span>
+            .
           </>
         }
-        intro={
-          <>
-            {brandPillarContent.caseStudies.body}{" "}
-            <span className="font-semibold text-zinc-900">{brandPillarContent.caseStudies.emphasis}</span>
-          </>
-        }
-        categories={["Branding", "Menus"]}
+        intro={contentPillarContent.caseStudies.body}
+        categories={["Media", "Branding"]}
         extraItems={caseStudies}
       />
 
-      <BrandClosingCta />
+      <ContentClosingCta />
       <Footer />
     </main>
   );
 }
 
-export default RBrand;
+export default RContent;

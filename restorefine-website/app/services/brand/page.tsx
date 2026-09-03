@@ -6,14 +6,14 @@ import RBrand from "@/blocks/service/rbrand";
 import { getCmsCaseStudies } from "@/lib/portfolio-cms";
 
 export const metadata: Metadata = {
-  title: "Brand | RestoRefine",
+  title: "Branding Agency Glasgow | Build Your Brand with RestoRefine",
   description:
-    "With RestoRefine Branding, develop a compelling brand that captures attention and builds trust — logo design, brand identity development, and social media graphics.",
+    "RestoRefine is a Glasgow branding agency helping businesses turn their ideas into distinctive brands that people remember through strategy, identity, & design.",
   alternates: { canonical: "https://www.restorefine.co.uk/services/brand" },
   openGraph: {
-    title: "Brand | RestoRefine",
+    title: "Branding Agency Glasgow | Build Your Brand with RestoRefine",
     description:
-      "With RestoRefine Branding, develop a compelling brand that captures attention and builds trust — logo design, brand identity development, and social media graphics.",
+      "RestoRefine is a Glasgow branding agency helping businesses turn their ideas into distinctive brands that people remember through strategy, identity, & design.",
     url: "https://www.restorefine.co.uk/services/brand",
   },
 };

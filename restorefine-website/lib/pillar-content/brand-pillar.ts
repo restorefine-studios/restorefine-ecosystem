@@ -5,11 +5,13 @@ export interface PillarServicePoint {
 
 export interface PillarSubService {
   number: string;
+  category: string;
   title: string;
   description: string;
   image: string;
-  href?: string;
   includes: string[];
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 
 export interface PillarProcessStep {
@@ -20,116 +22,142 @@ export interface PillarProcessStep {
 
 export interface BrandPillarContent {
   hero: {
-    title: string;
-    description: string;
+    eyebrow: string;
+    line1: string;
+    line2: string;
+    subtext: string;
+    ctaLabel: string;
   };
   overview: {
+    intro: string;
     heading: string;
-    body: string;
+    body: string[];
+    caption: {
+      label: string;
+      text: string;
+    };
   };
-  services: PillarServicePoint[];
   subServices: PillarSubService[];
   process: {
-    heading: string;
+    heading1: string;
+    heading2: string;
     intro: string;
     steps: PillarProcessStep[];
+  };
+  caseStudies: {
+    heading: string;
+    body: string;
+    emphasis: string;
   };
 }
 
 export const brandPillarContent: BrandPillarContent = {
   hero: {
-    title: "Your Brand Is the First Thing People Judge. Make It Count.",
-    description:
-      "With RestoRefine Branding, develop a compelling brand that captures attention and builds trust. From logo design to complete brand identity development, including social media graphics and brand strategy, we ensure your brand communicates clearly, consistently, and powerfully across every channel and every audience.",
+    eyebrow: "Resto Brand",
+    line1: "First Impressions",
+    line2: "Make Them Count.",
+    subtext: "Your business has grown. Your brand should grow with it.",
+    ctaLabel: "Let's Build Your Brand",
   },
   overview: {
+    intro:
+      "Whether your brand feels outdated or simply no longer reflects the business you've built, Restorefine helps you bring it back into focus. We combine brand strategy, positioning, and identity to create brands that look distinctive, communicate clearly, and give the right people a reason to choose you.",
     heading: "Build a Brand That Means Something",
-    body: "In a crowded market, a weak brand is invisible. At Restorefine, we create identity systems that communicate who you are, what you stand for, and why customers should choose you across every touchpoint, every time.",
+    body: [
+      "Your brand should do more than look good. It should make your business recognizable, communicate what you stand for, and give the right people a reason to choose you.",
+      "From our base in Glasgow, Restorefine brings strategy, identity, and design together to create a brand that feels unmistakably yours and works consistently across every customer touchpoint.",
+    ],
+    caption: {
+      label: "What you get",
+      text: "A brand system built to look consistent, feel distinctive, and stay memorable.",
+    },
   },
-  services: [
-    {
-      title: "Logo Design",
-      description:
-        "Your logo is the foundation of everything. We design marks that are distinctive, versatile, and built to work at any scale from a business card to a billboard, a favicon to a storefront sign.",
-    },
-    {
-      title: "Brand Identity Development",
-      description:
-        "A logo is just the beginning. We develop complete visual identity systems colour palettes, typography, graphic language, and brand guidelines, so your business looks and feels consistent everywhere it shows up.",
-    },
-    {
-      title: "Social Media Design",
-      description:
-        "Your social presence is your most visible brand channel. We design scroll stopping templates and graphics tailored to your platforms, so your feed builds recognition, credibility, and engagement.",
-    },
-  ],
   subServices: [
     {
       number: "01",
-      title: "Logo Design",
+      category: "Brand Strategy",
+      title: "Know What Your Brand Stands For.",
       description:
-        "Your logo is the foundation of everything. We design marks that are distinctive, versatile, and built to work at any scale — from a business card to a billboard, a favicon to a storefront sign.",
-      image: "/services/branding/pexels-ron-lach-9617889.webp",
-      includes: ["Logo Concepts", "Vector Files", "Favicon & App Icon", "Usage Guidelines"],
+        "Before you decide how your brand should represent the business, you need clarity on what it should say and who it needs to reach. We define your positioning, voice, and messaging so your brand has a clear direction, while every touchpoint communicates it consistently.",
+      image: "/services/media/pexels-pixabay-262438.webp",
+      includes: ["Brand Positioning", "Brand Voice & Messaging", "Competitor Analysis", "Brand Strategy Deck"],
     },
     {
       number: "02",
-      title: "Brand Identity Development",
+      category: "Brand Identity Development",
+      title: "Turn Your Business Into a Brand People Recognise.",
       description:
-        "A logo is just the beginning. We develop complete visual identity systems — colour palettes, typography, graphic language, and brand guidelines — so your business looks and feels consistent everywhere it shows up.",
+        "A strong brand is more than a logo. From colour and typography to digital platforms and brand communications, we develop cohesive visual identity systems that give your business a distinctive look and make it instantly recognisable across every touchpoint.",
       image: "/services/branding/pexels-duygugungor-19949505.webp",
-      href: "/services/brand",
       includes: ["Colour Palette", "Typography System", "Brand Guidelines", "Stationery Design"],
+      ctaLabel: "Let's Talk Branding",
+      ctaHref: "/enquire-now",
     },
     {
       number: "03",
-      title: "Brand Strategy",
+      category: "Logo Design",
+      title: "Make Your First Mark a Memorable One.",
       description:
-        "Great branding starts with clarity. We define your positioning, voice, and messaging so every design decision points in the same direction — and every touchpoint says the same thing about who you are.",
-      image: "/services/media/pexels-pixabay-262438.webp",
-      includes: ["Positioning", "Brand Voice & Messaging", "Competitor Analysis", "Brand Strategy Deck"],
+        "A logo should be recognisable, versatile, and unmistakably yours. We design distinctive, versatile marks that give your brand a recognisable starting point and work wherever your business shows up, from websites and social profiles to business cards, packaging, and shopfronts.",
+      image: "/services/branding/pexels-ron-lach-9617889.webp",
+      includes: [
+        "Logo Concepts",
+        "Primary & Responsive Logo Files",
+        "Vector & Digital Files",
+        "Favicon & App Icon",
+        "Logo Usage Guidelines",
+      ],
     },
     {
       number: "04",
-      title: "Signage & Packaging Design",
+      category: "Social Media Design",
+      title: "Make Your Brand Recognisable in Every Scroll.",
       description:
-        "Your brand doesn't stop at the screen. We design storefront signage, window graphics, and packaging that carry your identity into the physical world — consistent from the door to the till.",
-      image: "/services/print/pexels-sofia-gurashvili-2116386591-30452609.webp",
-      includes: ["Storefront Signage", "Window Graphics", "Packaging Design", "Environmental Branding"],
+        "Your social channels are often where people encounter your brand most frequently. We create branded templates and graphics tailored to your platforms, giving your content a consistent visual identity that builds recognition and keeps your brand unmistakably yours.",
+      image: "/services/branding/pexels-beyzaa-yurtkuran-279977530-17789088.webp",
+      includes: ["Post Templates", "Story Templates", "Highlight Covers", "Profile Branding"],
     },
     {
       number: "05",
-      title: "Social Media Design",
+      category: "Signage & Packaging Design",
+      title: "Take Your Brand Beyond the Screen.",
       description:
-        "Your social presence is your most visible brand channel. We design scroll-stopping templates and graphics tailored to your platforms, so your feed builds recognition, credibility, and engagement.",
-      image: "/services/branding/pexels-beyzaa-yurtkuran-279977530-17789088.webp",
-      href: "/services/brand",
-      includes: ["Post Templates", "Story Templates", "Highlight Covers", "Profile Branding"],
+        "Your brand should feel just as distinctive in the physical world as it does online. We design signage, packaging, and environmental graphics that bring your identity to life, helping to bring a consistent experience from the shopfront to the shelf and every touchpoint in between.",
+      image: "/services/print/pexels-sofia-gurashvili-2116386591-30452609.webp",
+      includes: ["Storefront Signage", "Window Graphics", "Packaging Design", "Environmental Branding"],
+      ctaLabel: "Discuss Your Brand",
+      ctaHref: "/enquire-now",
     },
   ],
   process: {
-    heading: "A Simple Process That Gets Results",
+    heading1: "A Simple Process,",
+    heading2: "Built Around You.",
     intro:
-      "We've built our process around one goal, making great branding straightforward, so you can focus on running your business while we handle the creative.",
+      "Great branding doesn't need to feel complicated. We keep the process clear and collaborative, taking you from the initial idea to a finished brand with the strategy, creative thinking, and guidance you need along the way.",
     steps: [
       {
         number: "01",
         title: "Make Your Request",
         description:
-          "Tell us about your business, your goals, and what you need. Whether it's a full brand build or a specific asset, we'll scope it out and get started.",
+          "Tell us about your business, where you want to go, and what your brand needs. Whether you're starting from scratch, refreshing an existing identity, or looking for a specific asset, we'll understand the brief and recommend the right approach.",
       },
       {
         number: "02",
-        title: "Design & Development",
+        title: "Strategy, Design & Development",
         description:
-          "Our creative team gets to work; developing concepts, refining directions, and building your identity across every channel and format.",
+          "Once we're aligned on the direction, we bring the ideas to life. We develop concepts, refine the creative direction, and build your brand across the assets and touchpoints you need.",
       },
       {
         number: "03",
         title: "Receive & Refine",
         description:
-          "You receive your brand assets with full revision rounds included. We refine until you're completely confident in what you've got.",
+          "Your brand isn't finished until you're confident in it. We present the work, gather your feedback, and refine the final direction before delivering your completed brand assets, ready to use.",
       },
     ],
+  },
+  caseStudies: {
+    heading: "Branding for Businesses in Glasgow & Beyond",
+    body: "From growing local businesses in Scotland to ambitious brands in the UK looking further afield, we help businesses in hospitality, sports, leisure, and more build identities that are clear, distinctive, and made to last.",
+    emphasis: "Explore some of the brands we've helped shape.",
   },
 };

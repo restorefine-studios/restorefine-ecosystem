@@ -12,6 +12,12 @@ interface CaseStudiesSectionProps {
   sectionNumber?: string;
   /** Section label text, e.g. "Case Studies" */
   sectionLabel?: string;
+  /** Hide the number/label eyebrow row entirely */
+  hideEyebrow?: boolean;
+  /** Heading above the work strip, defaults to "Our Work" */
+  heading?: React.ReactNode;
+  /** Optional supporting copy rendered under the heading */
+  intro?: React.ReactNode;
   /** Filter by one or more portfolio categories */
   categories: string[];
   /** Limit how many items to show (default: all matching) */
@@ -74,6 +80,9 @@ function CaseStudyCard({ item, index }: { item: PortfolioItem; index: number }) 
 export function CaseStudiesSection({
   sectionNumber = "03",
   sectionLabel = "Case Studies",
+  hideEyebrow = false,
+  heading = "Our Work",
+  intro,
   categories,
   limit,
   extraItems = [],
@@ -95,27 +104,42 @@ export function CaseStudiesSection({
     <section className="bg-white py-24">
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
         {/* Header */}
-        <motion.div
-          className="flex items-center gap-3 mb-10"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-red-600 font-black text-sm">{sectionNumber}</span>
-          <div className="h-px flex-1 bg-zinc-200" />
-          <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">{sectionLabel}</span>
-        </motion.div>
-
-        <div className="flex items-end justify-between mb-10 gap-6">
-          <motion.h2
-            className="text-4xl md:text-5xl font-black uppercase tracking-tight text-zinc-900 leading-[0.95]"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+        {!hideEyebrow && (
+          <motion.div
+            className="flex items-center gap-3 mb-10"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
           >
-            Our Work
-          </motion.h2>
+            <span className="text-red-600 font-black text-sm">{sectionNumber}</span>
+            <div className="h-px flex-1 bg-zinc-200" />
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">{sectionLabel}</span>
+          </motion.div>
+        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6">
+          <div>
+            <motion.h2
+              className="text-4xl md:text-5xl font-black uppercase tracking-tight text-zinc-900 leading-[0.95]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              {heading}
+            </motion.h2>
+            {intro && (
+              <motion.p
+                className="mt-4 max-w-xl text-sm text-zinc-500 leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                {intro}
+              </motion.p>
+            )}
+          </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => scroll("left")}
