@@ -4,7 +4,8 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Cookie Policy",
   description: "RestoRefine cookie policy — how we use cookies on our website.",
-  robots: { index: false, follow: false },
+  alternates: { canonical: "https://www.restorefine.co.uk/legal/cookies" },
+  robots: { index: false, follow: true },
 };
 
 export default function CookiePolicy() {

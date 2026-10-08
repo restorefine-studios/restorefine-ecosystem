@@ -86,9 +86,6 @@ export const metadata: Metadata = {
   authors: [{ name: "RestoRefine", url: BASE_URL }],
   creator: "RestoRefine",
   publisher: "RestoRefine",
-  alternates: {
-    canonical: BASE_URL,
-  },
   openGraph: {
     type: "website",
     locale: "en_GB",

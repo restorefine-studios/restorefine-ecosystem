@@ -4,7 +4,8 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description: "RestoRefine terms and conditions of service.",
-  robots: { index: false, follow: false },
+  alternates: { canonical: "https://www.restorefine.co.uk/legal/terms" },
+  robots: { index: false, follow: true },
 };
 
 export default function Terms() {
