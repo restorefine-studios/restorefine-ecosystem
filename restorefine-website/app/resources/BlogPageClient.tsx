@@ -1,5 +1,6 @@
 "use client";
 
+import { TrustStrip } from "@/components/trust-strip";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -35,7 +36,7 @@ export default function BlogPageClient({ posts }: Props) {
   return (
     <main className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="pt-36 pb-20 px-6 md:px-12 lg:px-24 border-b border-zinc-200">
+      <section className="pt-36 pb-7 px-6 md:px-12 lg:px-24 border-b border-zinc-200">
         <div className="max-w-4xl w-full mx-auto flex flex-col items-center text-center">
           <motion.span
             className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-6"
@@ -72,6 +73,7 @@ export default function BlogPageClient({ posts }: Props) {
             Bold brands, standout stories, and digital experiences worth remembering. From kitchens to code — it&apos;s all on the table.
           </motion.p>
         </div>
+        <TrustStrip inHero />
       </section>
 
       {/* Tab Bar */}

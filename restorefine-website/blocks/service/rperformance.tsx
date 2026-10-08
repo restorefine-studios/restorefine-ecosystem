@@ -1,5 +1,6 @@
 "use client";
 
+import { TrustStrip } from "@/components/trust-strip";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -66,7 +67,7 @@ function PerformanceBoard() {
 function PerformanceHero() {
   const { hero } = performancePillarContent;
   return (
-    <section className="bg-white min-h-[100dvh] flex items-center px-6 md:px-12 lg:px-24 pt-24 pb-16">
+    <section className="bg-white min-h-[100dvh] flex flex-col justify-center items-center px-6 md:px-12 lg:px-24 pt-24 pb-7">
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] items-center gap-16 lg:gap-12">
         <div>
           <motion.span
@@ -117,6 +118,7 @@ function PerformanceHero() {
 
         <PerformanceBoard />
       </div>
+      <TrustStrip inHero />
     </section>
   );
 }

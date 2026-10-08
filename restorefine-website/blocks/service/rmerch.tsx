@@ -1,5 +1,6 @@
 "use client";
 
+import { TrustStrip } from "@/components/trust-strip";
 import React from "react";
 import restostar from "@/public/restostar.svg";
 import Image from "next/image";
@@ -34,7 +35,7 @@ function RMerch({ data }: { data: any }) {
   return (
     <main className="bg-white">
       {/* Hero */}
-      <section className="bg-white min-h-screen flex flex-col items-start justify-center px-6 md:px-12 lg:px-24 pt-36 pb-24">
+      <section className="bg-white min-h-screen flex flex-col items-start justify-center px-6 md:px-12 lg:px-24 pt-36 pb-7">
         <div className="max-w-7xl w-full mx-auto">
           <motion.span
             className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 block mb-8"
@@ -99,6 +100,7 @@ function RMerch({ data }: { data: any }) {
             <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">Gallery</span>
           </motion.div>
         </div>
+        <TrustStrip inHero />
       </section>
 
       {/* Image gallery */}

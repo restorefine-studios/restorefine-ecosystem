@@ -1,3 +1,4 @@
+import { TrustStrip } from "@/components/trust-strip";
 import Image from "next/image";
 
 interface AboutHeroProps {
@@ -11,7 +12,8 @@ interface AboutHeroProps {
 function AboutHero({ headline, image, aboutHeadline, aboutParagraph, aboutImage }: AboutHeroProps) {
   return (
     <main className="">
-      <section className="relative z-10 min-h-screen flex flex-col md:flex-row items-start md:items-center justify-center md:justify-between text-left gap-y-3 md:gap-y-4">
+      <section className="relative z-10 min-h-screen flex flex-col justify-center pt-24 pb-7">
+        <div className="flex w-full flex-col md:flex-row items-start md:items-center justify-center md:justify-between text-left gap-y-3 md:gap-y-4">
          <h1 className="relative z-0 text-left font-medium tracking-tight rservicehero text-4xl md:text-7xl">
            <span className="p-1 inline-block bg-gradient-to-b from-white to-[#6D6C6D] bg-clip-text text-transparent tracking-tight">
              {headline}
@@ -27,6 +29,8 @@ function AboutHero({ headline, image, aboutHeadline, aboutParagraph, aboutImage 
              className="w-full h-auto"
            />
          </div>
+        </div>
+        <TrustStrip inHero />
       </section>
 
       <section className="space-y-8 sm:space-y-12 pb-16 sm:pb-24">

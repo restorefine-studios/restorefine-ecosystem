@@ -1,5 +1,6 @@
 "use client";
 
+import { TrustStrip } from "@/components/trust-strip";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -175,7 +176,7 @@ function LaunchDeliverables() {
 
 function LaunchHero() {
   return (
-    <section className="bg-white min-h-screen flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 pt-20 pb-24 relative overflow-hidden">
+    <section className="bg-white min-h-screen flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 pt-20 pb-7 relative overflow-hidden">
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-red-50 via-violet-50 to-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
       <div className="max-w-4xl w-full mx-auto relative flex flex-col items-center">
         <motion.span className="inline-block text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-8" initial="hidden" animate="visible" variants={fadeUp}>
@@ -212,6 +213,7 @@ function LaunchHero() {
           ))}
         </motion.div>
       </div>
+      <TrustStrip inHero />
     </section>
   );
 }

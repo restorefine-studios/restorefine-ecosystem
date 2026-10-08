@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { TrustStrip } from "@/components/trust-strip";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import {
   AnimatePresence,
@@ -216,6 +217,7 @@ export default function Hero() {
               </Link>
             </div>
           </div>
+          <TrustStrip inHero />
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
 "use client";
 
+import { TrustStrip } from "@/components/trust-strip";
 import { motion } from "framer-motion";
 
 interface ServicesHeroProps {
@@ -22,7 +23,7 @@ function ServicesHero({ headline, subtext }: ServicesHeroProps) {
   const line2 = words.length > 1 ? words[words.length - 1] : "";
 
   return (
-    <section className="bg-white flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 pt-24 pb-24 relative overflow-hidden">
+    <section className="bg-white flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 pt-24 pb-7 relative overflow-hidden">
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-red-50 via-violet-50 to-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
       <div className="max-w-4xl w-full mx-auto relative flex flex-col items-center">
         <motion.span
@@ -64,6 +65,7 @@ function ServicesHero({ headline, subtext }: ServicesHeroProps) {
           {subtext}
         </motion.p>
       </div>
+      <TrustStrip inHero />
     </section>
   );
 }

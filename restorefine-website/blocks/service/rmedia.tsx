@@ -1,4 +1,5 @@
 "use client";
+import { TrustStrip } from "@/components/trust-strip";
 import React from "react";
 import Image from "next/image";
 import moneyeye from "@/public/rmediahero.svg";
@@ -26,7 +27,7 @@ function RMedia({ data, caseStudies = [] }: { data: any; caseStudies?: Portfolio
   return (
     <main className="bg-white">
       {/* Hero */}
-      <section className="bg-white min-h-screen flex flex-col md:flex-row items-start md:items-center justify-between gap-12 px-6 md:px-12 lg:px-24 pt-36 pb-24">
+      <section className="bg-white min-h-screen flex flex-col items-center justify-center gap-12 px-6 md:px-12 lg:px-24 pt-36 pb-7">
         <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
           <div className="flex flex-col items-start gap-y-6 flex-1">
             <motion.span
@@ -83,6 +84,7 @@ function RMedia({ data, caseStudies = [] }: { data: any; caseStudies?: Portfolio
             <Image src={moneyeye || "/placeholder.svg"} alt="Money Eye" width={450} height={450} className="w-full h-auto" />
           </motion.div>
         </div>
+        <TrustStrip inHero />
       </section>
 
       {/* What is Resto Media */}
