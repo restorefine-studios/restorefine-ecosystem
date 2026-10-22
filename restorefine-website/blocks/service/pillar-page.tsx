@@ -98,6 +98,7 @@ function Hero({ data }: { data: PillarPageData }) {
           <span className="block relative z-0 text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] xl:text-[7rem] leading-[0.9]">
             {data.hero.line1}
           </span>
+          {" "}
           <span
             className="block relative z-10 font-light text-red-600 normal-case leading-none whitespace-nowrap"
             style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(3.5rem, 11vw, 8.5rem)", marginTop: "-1.2rem" }}

@@ -85,6 +85,7 @@ function PerformanceHero() {
             transition={{ duration: 0.6, delay: 0.08 }}
           >
             <span className="block relative z-0 text-4xl sm:text-5xl lg:text-6xl leading-[1.05] pb-1">{hero.line1}</span>
+            {" "}
             <span
               className="block relative z-10 font-light text-red-600 normal-case leading-[1.15]"
               style={{ ...holiday, fontSize: "clamp(2.8rem, 5.5vw, 4.6rem)", marginTop: "0.1rem" }}

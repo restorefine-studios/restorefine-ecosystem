@@ -45,6 +45,7 @@ function ServicesHero({ headline, subtext }: ServicesHeroProps) {
           <span className="block relative z-0 text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] xl:text-[7rem] leading-[0.9]">
             {line1}
           </span>
+          {line2 && " "}
           {line2 && (
             <span
               className="block relative z-10 font-light text-red-600 normal-case leading-[1.15] whitespace-nowrap pb-2"
