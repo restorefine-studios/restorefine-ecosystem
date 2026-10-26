@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* iOS-style system colours as RGB triplets so Tailwind opacity modifiers work */
+:root {
+  --page: 242 242 247; /* grouped background */
+  --surface: 255 255 255; /* grouped cell */
+  --ink: 0 0 0;
+  --muted: 108 108 112;
+  --line: 60 60 67;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: 0 0 0;
+    --surface: 28 28 30;
+    --ink: 255 255 255;
+    --muted: 152 152 159;
+    --line: 84 84 88;
+    color-scheme: dark;
+  }
+}
+
+body {
+  @apply bg-page text-ink antialiased;
+  -webkit-tap-highlight-color: transparent;
+  font-feature-settings: "ss01", "cv11";
+}
