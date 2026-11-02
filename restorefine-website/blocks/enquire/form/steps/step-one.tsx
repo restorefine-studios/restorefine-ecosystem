@@ -1,45 +1,30 @@
 "use client";
 
 import { useFormState } from "../../contact-form-context";
-import { mainServiceOptions as serviceOptions } from "../../service-options";
+import { mainServiceOptions } from "../../service-options";
+import { OptionGrid, OptionTile } from "../option-tile";
+import { StepShell } from "../step-shell";
 
 export function StepOne() {
   const { state, dispatch, trackStepComplete } = useFormState();
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <p className="text-[10px] tracking-[0.3em] uppercase text-red-600 font-medium mb-3">
-        Step 1 of 5
-      </p>
-      <h2 className="font-black text-zinc-950 text-2xl md:text-3xl tracking-tight mb-8">
-        What are you looking for?
-      </h2>
-
-      <div className="flex flex-wrap gap-3">
-        {serviceOptions.map((option) => {
-          const isSelected = state.mainService === option.id;
-          return (
-            <button
-              key={option.id}
-              onClick={() => {
-                dispatch({ type: "SET_MAIN_SERVICE", payload: option.id });
-                trackStepComplete({ step: 1, category: option.id });
-                dispatch({ type: "SET_STEP", payload: 2 });
-              }}
-              className={`flex flex-col items-start px-6 py-4 rounded-2xl border transition-all duration-200 text-left min-w-[140px]
-                ${isSelected
-                  ? "border-red-600 bg-red-50 text-zinc-950"
-                  : "border-zinc-200 bg-white text-zinc-700 hover:border-red-400 hover:bg-red-50 hover:text-zinc-950 shadow-sm"
-                }`}
-            >
-              <span className="font-bold text-base">{option.title}</span>
-              <span className={`text-xs mt-0.5 ${isSelected ? "text-red-500" : "text-zinc-400"}`}>
-                {option.desc}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <StepShell title="What are you looking for?" hint="Pick the area that fits best. You can tell us about anything else at the end.">
+      <OptionGrid>
+        {mainServiceOptions.map((option) => (
+          <OptionTile
+            key={option.id}
+            title={option.title}
+            description={option.desc}
+            selected={state.mainService === option.id}
+            onSelect={() => {
+              dispatch({ type: "SET_MAIN_SERVICE", payload: option.id });
+              trackStepComplete({ step: 1, category: option.id });
+              dispatch({ type: "SET_STEP", payload: 2 });
+            }}
+          />
+        ))}
+      </OptionGrid>
+    </StepShell>
   );
 }

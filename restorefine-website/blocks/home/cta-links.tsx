@@ -17,9 +17,13 @@ export function EnquireLink({ label, href, tone = "red" }: { label: string; href
   );
 }
 
-export function WhatsAppLink({ label, href, tone = "outline" }: { label: string; href: string; tone?: "outline" | "dark" }) {
+export function WhatsAppLink({ label, href, tone = "outline" }: { label: string; href: string; tone?: "outline" | "dark" | "light" }) {
   const toneClass =
-    tone === "outline" ? "border border-zinc-950/15 bg-white/70 text-zinc-950 hover:border-zinc-950/30 hover:bg-white" : "bg-zinc-950 text-white hover:bg-zinc-800";
+    tone === "outline"
+      ? "border border-zinc-950/15 bg-white/70 text-zinc-950 hover:border-zinc-950/30 hover:bg-white"
+      : tone === "light"
+        ? "bg-white text-zinc-950 hover:bg-zinc-100"
+        : "bg-zinc-950 text-white hover:bg-zinc-800";
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" onClick={() => pushGTMEvent("whatsapp_click", { location: "page" })} className={`${base} ${toneClass}`}>
       <MessageCircle className="h-4 w-4" strokeWidth={2} />

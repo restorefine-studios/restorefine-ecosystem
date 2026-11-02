@@ -63,3 +63,32 @@ export function getServiceTypeLabel(
     serviceTypeId
   );
 }
+
+export const budgetOptions = [
+  { id: "£0 - £499", title: "Under £500" },
+  { id: "£500 - £999", title: "£500 to £999" },
+  { id: "£1000 - £2499", title: "£1,000 to £2,499" },
+  { id: "£2500 - £4999", title: "£2,500 to £4,999" },
+  { id: "£5000+", title: "£5,000+" },
+];
+
+export const timelineOptions = [
+  { id: "asap", title: "ASAP" },
+  { id: "1-2-weeks", title: "1 to 2 weeks" },
+  { id: "1-month", title: "1 month" },
+  { id: "1-3-months", title: "1 to 3 months" },
+  { id: "flexible", title: "Flexible" },
+  { id: "other", title: "Other" },
+];
+
+export function getBudgetLabel(id: string | null | undefined): string {
+  if (!id) return "";
+  return budgetOptions.find((option) => option.id === id)?.title ?? id;
+}
+
+/** Custom timelines are free text, so they're shown as typed */
+export function getTimelineLabel(id: string | null | undefined, custom?: string | null): string {
+  if (!id) return "";
+  if (id === "other") return custom ?? "";
+  return timelineOptions.find((option) => option.id === id)?.title ?? id;
+}

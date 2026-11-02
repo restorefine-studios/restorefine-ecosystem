@@ -1,97 +1,72 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useFormState } from "../../contact-form-context";
-import { Input } from "@/components/ui/input";
-
-const timelineOptions = [
-  { id: "asap", title: "ASAP" },
-  { id: "1-2-weeks", title: "1–2 Weeks" },
-  { id: "1-month", title: "1 Month" },
-  { id: "1-3-months", title: "1–3 Months" },
-  { id: "flexible", title: "Flexible" },
-  { id: "other", title: "Other" },
-];
+import { timelineOptions } from "../../service-options";
+import { OptionGrid, OptionTile } from "../option-tile";
+import { StepShell } from "../step-shell";
+import { inputClass } from "./step-five";
 
 export function StepFour() {
   const { state, dispatch, trackStepComplete } = useFormState();
-  const [showCustomInput, setShowCustomInput] = useState(false);
-  const [customTimeline, setCustomTimeline] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(state.timeline === "other");
+  const [customTimeline, setCustomTimeline] = useState(state.customTimeline ?? "");
+
+  const next = () => {
+    trackStepComplete({ step: 4 });
+    dispatch({ type: "SET_STEP", payload: 5 });
+  };
 
   const handleSelect = (value: string) => {
+    dispatch({ type: "SET_TIMELINE", payload: value });
     if (value === "other") {
       setShowCustomInput(true);
-      dispatch({ type: "SET_TIMELINE", payload: value });
     } else {
       setShowCustomInput(false);
-      dispatch({ type: "SET_TIMELINE", payload: value });
-      trackStepComplete({ step: 4 });
-      dispatch({ type: "SET_STEP", payload: 5 });
+      next();
     }
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <p className="text-[10px] tracking-[0.3em] uppercase text-red-600 font-medium mb-3">
-        Step 4 of 5
-      </p>
-      <h2 className="font-black text-zinc-950 text-2xl md:text-3xl tracking-tight mb-2">
-        What's your ideal timeline?
-      </h2>
-      <p className="text-zinc-400 text-sm mb-8">
-        When are you looking to get started?
-      </p>
-
-      <div className="flex flex-wrap gap-3 mb-6">
-        {timelineOptions.map((option) => {
-          const isSelected = state.timeline === option.id;
-          return (
-            <button
-              key={option.id}
-              onClick={() => handleSelect(option.id)}
-              className={`px-5 py-3 rounded-full border text-sm font-medium transition-all duration-200
-                ${isSelected
-                  ? "border-red-600 bg-red-50 text-red-700"
-                  : "border-zinc-200 bg-white text-zinc-700 hover:border-red-400 hover:bg-red-50 hover:text-zinc-950 shadow-sm"
-                }`}
-            >
-              {option.title}
-            </button>
-          );
-        })}
-      </div>
+    <StepShell title="What's your ideal timeline?" hint="When are you looking to get started?" onBack={() => dispatch({ type: "SET_STEP", payload: 3 })}>
+      <OptionGrid>
+        {timelineOptions.map((option) => (
+          <OptionTile key={option.id} title={option.title} selected={state.timeline === option.id} onSelect={() => handleSelect(option.id)} />
+        ))}
+      </OptionGrid>
 
       {showCustomInput && (
-        <div className="flex gap-3 mb-6">
-          <Input
+        <form
+          className="mt-5 flex flex-col gap-3 sm:flex-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!customTimeline.trim()) return;
+            dispatch({ type: "SET_CUSTOM_TIMELINE", payload: customTimeline.trim() });
+            next();
+          }}
+        >
+          <label htmlFor="custom-timeline" className="sr-only">
+            Describe your timeline
+          </label>
+          <input
+            id="custom-timeline"
+            autoFocus
             value={customTimeline}
             onChange={(e) => setCustomTimeline(e.target.value)}
-            placeholder="Describe your timeline…"
-            className="bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-red-500 rounded-xl"
+            placeholder="e.g. Before our opening in March"
+            className={inputClass}
           />
           <button
-            onClick={() => {
-              if (customTimeline.trim()) {
-                dispatch({ type: "SET_CUSTOM_TIMELINE", payload: customTimeline });
-                trackStepComplete({ step: 4 });
-                dispatch({ type: "SET_STEP", payload: 5 });
-              }
-            }}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors shrink-0"
+            type="submit"
+            disabled={!customTimeline.trim()}
+            className={`group inline-flex shrink-0 items-center justify-center gap-3 rounded-full px-6 py-4 text-sm font-semibold transition-[transform,background-color] duration-300 hover:-translate-y-0.5 bg-red-600 text-white hover:bg-red-500 disabled:pointer-events-none disabled:opacity-50`}
           >
-            Next <ArrowRight className="w-4 h-4" />
+            Next
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={2} />
           </button>
-        </div>
+        </form>
       )}
-
-      <button
-        onClick={() => dispatch({ type: "SET_STEP", payload: 3 })}
-        className="inline-flex items-center gap-2 text-zinc-400 hover:text-zinc-900 text-sm transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Go Back
-      </button>
-    </div>
+    </StepShell>
   );
 }
