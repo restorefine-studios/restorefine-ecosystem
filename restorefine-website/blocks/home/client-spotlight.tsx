@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useMotionValue, useMotionValueEvent, useSpring, useTransform } from "framer-motion";
 import type { MotionValue } from "framer-motion";
-import { homeContent } from "@/lib/data";
+import { homeContent } from "@/lib/homepageData";
 
 const clients = homeContent.clientSpotlight;
 type SpotlightClient = (typeof clients)[number];

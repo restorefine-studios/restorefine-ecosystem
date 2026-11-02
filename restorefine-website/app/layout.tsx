@@ -8,7 +8,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { CookieConsentProvider } from "@/components/cookie-consent-provider";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { AnalyticsScripts } from "@/components/analytics-scripts";
-import { IntroLoader } from "@/components/IntroLoader";
+// import { IntroLoader } from "@/components/IntroLoader";
 import { GTMOutboundClickTracker } from "@/components/gtm-outbound-click-tracker";
 import { GTMScrollDepthTracker } from "@/components/gtm-scroll-depth-tracker";
 import { WhatsAppFloatingButton } from "@/components/whatsapp-floating-button";
@@ -188,7 +188,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {/* End Google Tag Manager (noscript) */}
         <GTMOutboundClickTracker />
         <GTMScrollDepthTracker />
-        <IntroLoader />
+        {/* Intro loader disabled: it covered the page for ~3.3s and hurt Speed Index. */}
+        {/* <IntroLoader /> */}
         <CookieConsentProvider>
           <Navbar /> {children}
           <WhatsAppFloatingButton />

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Instagram, Linkedin, MapPin, Mail } from "lucide-react";
 import { useCookieConsent } from "./cookie-consent-provider";
 import { pushGTMEvent } from "@/lib/gtm";
+import { GoogleG, GoogleStars, googleReviewsLinkProps } from "@/components/google-reviews";
 
 const services = [
   { name: "Social Media Reels", href: "/services" },
@@ -39,10 +40,9 @@ const socialLinks = [
 ] as const;
 
 const trustBadges = [
-  { label: "Google Reviews", sub: "5.0 ★★★★★" },
+  { label: "Google Reviews", sub: "5.0 ★★★★★", google: true },
   { label: "Instagram", sub: "Hospitality Experts" },
   { label: "LinkedIn", sub: "Verified Agency" },
-  { label: "Trustpilot", sub: "Excellent" },
   { label: "Glasgow Chamber", sub: "Member" },
   { label: "UK Registered", sub: "Ltd Company" },
 ];
@@ -163,13 +163,30 @@ export function Footer() {
 
       {/* ── Trust / badge strip ── */}
       <div className="border-t border-white/[0.06] px-6 md:px-10 lg:px-16 py-5">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {trustBadges.map((b) => (
-            <div key={b.label} className="flex flex-col items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-3.5 gap-1">
-              <span className="text-white text-xs font-semibold tracking-wide">{b.label}</span>
-              <span className="text-zinc-500 text-[10px] text-center leading-tight">{b.sub}</span>
-            </div>
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {trustBadges.map((b) =>
+            "google" in b ? (
+              <a
+                key={b.label}
+                {...googleReviewsLinkProps}
+                className="flex flex-col items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-3.5 gap-1 no-underline transition-colors hover:border-white/20 hover:bg-white/[0.06]"
+              >
+                <span className="flex items-center gap-1.5 text-white text-xs font-semibold tracking-wide">
+                  <GoogleG className="h-3.5 w-3.5" />
+                  {b.label}
+                </span>
+                <span className="flex items-center gap-1.5 text-zinc-500 text-[10px] leading-tight">
+                  5.0
+                  <GoogleStars className="h-2.5 w-2.5" />
+                </span>
+              </a>
+            ) : (
+              <div key={b.label} className="flex flex-col items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] px-3 py-3.5 gap-1">
+                <span className="text-white text-xs font-semibold tracking-wide">{b.label}</span>
+                <span className="text-zinc-500 text-[10px] text-center leading-tight">{b.sub}</span>
+              </div>
+            ),
+          )}
         </div>
       </div>
 
@@ -179,7 +196,7 @@ export function Footer() {
           {/* Left — copyright */}
           <div className="flex flex-col gap-0.5">
             <p className="text-zinc-500 text-[11px]">RestoRefine Studios is a trading name of RestoRefine Ltd.</p>
-            <p className="text-zinc-600 text-[11px]">©2025 RestoRefine Studios. All rights reserved.</p>
+            <p className="text-zinc-600 text-[11px]">©{new Date().getFullYear()} RestoRefine Studios. All rights reserved.</p>
           </div>
 
           {/* Centre — legal */}

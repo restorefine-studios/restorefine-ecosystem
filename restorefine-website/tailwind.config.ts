@@ -63,6 +63,9 @@ const config: Config = {
           "5": "hsl(var(--chart-5))",
         },
       },
+      transitionTimingFunction: {
+        "out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
       keyframes: {
         "accordion-down": {
           from: {

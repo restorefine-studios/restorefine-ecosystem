@@ -1,0 +1,10 @@
+# Only track the project code folders; ignore everything else at the root
+/*
+!/.gitignore
+!/restorefine-website/
+!/cms/
+!/connect-rr/
+
+# OS junk
+.DS_Store
+Icon?

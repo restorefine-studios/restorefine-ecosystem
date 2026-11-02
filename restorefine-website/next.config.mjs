@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Lets the dev server serve its assets to Cloudflare quick tunnels (Next blocks non-localhost origins in dev)
+  allowedDevOrigins: ["*.trycloudflare.com"],
   async redirects() {
     return [
       { source: "/services/restobranding", destination: "/services/brand", permanent: true },

@@ -12,6 +12,16 @@
   pointer-events: auto;
   transition: clip-path 900ms cubic-bezier(0.76, 0, 0.24, 1),
     visibility 900ms linear;
+  /* Failsafe: if JavaScript never runs, the loader still clears instead of covering the site */
+  animation: loaderFailsafe 900ms cubic-bezier(0.76, 0, 0.24, 1) 6s forwards;
+}
+
+@keyframes loaderFailsafe {
+  to {
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 .loader::before {

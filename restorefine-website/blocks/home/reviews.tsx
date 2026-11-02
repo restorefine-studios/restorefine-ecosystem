@@ -1,9 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { Star, ArrowRight, Quote } from "lucide-react";
+import { useRef, useState, type PointerEvent } from "react";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring } from "motion/react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { GoogleG, GoogleStars, googleReviewsLinkProps } from "@/components/google-reviews";
+import { Reveal } from "./reveal";
+import { type } from "./type-scale";
 
 interface Review {
   id: number;
@@ -71,21 +74,16 @@ const GOOGLE_REVIEWS: Review[] = [
   },
 ];
 
-function Stars() {
-  return (
-    <div className="flex items-center gap-0.5 text-red-600">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
-      ))}
-    </div>
-  );
-}
+/** The review shown first in the carousel (it names concrete results) */
+const FEATURED_REVIEW_ID = 105;
+/** Reviews longer than this are clamped with a "Read more" toggle so cards stay even */
+const CLAMP_AT = 240;
 
 function Avatar({ review }: { review: Review }) {
   const src = review.companyLogo || review.image;
-  if (src) {
+  if (src && !src.endsWith("reviewuser.svg")) {
     return (
-      <div className="relative w-10 h-10 rounded-full overflow-hidden bg-zinc-200 shrink-0">
+      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-200">
         <Image src={src} alt={review.name} fill className="object-cover" sizes="40px" />
       </div>
     );
@@ -96,144 +94,177 @@ function Avatar({ review }: { review: Review }) {
     .slice(0, 2)
     .join("");
   return (
-    <div className="w-10 h-10 rounded-full bg-red-50 border border-red-100 text-red-600 flex items-center justify-center text-xs font-black shrink-0">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-red-100 bg-red-50 text-xs font-black text-red-600">
       {initials}
     </div>
   );
 }
 
-function ReviewCard({ review, className = "" }: { review: Review; className?: string }) {
+function ReviewCard({ review }: { review: Review }) {
+  const [expanded, setExpanded] = useState(false);
+  const long = review.review.length > CLAMP_AT;
+
   return (
-    <div className={`flex flex-col ${className}`}>
-      {/* Speech bubble */}
-      <div className="relative bg-white rounded-3xl border border-zinc-100 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.15)] p-7 lg:p-9 flex-1 lg:min-h-[280px]">
-        <Stars />
-        <p className="text-zinc-600 text-sm lg:text-[15px] leading-relaxed mt-4 lg:mt-5">{review.review}</p>
-        {/* Tail */}
-        <span className="absolute -bottom-[7px] left-9 w-3.5 h-3.5 bg-white border-b border-r border-zinc-100 rotate-45" />
+    <figure className="flex w-[82vw] shrink-0 snap-start flex-col rounded-[2rem] border border-zinc-200 bg-white p-7 sm:w-[24rem] sm:p-9">
+      <div className="flex items-center justify-between">
+        <GoogleStars className="h-3.5 w-3.5" />
+        <a
+          {...googleReviewsLinkProps}
+          aria-label="View our reviews on Google"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-zinc-50 no-underline transition-transform duration-300 hover:-translate-y-0.5"
+        >
+          <GoogleG className="h-4 w-4" />
+        </a>
       </div>
-      {/* Author */}
-      <div className="flex items-center gap-3 mt-5 pl-4">
+
+      {/* Clamped visually only; the full review stays in the DOM */}
+      <blockquote className={`mt-6 leading-relaxed text-zinc-700 ${long && !expanded ? "line-clamp-6" : ""}`}>{review.review}</blockquote>
+      {long && (
+        <button type="button" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded} className="mt-2 self-start text-sm font-semibold text-zinc-950 hover:text-red-600">
+          {expanded ? "Show less" : "Read more"}
+        </button>
+      )}
+
+      <figcaption className="mt-auto flex items-center gap-3 pt-8">
         <Avatar review={review} />
-        <div>
-          <p className="text-sm font-bold text-zinc-900 leading-tight">{review.name}</p>
-          <p className="text-[11px] text-zinc-400 leading-tight mt-0.5">
+        <div className="min-w-0">
+          <p className="text-sm font-bold leading-tight text-zinc-950">{review.name}</p>
+          <p className="mt-0.5 text-xs leading-tight text-zinc-500">
             {review.position}
-            {review.when ? ` · ${review.when}` : ""}
+            {review.when ? `, ${review.when}` : ""}
           </p>
         </div>
-      </div>
-    </div>
+      </figcaption>
+    </figure>
   );
 }
 
-function SectionHeader() {
+function RatingBadge() {
   return (
-    <>
-      <Quote size={48} className="text-red-600 rotate-180" fill="currentColor" strokeWidth={0} />
-      <h2 className="font-black text-zinc-950 tracking-tight leading-[1.05] mt-6" style={{ fontSize: "clamp(2.1rem, 3.2vw, 3.1rem)" }}>
-        <span className="block uppercase">What Our</span>
-        <span className="block uppercase">Clients Are</span>
-        <span
-          className="block text-red-600 font-normal normal-case"
-          style={{ fontFamily: "var(--font-holiday), serif", fontSize: "clamp(2.8rem, 4.4vw, 4.4rem)" }}
-        >
-          Saying.
+    <a {...googleReviewsLinkProps} className="group flex items-center gap-4 no-underline">
+      <span className="text-4xl font-black leading-none tracking-[-0.04em] text-zinc-950">5.0</span>
+      <span className="flex flex-col gap-1.5">
+        <span className="flex items-center gap-2">
+          <GoogleG className="h-4 w-4" />
+          <GoogleStars className="h-4 w-4" />
         </span>
-      </h2>
-      <div className="flex items-center gap-3 mt-6">
-        <Stars />
-        <span className="text-xs text-zinc-500 font-medium">Rated 5.0 by our clients</span>
-      </div>
-    </>
+        <span className="whitespace-nowrap text-sm font-medium text-zinc-500 transition-colors group-hover:text-zinc-950">Rated 5.0 by our clients</span>
+      </span>
+    </a>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Desktop: pinned section, cards glide left as the page scrolls       */
-/* ------------------------------------------------------------------ */
-function DesktopReviews({ reviews }: { reviews: Review[] }) {
-  const pinRef = useRef<HTMLDivElement>(null);
-  const galleryRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [maxShift, setMaxShift] = useState(0);
-
-  const { scrollYProgress } = useScroll({ target: pinRef, offset: ["start start", "end end"] });
-
-  useEffect(() => {
-    const measure = () => {
-      if (!galleryRef.current || !trackRef.current) return;
-      setMaxShift(Math.max(0, trackRef.current.scrollWidth - galleryRef.current.clientWidth));
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, []);
-
-  const rawX = useTransform(scrollYProgress, [0, 1], [0, -maxShift]);
-  const x = useSpring(rawX, { stiffness: 90, damping: 24, mass: 0.5 });
-  const progressScale = useSpring(scrollYProgress, { stiffness: 90, damping: 24 });
-
+function NavButton({ dir, disabled, onClick }: { dir: "prev" | "next"; disabled: boolean; onClick: () => void }) {
+  const Icon = dir === "prev" ? ArrowLeft : ArrowRight;
   return (
-    <div ref={pinRef} className="hidden lg:block relative h-[280vh]">
-      <div className="sticky top-0 h-screen flex items-center">
-        <div className="w-full flex items-center gap-16 xl:gap-24">
-          {/* Fixed left column */}
-          <div className="w-[320px] xl:w-[380px] shrink-0">
-            <SectionHeader />
-            {/* Scroll progress */}
-            <div className="flex items-center gap-4 mt-10">
-              <div className="relative flex-1 h-px bg-zinc-200 overflow-hidden">
-                <motion.div style={{ scaleX: progressScale }} className="absolute inset-0 bg-red-600 origin-left" />
-              </div>
-              <ArrowRight size={16} className="text-zinc-400 shrink-0" />
-            </div>
-          </div>
-
-          {/* Gliding cards, alternating vertical offsets to fill the band */}
-          <div ref={galleryRef} className="flex-1 overflow-hidden py-10">
-            <motion.div ref={trackRef} style={{ x }} className="flex gap-8 items-stretch">
-              {reviews.map((review, i) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  className={`w-[400px] xl:w-[460px] shrink-0 ${i % 2 === 1 ? "lg:translate-y-10" : ""}`}
-                />
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Mobile: header stacked, native swipe with snap                      */
-/* ------------------------------------------------------------------ */
-function MobileReviews({ reviews }: { reviews: Review[] }) {
-  return (
-    <div className="lg:hidden py-16">
-      <div className="px-1 mb-8">
-        <SectionHeader />
-      </div>
-      <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 scrollbar-hide">
-        {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} className="w-[300px] shrink-0 snap-center" />
-        ))}
-      </div>
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={dir === "prev" ? "Previous reviews" : "Next reviews"}
+      className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-zinc-300 bg-white text-zinc-950 transition-[transform,background-color,opacity] duration-300 hover:-translate-y-0.5 hover:border-zinc-950 hover:bg-zinc-950 hover:text-white active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
+    >
+      <Icon className="h-5 w-5" strokeWidth={1.75} />
+    </button>
   );
 }
 
 export function Reviews({ reviews }: ReviewsProps) {
   const all = [...reviews, ...GOOGLE_REVIEWS];
+  const featured = all.find((r) => r.id === FEATURED_REVIEW_ID) ?? all[0];
+  const ordered = [featured, ...all.filter((r) => r !== featured)];
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollXProgress } = useScroll({ container: trackRef });
+  const progress = useSpring(scrollXProgress, { stiffness: 140, damping: 30 });
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  useMotionValueEvent(scrollXProgress, "change", (v) => {
+    const start = v <= 0.01;
+    const end = v >= 0.99;
+    if (start !== atStart) setAtStart(start);
+    if (end !== atEnd) setAtEnd(end);
+  });
+
+  // One step = the width of a standard card plus the gap
+  function step(dir: 1 | -1) {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>("figure:nth-child(2)") ?? track.querySelector<HTMLElement>("figure");
+    const amount = card ? card.offsetWidth + 16 : track.clientWidth * 0.8;
+    track.scrollBy({ left: dir * amount, behavior: reduce ? "auto" : "smooth" });
+  }
+
+  // Mouse drag-to-scroll; touch keeps native swiping
+  const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
+  const [dragging, setDragging] = useState(false);
+  function onPointerDown(e: PointerEvent<HTMLDivElement>) {
+    if (e.pointerType !== "mouse" || !trackRef.current) return;
+    drag.current = { x: e.clientX, left: trackRef.current.scrollLeft, moved: false };
+  }
+  function onPointerMove(e: PointerEvent<HTMLDivElement>) {
+    const d = drag.current;
+    const track = trackRef.current;
+    if (!d || !track) return;
+    const dx = e.clientX - d.x;
+    if (!d.moved && Math.abs(dx) > 4) {
+      d.moved = true;
+      setDragging(true);
+      track.setPointerCapture(e.pointerId);
+    }
+    if (d.moved) track.scrollLeft = d.left - dx;
+  }
+  function endDrag() {
+    drag.current = null;
+    if (dragging) setDragging(false);
+  }
 
   return (
-    // No overflow-hidden here: it would break position:sticky for the pinned gallery
-    <section className="section-bleed bg-zinc-50">
-      <DesktopReviews reviews={all} />
-      <MobileReviews reviews={all} />
+    <section className="section-bleed overflow-hidden bg-zinc-50 pb-8 pt-24 lg:pt-32">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+        <Reveal>
+          <h2 className={`${type.section} font-black leading-[1.02] tracking-[-0.04em] text-zinc-950`}>
+            <span className="uppercase">What Our Clients Are </span>
+            <span className="mt-3 block font-normal normal-case leading-[0.9] text-red-600" style={{ fontFamily: "var(--font-holiday), serif", fontSize: "1.3em" }}>
+              Saying.
+            </span>
+          </h2>
+        </Reveal>
+        <div className="flex items-center justify-between gap-8">
+          <RatingBadge />
+          <div className="hidden gap-2 sm:flex">
+            <NavButton dir="prev" disabled={atStart} onClick={() => step(-1)} />
+            <NavButton dir="next" disabled={atEnd} onClick={() => step(1)} />
+          </div>
+        </div>
+      </div>
+
+      {/* Track bleeds to the viewport edges while cards line up with the page gutter */}
+      <div
+        ref={trackRef}
+        role="region"
+        aria-label="Client reviews"
+        tabIndex={0}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerLeave={endDrag}
+        className={`mt-12 flex items-stretch gap-4 overflow-x-auto pb-2 [scrollbar-width:none] focus-visible:outline-none lg:mt-16 [&::-webkit-scrollbar]:hidden ${
+          dragging ? "cursor-grabbing select-none snap-none" : "snap-x snap-mandatory md:cursor-grab"
+        } -mx-6 scroll-px-6 px-6 md:-mx-[3.25rem] md:scroll-px-[3.25rem] md:px-[3.25rem] min-[1201px]:-mx-[13rem] min-[1201px]:scroll-px-[13rem] min-[1201px]:px-[13rem]`}
+      >
+        {ordered.map((review) => (
+          <ReviewCard key={review.id} review={review} />
+        ))}
+      </div>
+
+      {/* Position in the carousel */}
+      <div className="mt-8 h-[2px] w-full overflow-hidden rounded-full bg-zinc-200">
+        <motion.div style={{ scaleX: progress }} className="h-full origin-left bg-red-600" />
+      </div>
     </section>
   );
 }

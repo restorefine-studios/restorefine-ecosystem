@@ -1,57 +1,25 @@
 import React from "react";
 import Hero from "./hero";
-import { GrowthProblem } from "./growth-problem";
-import { ClientSpotlight } from "./client-spotlight";
-import { Process } from "./process";
-import { Reviews } from "./reviews";
-import { getEntry } from "@/lib/contentful";
-import { Framework } from "./framework";
+import { Intro } from "./intro";
+import { Services } from "./services";
 import { Industries } from "./industries";
-import { WhyWorkWithUs } from "./why-work-with-us";
+import { Businesses } from "./businesses";
+import { Process } from "./process";
+import { WhyChoose } from "./why-choose";
+import { Reviews } from "./reviews";
+import { ReviewsCta } from "./reviews-cta";
 import { Founders } from "./founders";
+import { Areas } from "./areas";
+import { Resources } from "./resources";
 import { FinalCta } from "./final-cta";
+import { Faq } from "./faq";
+import { getEntry } from "@/lib/contentful";
+import { getClientReviews } from "./get-client-reviews";
 
 async function Resto() {
-  const entry = await getEntry("4vS3xsxhN1eATw3l21K6ek");
   const companyEntry = await getEntry("2sn0IjTvv7GmiWqgDpyOCm");
 
-  const clientReviewsHeadline = entry?.fields?.clientReviewsHeadline || "Our Clients";
-  const clientReviewsSubtext = entry?.fields?.clientReviewsSubtext || "Hear firsthand how our solutions have boosted online success for users like you.";
-
-  // Fetch review entries
-  const reviewIds = ["XfhCriML9piZujRwHtunQ", "6Zu9M9XpPT6BLYCX49Xex5"];
-  const reviewEntries = await Promise.all(reviewIds.map((id) => getEntry(id)));
-  const reviews = reviewEntries.map((revEntry, index) => {
-    const content = revEntry?.fields?.clientReviewContent;
-    let clientName = "Client";
-    let clientReview = "Great service!";
-    let restaurantName = "Restaurant";
-    if (content) {
-      let parsed;
-      if (typeof content === "string") {
-        try {
-          parsed = JSON.parse(content);
-        } catch (e) {
-          console.error("Error parsing clientReviewContent", e);
-        }
-      } else if (typeof content === "object") {
-        parsed = content;
-      }
-      if (parsed) {
-        clientName = parsed.clientName || clientName;
-        clientReview = parsed.clientReview || clientReview;
-        restaurantName = parsed.restaurantName || restaurantName;
-      }
-    }
-    return {
-      id: index + 1,
-      name: clientName,
-      position: restaurantName,
-      review: clientReview,
-      image: "/reviewuser.svg",
-      companyLogo: revEntry?.fields?.clientLogo ? "https:" + revEntry.fields.clientLogo.fields.file.url : "/reviewuser.svg",
-    };
-  });
+  const { reviews, headline: clientReviewsHeadline, subtext: clientReviewsSubtext } = await getClientReviews();
 
   // Founder data from company entry
   const resolveText = (field: any, fallback: string): string => {
@@ -89,14 +57,18 @@ async function Resto() {
   return (
     <main className="">
       <Hero />
-      <GrowthProblem />
-      <ClientSpotlight />
-      <Process />
-      <Framework />
+      <Intro />
+      <Services />
       <Industries />
-      <WhyWorkWithUs />
+      <Businesses />
+      <Process />
+      <WhyChoose />
       <Reviews reviews={reviews} headline={clientReviewsHeadline} subtext={clientReviewsSubtext} />
+      <ReviewsCta />
       <Founders headline={founderHeadline} subtext={founderSubtext} founders={founders} />
+      <Areas />
+      <Resources />
+      <Faq />
       <FinalCta />
     </main>
   );
