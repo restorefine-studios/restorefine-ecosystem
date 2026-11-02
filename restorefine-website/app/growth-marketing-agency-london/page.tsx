@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LocationPage } from "@/blocks/location";
+import { LocationPageV2 as LocationPage } from "@/blocks/location-v2";
 import { Footer } from "@/components/footer";
 import { londonContent, londonExtras } from "@/lib/locations/london";
 

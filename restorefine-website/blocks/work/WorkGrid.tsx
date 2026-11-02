@@ -25,7 +25,7 @@ export interface ClientCard {
   lightCard?: boolean;
 }
 
-const clients: ClientCard[] = [
+export const clients: ClientCard[] = [
   { id: "day-today", name: "Day-Today", category: "Media", logo: "/clients/day-today.svg", logoType: "svg", cardColor: "bg-[#000000]", portfolioId: "day-today-tiktok-marketing-case-study" },
   { id: "za-cleaning", name: "Za Cleaning", category: "Branding", logo: "/za-cleaning.svg", logoType: "svg", cardColor: "bg-white", portfolioId: "za-cleaning", lightCard: true },
   { id: "itspadel", name: "It's Padel", category: "Web & Mobile", logo: "/clients/itspadel-logo.svg", logoType: "svg", cardColor: "bg-[#000000]", portfolioId: "itspadel" },

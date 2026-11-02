@@ -1,7 +1,9 @@
 // CMS-published projects appear on the grid without a rebuild.
 export const revalidate = 0;
 
-import WorkGrid, { type ClientCard } from "@/blocks/work/WorkGrid";
+import type { ClientCard } from "@/blocks/work/WorkGrid";
+import { V2Shell } from "@/blocks/home-v2";
+import { WorkV2 } from "@/blocks/work-v2";
 import { Footer } from "@/components/footer";
 import { getPortfolioProjects } from "@/lib/portfolio-cms";
 
@@ -40,7 +42,9 @@ export default async function Portfolio() {
 
   return (
     <>
-      <WorkGrid extraClients={extraClients} />
+      <V2Shell>
+        <WorkV2 extraClients={extraClients} />
+      </V2Shell>
       <Footer />
     </>
   );

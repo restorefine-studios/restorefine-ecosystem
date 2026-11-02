@@ -33,16 +33,16 @@ function BlogsPanel({ posts }: { posts: PostSummary[] }) {
           />
         </div>
         <p className="mt-5 text-sm font-medium text-zinc-500">{formatDate(featured.date)}</p>
-        <p className="mt-2 max-w-[30ch] text-2xl font-black leading-[1.1] tracking-[-0.03em] text-zinc-950 transition-colors group-hover:text-red-600 sm:text-3xl">
+        <p className="mt-2 max-w-[44ch] text-2xl font-black leading-[1.1] tracking-[-0.03em] text-zinc-950 transition-colors group-hover:text-red-600 sm:text-3xl">
           {featured.title}
         </p>
       </Link>
 
-      <ul className="divide-y divide-zinc-200 lg:col-span-5 lg:flex lg:flex-col lg:justify-between">
+      <ul className="divide-y divide-zinc-200 self-start lg:col-span-5">
         {others.map((post) => (
           <li key={post.slug} className="py-6 first:pt-0">
             <Link href={`/resources/${post.slug}`} className="group grid grid-cols-[9rem_1fr] items-start gap-5 no-underline sm:grid-cols-[12rem_1fr] sm:gap-6">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-zinc-100">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-[1rem] bg-zinc-100">
                 <Image src={post.thumbnail} alt={post.thumbnailAlt ?? post.title} fill sizes="12rem" className="object-cover transition-transform duration-700 group-hover:scale-[1.05]" />
               </div>
               <div>

@@ -1,4 +1,4 @@
-import Resto from "@/blocks/home";
+import Resto from "@/blocks/home-v2";
 import { Footer } from "@/components/footer";
 import { homeContent } from "@/lib/homepageData";
 import type { Metadata } from "next";
