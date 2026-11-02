@@ -28,6 +28,9 @@ const quickLinks = [
 
 const sectors = ["Hospitality & Restaurants", "Sport & Leisure", "Lifestyle Brands", "Professional Services"];
 
+/** Location landing pages, linked from every page for internal linking. Add new ones here. */
+const locations = [{ name: "Growth Marketing Agency London", href: "/growth-marketing-agency-london" }];
+
 const legal = [
   { name: "Privacy Policy", href: "/legal/privacy" },
   { name: "Terms & Conditions", href: "/legal/terms" },
@@ -154,6 +157,17 @@ export function Footer() {
                 <li key={s} className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
                   <span className="text-zinc-400 text-sm">{s}</span>
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="text-white text-sm font-black tracking-[0.18em] uppercase mt-10 mb-5">Locations</h3>
+            <ul className="flex flex-col gap-2.5">
+              {locations.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-zinc-400 hover:text-white text-sm transition-colors">
+                    {l.name}
+                  </Link>
                 </li>
               ))}
             </ul>
