@@ -222,12 +222,6 @@ function Intro() {
             intro.heading
           )}
         </h2>
-        <div className="lg:col-span-4 lg:justify-self-end">
-          <Link href="/company" className="group inline-flex items-center gap-3 border-b border-dashed border-red-600 pb-2 text-base font-medium text-zinc-950 no-underline">
-            <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
-            About the studio
-          </Link>
-        </div>
       </div>
       <div className="mt-12 grid gap-8 lg:grid-cols-12">
         <p className="v2-lead max-w-[58ch] text-zinc-800 lg:col-span-6">{lead}</p>

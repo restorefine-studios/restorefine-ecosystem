@@ -13,6 +13,7 @@ const nextConfig = {
       { source: "/services/social-media-management", destination: "/services/content", permanent: true },
       { source: "/services/website", destination: "/services/performance", permanent: true },
       { source: "/services/seo", destination: "/services/performance", permanent: true },
+      { source: "/company", destination: "/", permanent: true },
     ];
   },
   images: {

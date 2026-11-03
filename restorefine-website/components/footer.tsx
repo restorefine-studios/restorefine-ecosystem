@@ -17,7 +17,6 @@ const services = [
 ];
 
 const quickLinks = [
-  { name: "About Us", href: "/company" },
   { name: "Our Work", href: "/portfolio" },
   { name: "Client Reviews", href: "/#reviews" },
   { name: "Enquire Now", href: "/enquire-now" },

@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { pushGTMEvent } from "@/lib/gtm";
 
-const TRACKED_PATHS = new Set(["/", "/company", "/services", "/portfolio"]);
+const TRACKED_PATHS = new Set(["/", "/services", "/portfolio"]);
 const THRESHOLDS = [25, 50, 75, 90] as const;
 
 export function GTMScrollDepthTracker() {
