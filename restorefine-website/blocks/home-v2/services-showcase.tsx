@@ -8,17 +8,21 @@ import { ArrowUpRight } from "lucide-react";
 export type ShowcaseItem = {
   id: string;
   title: string;
-  tagline: string;
+  /** Optional line under the title; the list shows the number when there is none */
+  tagline?: string;
+  /** Button label, "Learn more" when not given; an empty string hides the button */
+  ctaLabel?: string;
   description: string;
   items: string[];
   href: string;
-  image: { src: string; alt: string };
+  image: { src: string; alt: string; /** CSS object-position, where the subject sits in the photo */ position?: string };
 };
 
 /** How long each service stays up before the next one, in ms (drives the progress bar) */
 const DURATION = 7000;
 
 const label = (tagline: string) => tagline.replace(/\.$/, "");
+const num = (i: number) => String(i + 1).padStart(2, "0");
 
 /**
  * Featured-story style services. The active service fills the frame; the list sits in a
@@ -67,6 +71,7 @@ export function ServicesShowcase({ items }: { items: ShowcaseItem[] }) {
             alt={i === active ? s.image.alt : ""}
             fill
             sizes="100vw"
+            style={s.image.position ? { objectPosition: s.image.position } : undefined}
             className={`-z-20 object-cover transition-opacity duration-700 ease-out ${i === active ? "opacity-100" : "opacity-0"}`}
           />
         ))}
@@ -84,12 +89,12 @@ export function ServicesShowcase({ items }: { items: ShowcaseItem[] }) {
                 inert={!on}
                 className={`[grid-area:1/1] self-end transition-[opacity,transform] duration-700 ease-out ${on ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
               >
-                <h3 className="font-[family-name:var(--v2-display)] text-[clamp(2.75rem,6vw,5.5rem)] font-semibold leading-[0.98] tracking-[-0.035em] text-white sm:mt-6">
+                <h3 className={`font-[family-name:var(--v2-display)] text-[clamp(2.75rem,6vw,5.5rem)] font-semibold leading-[0.98] tracking-[-0.035em] text-white sm:mt-6`}>
                   <Link href={s.href} tabIndex={on ? undefined : -1} className="no-underline">
                     {s.title}
                   </Link>
                 </h3>
-                <p className="mt-4 text-lg font-medium text-white/90">{s.tagline}</p>
+                {s.tagline && <p className="mt-4 text-lg font-medium text-white/90">{s.tagline}</p>}
                 <p className="v2-body mt-4 line-clamp-2 max-w-[56ch] text-white/75 lg:mt-6 lg:line-clamp-none">{s.description}</p>
                 <ul className="mt-6 hidden flex-wrap gap-2 lg:flex">
                   {s.items.map((item) => (
@@ -98,14 +103,16 @@ export function ServicesShowcase({ items }: { items: ShowcaseItem[] }) {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href={s.href}
-                  tabIndex={on ? undefined : -1}
-                  className="group mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-[0.9375rem] font-medium text-zinc-950 no-underline transition-colors hover:bg-zinc-100 sm:mt-8"
-                >
-                  Learn more
-                  <ArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" strokeWidth={2} />
-                </Link>
+                {(s.ctaLabel ?? "Learn more") && (
+                  <Link
+                    href={s.href}
+                    tabIndex={on ? undefined : -1}
+                    className="group mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 text-[0.9375rem] font-medium text-zinc-950 no-underline transition-colors hover:bg-zinc-100 sm:mt-8"
+                  >
+                    {s.ctaLabel ?? "Learn more"}
+                    <ArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" strokeWidth={2} />
+                  </Link>
+                )}
               </article>
             );
           })}
@@ -131,7 +138,7 @@ export function ServicesShowcase({ items }: { items: ShowcaseItem[] }) {
                     <Image src={s.image.src} alt="" fill sizes="64px" className="object-cover" />
                   </span>
                   <span className="min-w-0 pb-2">
-                    <span className={`block truncate text-xs font-medium sm:text-sm ${on ? "text-red-400" : "text-white/55"}`}>{label(s.tagline)}</span>
+                    <span className={`block truncate text-xs font-medium sm:text-sm ${on ? "text-red-400" : "text-white/55"}`}>{s.tagline ? label(s.tagline) : num(i)}</span>
                     <span className={`mt-1 block truncate text-base font-medium sm:text-lg ${on ? "text-white" : "text-white/75"}`}>{s.title}</span>
                   </span>
                   {on && (

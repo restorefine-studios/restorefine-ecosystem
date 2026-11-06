@@ -16,6 +16,7 @@ export function PhotoCard({
   href,
   titleAs: Title = "span",
   children,
+  logoBg,
 }: {
   src: string;
   alt: string;
@@ -25,10 +26,13 @@ export function PhotoCard({
   href?: string;
   titleAs?: "span" | "h3";
   children?: React.ReactNode;
+  /** Logo thumbnails: shown whole on this background instead of cropped to fill */
+  logoBg?: string;
 }) {
   const frame = (
     <>
-      <Image src={src} alt={alt} fill sizes={SIZES} className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+      {logoBg !== undefined && <span aria-hidden="true" className="absolute inset-0" style={{ background: logoBg || "#f4f4f5" }} />}
+      <Image src={src} alt={alt} fill sizes={SIZES} className={`transition-transform duration-700 ease-out group-hover:scale-[1.04] ${logoBg !== undefined ? "object-contain p-[18%] pb-[38%]" : "object-cover"}`} />
       <span aria-hidden="true" className={`absolute inset-x-0 bottom-0 bg-gradient-to-t to-transparent ${description ? "h-3/4 from-zinc-950/90 via-zinc-950/60" : "h-1/2 from-zinc-950/80 via-zinc-950/30"}`} />
       {href && (
         <span aria-hidden="true" className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-950 shadow-[0_8px_20px_-8px_rgba(0,0,0,0.35)] transition-colors duration-300 group-hover:bg-red-600 group-hover:text-white">
