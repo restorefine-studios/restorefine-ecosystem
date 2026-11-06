@@ -324,7 +324,7 @@ export const homeContent = {
       {
         title: "UK",
         locations: [
-          { name: "Manchester", href: null as string | null, lat: 53.4808, lon: -2.2426, label: "right", hub: false },
+          { name: "Manchester", href: "/growth-marketing-agency-manchester" as string | null, lat: 53.4808, lon: -2.2426, label: "right", hub: false },
           { name: "Liverpool", href: null as string | null, lat: 53.4084, lon: -2.9916, label: "left", hub: false },
           { name: "Birmingham", href: null as string | null, lat: 52.4862, lon: -1.8904, label: "right", hub: false },
           { name: "London", href: "/growth-marketing-agency-london" as string | null, lat: 51.5074, lon: -0.1278, label: "right", hub: false },

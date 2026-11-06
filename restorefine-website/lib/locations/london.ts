@@ -395,4 +395,7 @@ export const londonExtras = {
   area: { name: "London", type: "City" as const },
 };
 
-export type LocationExtras = typeof londonExtras;
+type Section = { heading: string; body: string; items: { title: string; description: string }[] };
+
+/** Every location page's extras; `challenges` is only on pages whose brief has it */
+export type LocationExtras = typeof londonExtras & { challenges?: Section };

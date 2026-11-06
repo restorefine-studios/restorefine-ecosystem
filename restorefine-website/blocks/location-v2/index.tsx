@@ -35,6 +35,29 @@ function Benefits({ benefits }: { benefits: LocationExtras["benefits"] }) {
   );
 }
 
+/* Location-only section: the challenges, as numbered dashed rows */
+function Challenges({ challenges }: { challenges: NonNullable<LocationExtras["challenges"]> }) {
+  return (
+    <section className="v2-wrap py-24 lg:py-32">
+      <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+        <h2 className="v2-h2 max-w-[18ch] text-zinc-950 lg:col-span-7">
+          <DualTone text={challenges.heading} />
+        </h2>
+        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{challenges.body}</p>
+      </div>
+      <ol className="mt-14">
+        {challenges.items.map((item, i) => (
+          <li key={item.title} className="v2-dash grid gap-3 py-8 text-zinc-300 lg:grid-cols-12 lg:gap-8">
+            <span className="v2-small font-medium text-red-600 lg:col-span-1">{String(i + 1).padStart(2, "0")}</span>
+            <h3 className="v2-h3 text-zinc-950 lg:col-span-4">{item.title}</h3>
+            <p className="v2-small max-w-[60ch] text-zinc-600 lg:col-span-6 lg:col-start-7">{item.description}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 /* The page's own area on the same globe as the homepage, zoomed to its boundary */
 function KnowAboutGlobe({ knowAbout }: { knowAbout: LocationExtras["knowAbout"] }) {
   const d = GLOBE_AREAS[knowAbout.boundary] ?? "";
@@ -46,8 +69,10 @@ function KnowAboutGlobe({ knowAbout }: { knowAbout: LocationExtras["knowAbout"] 
     minY = Math.min(minY, nums[i + 1]);
     maxY = Math.max(maxY, nums[i + 1]);
   }
-  // Frame the boundary at about the size the UK sits on the homepage, in the same spot
-  const w = (maxX - minX) * 3;
+  // Frame the boundary at about the size the UK sits on the homepage, in the same spot.
+  // Small boundaries (Manchester's city council area) get a minimum frame so they don't fill the card.
+  const MIN_FRAME_W = 28;
+  const w = Math.max((maxX - minX) * 3, MIN_FRAME_W);
   const h = (w * UK_GLOBE.height) / UK_GLOBE.width;
   const cx = (minX + maxX) / 2;
   const cy = (minY + maxY) / 2;
@@ -77,6 +102,7 @@ export async function LocationPageV2({ content, extras }: Props) {
       <Hero c={c} place={extras.area.name} />
       <Logos />
       <Services c={c} />
+      {extras.challenges && <Challenges challenges={extras.challenges} />}
       <Benefits benefits={extras.benefits} />
       <Process c={c} />
       <Reviews reviews={reviews} c={c} />

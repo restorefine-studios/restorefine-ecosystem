@@ -28,7 +28,10 @@ const quickLinks = [
 const sectors = ["Hospitality & Restaurants", "Sport & Leisure", "Lifestyle Brands", "Professional Services"];
 
 /** Location landing pages, linked from every page for internal linking. Add new ones here. */
-const locations = [{ name: "Growth Marketing Agency London", href: "/growth-marketing-agency-london" }];
+const locations = [
+  { name: "Growth Marketing Agency London", href: "/growth-marketing-agency-london" },
+  { name: "Growth Marketing Agency Manchester", href: "/growth-marketing-agency-manchester" },
+];
 
 const legal = [
   { name: "Privacy Policy", href: "/legal/privacy" },
