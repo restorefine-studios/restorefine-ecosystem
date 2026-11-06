@@ -1,4 +1,5 @@
 import Enquire from "@/blocks/enquire";
+import { V2Shell } from "@/blocks/home-v2";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export const metadata: Metadata = {
 export default function EnquireNow() {
   return (
     <main>
-      <Enquire />
+      <V2Shell>
+        <Enquire />
+      </V2Shell>
     </main>
   );
 }

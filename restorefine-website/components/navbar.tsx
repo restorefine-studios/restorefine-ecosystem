@@ -11,6 +11,7 @@ import {
 import { MobileMenu } from "./mobile-menu";
 import navlogo from "@/public/restorefine-logoblack.svg";
 import navlogoWhite from "@/public/restorefine-logowhite.svg";
+import { interTight } from "@/lib/fonts";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -91,7 +92,7 @@ export const pillars: NavPillar[] = [
 export const services = pillars.flatMap((p) => p.services);
 
 const navItemClass =
-  "relative bg-transparent px-0 font-semibold text-zinc-950/58 no-underline underline-offset-4 transition-colors duration-300 ease-out after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-red-600 after:transition-transform after:duration-300 after:ease-out hover:bg-transparent hover:text-red-600 hover:no-underline hover:after:scale-x-100 data-[state=open]:bg-transparent data-[state=open]:text-red-600 data-[state=open]:after:scale-x-100";
+  "relative bg-transparent px-0 font-semibold text-zinc-950/58 group-data-[dark=true]/nav:text-white/80 group-data-[dark=true]/nav:hover:text-red-500 group-data-[dark=true]/nav:data-[state=open]:text-red-500 no-underline underline-offset-4 transition-colors duration-300 ease-out after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-red-600 after:transition-transform after:duration-300 after:ease-out hover:bg-transparent hover:text-red-600 hover:no-underline hover:after:scale-x-100 data-[state=open]:bg-transparent data-[state=open]:text-red-600 data-[state=open]:after:scale-x-100";
 
 /* ------------------------------------------------------------------ */
 /* Mega-menu: left rail of pillars drives the service pane on the right */
@@ -101,13 +102,11 @@ function ServicesMegaMenu() {
   const pillar = pillars[active];
 
   return (
-    <div className="w-[860px] overflow-hidden rounded-[28px] border border-black/[0.06] bg-white shadow-[0_30px_70px_-20px_rgba(0,0,0,0.22)]">
+    <div className={cn(interTight.variable, "w-[860px] overflow-hidden rounded-[28px] border border-black/[0.06] bg-white font-[family-name:var(--font-display)] tracking-[-0.01em] shadow-[0_30px_70px_-20px_rgba(0,0,0,0.22)]")}>
       <div className="grid grid-cols-[290px_1fr]">
         {/* Left rail: the three pillars */}
         <div className="flex flex-col gap-1 border-r border-zinc-100 bg-zinc-50/70 p-4">
-          <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 no-underline">
-            Our Pillars
-          </p>
+          <p className="px-3 pb-2 pt-1 text-[13px] font-medium text-zinc-400 no-underline">Our pillars</p>
           {pillars.map((p, i) => {
             const isActive = i === active;
             const Icon = p.icon;
@@ -135,13 +134,13 @@ function ServicesMegaMenu() {
                 <span className="flex-1">
                   <span
                     className={cn(
-                      "block text-[15px] font-black uppercase leading-none tracking-tight no-underline transition-colors duration-200",
+                      "block text-[17px] font-medium leading-none tracking-[-0.02em] no-underline transition-colors duration-200",
                       isActive ? "text-zinc-950" : "text-zinc-500",
                     )}
                   >
                     {p.title}
                   </span>
-                  <span className="mt-1 block text-[11px] font-medium leading-none text-zinc-400 no-underline">
+                  <span className="mt-1.5 block text-[13px] leading-none text-zinc-500 no-underline">
                     {p.description}
                   </span>
                 </span>
@@ -158,9 +157,7 @@ function ServicesMegaMenu() {
 
         {/* Right pane: services for the hovered pillar */}
         <div className="flex flex-col p-4">
-          <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-400 no-underline">
-            {pillar.title} Services
-          </p>
+          <p className="px-3 pb-2 pt-1 text-[13px] font-medium text-zinc-400 no-underline">{pillar.title} services</p>
 
           <div key={pillar.id} className="grid grid-cols-2 gap-1 mb-6 duration-300 animate-in fade-in slide-in-from-right-2">
             {pillar.services.map((service) => {
@@ -175,7 +172,7 @@ function ServicesMegaMenu() {
                       className="size-4 shrink-0 text-zinc-300 transition-colors duration-200 group-hover:text-red-600"
                       strokeWidth={1.75}
                     />
-                    <span className="flex-1 text-[13px] font-medium leading-tight text-zinc-600 no-underline transition-colors duration-200 group-hover:text-zinc-950">
+                    <span className="flex-1 text-[15px] font-medium leading-tight text-zinc-700 no-underline transition-colors duration-200 group-hover:text-zinc-950">
                       {service.title}
                     </span>
                     <ArrowRight className="size-3.5 shrink-0 -translate-x-1 text-red-600 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
@@ -192,14 +189,14 @@ function ServicesMegaMenu() {
           >
             <span className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-600/25 blur-[50px]" />
             <span className="relative">
-              <span className="block text-[13px] font-black uppercase tracking-tight text-white no-underline">
+              <span className="block text-base font-medium tracking-[-0.02em] text-white no-underline">
                 Not sure where to start?
               </span>
-              <span className="mt-0.5 block text-[11px] font-medium text-zinc-400 no-underline">
+              <span className="mt-1 block text-[13px] text-zinc-400 no-underline">
                 Tell us your goals, we&apos;ll map the route.
               </span>
             </span>
-            <span className="relative flex items-center gap-1.5 text-[11px] font-black uppercase tracking-[0.15em] text-red-500 no-underline">
+            <span className="relative flex items-center gap-1.5 text-sm font-medium text-red-500 no-underline">
               Enquire
               <ArrowUpRight className="size-3 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </span>

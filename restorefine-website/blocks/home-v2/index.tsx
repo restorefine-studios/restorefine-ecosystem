@@ -1,7 +1,7 @@
 import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Inter_Tight } from "next/font/google";
+import { interTight } from "@/lib/fonts";
 import { BriefcaseBusiness, House, Layers, MapPin, Store, UserRound } from "lucide-react";
 import { GoogleG, GoogleStars, googleReviewsLinkProps } from "@/components/google-reviews";
 import { getEntry } from "@/lib/contentful";
@@ -24,7 +24,6 @@ import { ProcessSteps } from "./process-steps";
 import "./v2.css";
 
 /* Inter's display cut: the same skeleton as the site's Inter body, drawn for large sizes */
-const interTight = Inter_Tight({ subsets: ["latin"], variable: "--font-display", display: "swap" });
 
 /** Generated with Higgsfield (nano_banana_pro), 1920x1080 */
 const HERO_IMAGE = "/restorefine-hero.webp";
