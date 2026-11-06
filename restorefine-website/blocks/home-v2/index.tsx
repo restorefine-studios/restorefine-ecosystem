@@ -2,7 +2,7 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Inter_Tight } from "next/font/google";
-import { ArrowRight, BriefcaseBusiness, House, Layers, MapPin, Store, UserRound } from "lucide-react";
+import { BriefcaseBusiness, House, Layers, MapPin, Store, UserRound } from "lucide-react";
 import { GoogleG, GoogleStars, googleReviewsLinkProps } from "@/components/google-reviews";
 import { getEntry } from "@/lib/contentful";
 import { homeContent, type PageContent } from "@/lib/homepageData";
@@ -18,6 +18,8 @@ import { AreasV2 } from "./areas";
 import { FounderSpotlight, type Founder } from "./founders";
 import { CountUp } from "./count-up";
 import { DualTone } from "./dual-tone";
+import { PhotoCard, PhotoRail, PhotoRailItem } from "./photo-card";
+import { ServicesShowcase } from "./services-showcase";
 import { ProcessSteps } from "./process-steps";
 import "./v2.css";
 
@@ -29,16 +31,18 @@ const HERO_IMAGE = "/restorefine-hero.webp";
 
 const c = homeContent;
 
+/* All shown as equal square tiles. `tile`: the file has no background of its own, so it
+ * sits on a white tile with padding. Our HQ uses a copy cropped to the wordmark. */
 const LOGOS = [
   { src: "/clients/itspadel-logo.svg", alt: "It's Padel" },
   { src: "/clients/masala-moves-logo.svg", alt: "Masala Moves" },
   { src: "/clients/spud-kingz-logo.svg", alt: "Spud Kingz" },
-  { src: "/clients/day-today.svg", alt: "Day-to-Day" },
-  { src: "/clients/our-hq-logo.svg", alt: "Our HQ" },
+  { src: "/clients/day-today.svg", alt: "Day-to-Day", tile: true },
+  { src: "/clients/our-hq-logo-cropped.svg", alt: "Our HQ", tile: true },
   { src: "/clients/quiknest-logo.svg", alt: "Quiknest" },
   { src: "/clients/salad-club-logo.svg", alt: "Salad Club" },
-  { src: "/za-cleaning.svg", alt: "Za Cleaning" },
-];
+  { src: "/za-cleaning.svg", alt: "Za Cleaning", tile: true },
+] as { src: string; alt: string; tile?: boolean }[];
 
 /* Generated with Higgsfield in the hero's dark studio style, keyed by service id */
 const SERVICE_IMAGES: Record<string, { src: string; alt: string }> = {
@@ -128,15 +132,20 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
   const rest = hero.heading.replace(hero.accent, "").trim();
   const offer = c.services.core.map((s) => s.title);
   return (
-    <section className="px-2 pt-[5.5rem] sm:px-3 sm:pt-24">
-      <div className="relative isolate flex min-h-[calc(100svh-6rem)] flex-col overflow-hidden rounded-[1.75rem] bg-zinc-950 text-white sm:min-h-[calc(100svh-6.75rem)] sm:rounded-[2rem]">
-        <Image src={HERO_IMAGE} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,9,11,0.88)_0%,rgba(9,9,11,0.6)_45%,rgba(9,9,11,0.35)_100%)]" />
-        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-zinc-950/80 to-transparent" />
+    <section className="sm:px-3 sm:pt-24">
+      <div data-nav-dark className="relative isolate flex min-h-svh flex-col overflow-hidden sm:min-h-[calc(100svh-6.75rem)] bg-zinc-950 text-white sm:rounded-[2rem]">
+        {/* Phones: the photo fills the first screen, cropped onto the person (the left half is near black), fading into the card */}
+        <div className="absolute inset-x-0 top-0 -z-20 h-svh sm:inset-0 sm:h-auto">
+          <Image src={HERO_IMAGE} alt="" fill priority sizes="100vw" className="object-cover object-[70%_center] lg:object-center" />
+          <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/30 to-zinc-950 sm:hidden" />
+        </div>
+        <div aria-hidden="true" className="absolute inset-0 -z-10 hidden bg-zinc-950/55 sm:block lg:hidden" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 hidden lg:block bg-[linear-gradient(90deg,rgba(9,9,11,0.88)_0%,rgba(9,9,11,0.6)_45%,rgba(9,9,11,0.35)_100%)]" />
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 hidden h-1/2 bg-gradient-to-t lg:block from-zinc-950/80 to-transparent" />
 
-        <div className="v2-wrap flex flex-1 flex-col pb-8 pt-12 sm:pt-16 lg:pb-10">
+        <div className="v2-wrap flex flex-1 flex-col pb-8 pt-24 sm:pt-16 lg:pb-10">
 
-          <h1 className="v2-display mt-20 max-w-[11ch] sm:mt-28">
+          <h1 className="v2-display mt-[38svh] max-w-[11ch] sm:mt-28">
             <span className="v2-script block pb-2 text-[1.25em] text-red-600">{hero.accent}</span>{" "}
             {place && rest.endsWith(` ${place}`) ? (
               <>
@@ -148,7 +157,7 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
             )}
           </h1>
 
-          <div className="mt-auto grid gap-10 pt-14 lg:grid-cols-12 lg:items-end lg:gap-8">
+          <div className="mt-auto grid gap-10 pt-5 sm:pt-14 lg:grid-cols-12 lg:items-end lg:gap-8">
             <p className="v2-lead max-w-[46ch] text-white/75 lg:col-span-6">{hero.body}</p>
             <div className="lg:col-span-5 lg:col-start-8 lg:-mr-4 lg:w-fit lg:max-w-[34rem] lg:justify-self-end 2xl:-mr-10">
               <p className="v2-h3 text-white/90">
@@ -163,20 +172,20 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
             </div>
           </div>
 
-          <ul className="mt-10 grid grid-cols-1 gap-4 border-t border-white/15 pt-6 text-sm text-white/75 sm:grid-cols-3" aria-label="Why choose RestoRefine">
-            <li className="flex items-center gap-2.5 sm:justify-center">
-              <a {...googleReviewsLinkProps} className="flex items-center gap-2.5 no-underline transition-colors hover:text-white">
+          <ul className="mt-10 grid grid-cols-3 gap-3 border-t border-white/15 pt-6 text-xs leading-snug text-white/75 sm:gap-4 sm:text-sm" aria-label="Why choose RestoRefine">
+            <li className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
+              <a {...googleReviewsLinkProps} className="flex flex-col items-center gap-2 text-center no-underline transition-colors hover:text-white sm:flex-row sm:gap-2.5 sm:text-left">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
                   <GoogleG className="h-3.5 w-3.5" />
                 </span>
                 5 star Google rating
               </a>
             </li>
-            <li className="flex items-center gap-2.5 sm:justify-center">
+            <li className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
               <BriefcaseBusiness aria-hidden="true" className="h-5 w-5 text-white/60" strokeWidth={1.5} />
               Real client work
             </li>
-            <li className="flex items-center gap-2.5 sm:justify-center">
+            <li className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
               <House aria-hidden="true" className="h-5 w-5 text-white/60" strokeWidth={1.5} />
               All services under one roof
             </li>
@@ -193,10 +202,12 @@ export function Logos() {
     <section aria-label="Clients" className="border-b border-zinc-200">
       <div className="v2-wrap flex flex-col gap-6 py-8 lg:flex-row lg:items-center lg:gap-12">
         <p className="v2-small shrink-0 font-medium text-zinc-950 lg:max-w-[14rem]">Brands we have built and grown</p>
-        <ul className="grid flex-1 grid-cols-4 items-center gap-x-8 gap-y-6 sm:grid-cols-8">
+        <ul className="grid flex-1 grid-cols-4 place-items-center gap-x-6 gap-y-6 sm:grid-cols-8">
           {LOGOS.map((l) => (
-            <li key={l.src} className="relative h-11 overflow-hidden rounded-lg">
-              <Image src={l.src} alt={l.alt} fill sizes="120px" className="object-contain" />
+            <li key={l.src} className={`relative h-14 w-14 overflow-hidden rounded-xl ${l.tile ? "bg-white ring-1 ring-inset ring-zinc-200" : ""}`}>
+              <span className={`absolute ${l.tile ? "inset-1.5" : "inset-0"}`}>
+                <Image src={l.src} alt={l.alt} fill sizes="56px" className="object-contain" />
+              </span>
             </li>
           ))}
         </ul>
@@ -213,7 +224,7 @@ function Intro() {
   return (
     <section className="v2-wrap pb-16 pt-24 lg:pb-20 lg:pt-32">
       <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
-        <h2 className="v2-statement max-w-[18ch] text-zinc-950 lg:col-span-8">
+        <h2 className="v2-statement v2-title-phone max-w-[18ch] text-zinc-950 lg:col-span-8">
           {split > 0 ? (
             <>
               {intro.heading.slice(0, split)} <span className="text-zinc-400">{intro.heading.slice(split + 1)}</span>
@@ -239,21 +250,13 @@ function Intro() {
 function WorkRow() {
   return (
     <section aria-label="Client work">
-      <ul tabIndex={0} aria-label="Client work" className="v2-rail v2-rail--bar v2-rail--inset flex gap-3 overflow-x-auto">
+      <PhotoRail label="Client work">
         {WORK.map((w) => (
-          <li key={w.src} className="w-[72vw] shrink-0 sm:w-[40vw] lg:w-[24vw]">
-            <Link href={w.href} className="group block no-underline">
-              <span className="relative block aspect-[3/4] overflow-hidden rounded-[1.25rem] bg-zinc-100">
-                <Image src={w.src} alt={`${w.name}, RestoRefine client work`} fill sizes="(min-width: 1024px) 24vw, (min-width: 640px) 40vw, 72vw" className="object-cover" />
-              </span>
-              <span className="mt-3 flex items-center justify-between px-1 text-sm font-medium text-zinc-950">
-                {w.name}
-                <ArrowRight aria-hidden="true" className="h-4 w-4 text-zinc-400 transition-[color,transform] duration-300 group-hover:translate-x-1 group-hover:text-red-600" strokeWidth={2} />
-              </span>
-            </Link>
-          </li>
+          <PhotoRailItem key={w.src}>
+            <PhotoCard src={w.src} alt={`${w.name}, RestoRefine client work`} title={w.name} href={w.href} />
+          </PhotoRailItem>
         ))}
-      </ul>
+      </PhotoRail>
     </section>
   );
 }
@@ -293,11 +296,12 @@ function Numbers() {
 }
 
 /* Dark card: the services as numbered rows with dashed red rules */
-export function Services({ c = homeContent }: { c?: PageContent } = {}) {
+/** `showcase`: the core services as the rotating featured layout instead of numbered rows */
+export function Services({ c = homeContent, showcase = false }: { c?: PageContent; showcase?: boolean } = {}) {
   const { services, ctas } = c;
   return (
     <section className="mt-3 px-2 sm:px-3">
-      <div className="rounded-[1.75rem] bg-zinc-950 py-20 text-white sm:rounded-[2rem] lg:py-28">
+      <div data-nav-dark className="rounded-[1.75rem] bg-zinc-950 py-20 text-white sm:rounded-[2rem] lg:py-28">
         <div className="v2-wrap">
           <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
             <h2 className="v2-h2 max-w-[16ch] lg:col-span-7">
@@ -306,6 +310,21 @@ export function Services({ c = homeContent }: { c?: PageContent } = {}) {
             <p className="v2-body max-w-[52ch] text-zinc-400 lg:col-span-4 lg:col-start-9">{services.body}</p>
           </div>
 
+          {showcase ? (
+            <div className="mb-12 mt-16">
+              <ServicesShowcase
+                items={services.core.map((s) => ({
+                  id: s.id,
+                  title: s.title,
+                  tagline: s.tagline,
+                  description: s.description,
+                  items: s.items,
+                  href: s.href,
+                  image: SERVICE_IMAGES[s.id] ?? s.image,
+                }))}
+              />
+            </div>
+          ) : (
           <ol className="mt-16">
             {services.core.map((s) => (
               <li key={s.id} className="grid gap-6 border-t border-dashed border-red-600/60 py-10 lg:grid-cols-12 lg:gap-8">
@@ -331,6 +350,7 @@ export function Services({ c = homeContent }: { c?: PageContent } = {}) {
               </li>
             ))}
           </ol>
+          )}
 
           <ul className="grid gap-x-8 gap-y-10 border-t border-dashed border-red-600/60 pt-12 sm:grid-cols-2 lg:grid-cols-4">
             {services.more.map((s) => (
@@ -358,24 +378,22 @@ export function Services({ c = homeContent }: { c?: PageContent } = {}) {
 export function Industries({ c = homeContent }: { c?: PageContent } = {}) {
   const { industries } = c;
   return (
-    <section className="v2-wrap py-24 lg:py-32">
-      <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+    <section className="py-24 lg:py-32">
+      <div className="v2-wrap grid gap-8 lg:grid-cols-12 lg:items-end">
         <h2 className="v2-h2 text-zinc-950 lg:col-span-7">
           <DualTone text={industries.heading} tail="We Serve" />
         </h2>
         <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{industries.body}</p>
       </div>
-      <ul className="mt-14 grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-        {industries.items.map((item, i) => (
-          <li key={item.title}>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.25rem] bg-zinc-100">
-              <Image src={INDUSTRY_IMAGES[i]?.src ?? item.image.src} alt={INDUSTRY_IMAGES[i]?.alt ?? item.image.alt} fill sizes="(min-width: 1024px) 24vw, (min-width: 640px) 48vw, 100vw" className="object-cover" />
-            </div>
-            <h3 className="v2-h3 mt-5 text-zinc-950">{item.title}</h3>
-            <p className="v2-small mt-3 text-zinc-600">{item.description}</p>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-14">
+        <PhotoRail label={industries.heading}>
+          {industries.items.map((item, i) => (
+            <PhotoRailItem key={item.title}>
+              <PhotoCard src={INDUSTRY_IMAGES[i]?.src ?? item.image.src} alt={INDUSTRY_IMAGES[i]?.alt ?? item.image.alt} title={item.title} titleAs="h3" description={item.description} />
+            </PhotoRailItem>
+          ))}
+        </PhotoRail>
+      </div>
     </section>
   );
 }
@@ -429,7 +447,7 @@ export function Process({ c = homeContent }: { c?: PageContent } = {}) {
         </p>
       </div>
       <ProcessSteps steps={process.steps} />
-      <div className="mt-14">
+      <div className="mt-14 flex justify-center sm:block">
         <EnquireAction {...process.cta} />
       </div>
     </section>
@@ -470,7 +488,7 @@ export function Reviews({ reviews, c = homeContent }: { reviews: Review[]; c?: P
   const ordered = featured ? [featured, ...all.filter((r) => r !== featured)] : all;
   return (
     <section className="px-2 sm:px-3">
-      <div className="overflow-hidden rounded-[1.75rem] bg-zinc-950 py-20 text-white sm:rounded-[2rem] lg:py-28">
+      <div data-nav-dark className="overflow-hidden rounded-[1.75rem] bg-zinc-950 py-20 text-white sm:rounded-[2rem] lg:py-28">
         <div className="v2-wrap">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <h2 className="v2-h2 max-w-[14ch]">
@@ -628,7 +646,7 @@ export default async function HomeV2() {
       <Intro />
       <WorkRow />
       <Numbers />
-      <Services />
+      <Services showcase />
       <Industries />
       <Businesses />
       <Process />

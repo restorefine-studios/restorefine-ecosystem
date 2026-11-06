@@ -57,6 +57,7 @@ export function Footer() {
 
   return (
     <footer
+      data-nav-dark
       className="full-bleed mb-4 px-4 rounded-2xl relative overflow-hidden"
       style={{
         background: "radial-gradient(ellipse 55% 45% at 0% 0%, rgba(100,10,10,0.45) 0%, transparent 65%), #0c0505",

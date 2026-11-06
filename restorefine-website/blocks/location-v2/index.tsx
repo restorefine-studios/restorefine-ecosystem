@@ -101,7 +101,7 @@ export async function LocationPageV2({ content, extras }: Props) {
     <V2Shell>
       <Hero c={c} place={extras.area.name} />
       <Logos />
-      <Services c={c} />
+      <Services c={c} showcase />
       {extras.challenges && <Challenges challenges={extras.challenges} />}
       <Benefits benefits={extras.benefits} />
       <Process c={c} />

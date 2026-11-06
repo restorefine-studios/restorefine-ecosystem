@@ -17,7 +17,7 @@ function ProcessStep({ step, index, total, progress, reduce }: { step: Step; ind
   const letter = step.title.charAt(0);
 
   return (
-    <li className="v2-dash pt-6 text-zinc-300">
+    <li className="v2-dash pt-6 text-center text-zinc-300 sm:text-left">
       <span aria-hidden="true" className="relative block font-[family-name:var(--font-display)] text-[clamp(4.5rem,8vw,7.5rem)] font-medium leading-[0.8] tracking-[-0.05em] text-zinc-200">
         {letter}
         <motion.span className="absolute inset-0 text-red-600" style={reduce ? undefined : { clipPath }}>
@@ -26,7 +26,7 @@ function ProcessStep({ step, index, total, progress, reduce }: { step: Step; ind
       </span>
       <motion.div style={reduce ? undefined : { opacity: textOpacity }}>
         <h3 className="v2-h3 mt-6 text-zinc-950">{step.title}</h3>
-        <p className="v2-small mt-3 text-zinc-600">{step.description}</p>
+        <p className="v2-small mx-auto mt-3 max-w-[38ch] text-zinc-600 sm:mx-0 sm:max-w-none">{step.description}</p>
       </motion.div>
     </li>
   );

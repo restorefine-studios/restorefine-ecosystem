@@ -19,8 +19,8 @@ export function MobileMenu() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild className="md:hidden">
-        <button className="p-2 text-zinc-900" aria-label="Toggle menu">
+      <SheetTrigger asChild className="lg:hidden">
+        <button className="p-2 text-zinc-900 transition-colors group-data-[dark=true]/nav:text-white" aria-label="Toggle menu">
           <Menu className="w-7 h-7" />
         </button>
       </SheetTrigger>

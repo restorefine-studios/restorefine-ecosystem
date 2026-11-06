@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { MobileMenu } from "./mobile-menu";
 import navlogo from "@/public/restorefine-logoblack.svg";
+import navlogoWhite from "@/public/restorefine-logowhite.svg";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -90,7 +91,7 @@ export const pillars: NavPillar[] = [
 export const services = pillars.flatMap((p) => p.services);
 
 const navItemClass =
-  "relative bg-transparent px-0 font-semibold text-zinc-950/58 underline-offset-4 transition-colors duration-300 ease-out after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-red-600 after:transition-transform after:duration-300 after:ease-out hover:bg-transparent hover:text-red-600 hover:no-underline hover:after:scale-x-100 data-[state=open]:bg-transparent data-[state=open]:text-red-600 data-[state=open]:after:scale-x-100";
+  "relative bg-transparent px-0 font-semibold text-zinc-950/58 no-underline underline-offset-4 transition-colors duration-300 ease-out after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-red-600 after:transition-transform after:duration-300 after:ease-out hover:bg-transparent hover:text-red-600 hover:no-underline hover:after:scale-x-100 data-[state=open]:bg-transparent data-[state=open]:text-red-600 data-[state=open]:after:scale-x-100";
 
 /* ------------------------------------------------------------------ */
 /* Mega-menu: left rail of pillars drives the service pane on the right */
@@ -215,16 +216,18 @@ function ServicesMegaMenu() {
 /* ------------------------------------------------------------------ */
 export function NavBarContent({ height = "h-20" }: { height?: string }) {
   return (
-    <div className={cn("flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] px-4 md:px-5", height)}>
+    <div className={cn("flex items-center justify-between lg:grid lg:grid-cols-[1fr_auto_1fr] px-4 md:px-5", height)}>
       {/* Brand */}
       <Link href="/" className="flex items-center gap-3 justify-self-start no-underline" aria-label="RestoRefine home">
         <span className="flex h-9 w-9 items-center justify-center">
-          <Image src={navlogo || "/placeholder.svg"} alt="" width={24} height={24} />
+          {/* White version while the bar sits over a dark section (see useOverDark) */}
+          <Image src={navlogo || "/placeholder.svg"} alt="" width={24} height={24} className="group-data-[dark=true]/nav:hidden" />
+          <Image src={navlogoWhite} alt="" width={24} height={24} className="hidden group-data-[dark=true]/nav:block" />
         </span>
       </Link>
 
       {/* Nav links — exact centre column */}
-      <div className="hidden justify-self-center md:block">
+      <div className="hidden justify-self-center lg:block">
         <NavigationMenu>
           <NavigationMenuList className="flex items-center gap-x-7">
 
@@ -266,13 +269,13 @@ export function NavBarContent({ height = "h-20" }: { height?: string }) {
       <div className="flex items-center gap-3 justify-self-end">
         <Link
           href="/enquire-now"
-          className="group hidden items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(220,38,38,0.18)] transition-transform hover:-translate-y-0.5 hover:bg-red-500 active:translate-y-px md:inline-flex"
+          className="group hidden items-center gap-2 whitespace-nowrap rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white no-underline shadow-[0_10px_24px_rgba(220,38,38,0.18)] transition-transform hover:-translate-y-0.5 hover:bg-red-500 active:translate-y-px lg:inline-flex"
         >
           Enquire Now
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
         {/* Animated Shiny Red Outline Button */}
-        <div className="relative group hidden md:inline-flex items-center justify-center p-[2px] rounded-full overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.75)]">
+        <div className="relative group hidden xl:inline-flex items-center justify-center p-[2px] rounded-full overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.75)]">
           {/* Rotating shiny red border gradient */}
           <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#ef4444_0%,#f87171_25%,transparent_50%,#dc2626_75%,#ef4444_100%)]" />
           
@@ -280,7 +283,7 @@ export function NavBarContent({ height = "h-20" }: { height?: string }) {
             href="https://talent.restorefine.co.uk"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative flex items-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-colors duration-300 group-hover:bg-red-600"
+            className="relative flex items-center gap-2 whitespace-nowrap rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white no-underline transition-colors duration-300 group-hover:bg-red-600"
           >
             <span>Join Talent Network</span>
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -337,6 +340,40 @@ function useNavVisibility() {
 }
 
 /* ------------------------------------------------------------------ */
+/* True while a section marked `data-nav-dark` sits under the bar, so  */
+/* the logo and menu icon can switch to white.                         */
+/* ------------------------------------------------------------------ */
+function useOverDark(ref: React.RefObject<HTMLElement | null>) {
+  const [dark, setDark] = React.useState(false);
+
+  React.useEffect(() => {
+    let raf = 0;
+    const check = () => {
+      raf = 0;
+      const bar = ref.current;
+      if (!bar) return;
+      const rect = bar.getBoundingClientRect();
+      const y = Math.max(0, rect.top + rect.height / 2);
+      const under = document.elementsFromPoint(window.innerWidth / 2, y).find((el) => !bar.contains(el));
+      setDark(!!under?.closest("[data-nav-dark]"));
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(check);
+    };
+    check();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [ref]);
+
+  return dark;
+}
+
+/* ------------------------------------------------------------------ */
 /* Navbar: fixed header on every page. The header itself has no        */
 /* background, so whatever the page looks like shows through around   */
 /* the bar; the bar's own white fill plus its shadow (desktop) give it */
@@ -346,11 +383,15 @@ function useNavVisibility() {
 /* ------------------------------------------------------------------ */
 export function Navbar() {
   const visible = useNavVisibility();
+  const ref = React.useRef<HTMLElement>(null);
+  const overDark = useOverDark(ref);
 
   return (
     <header
+      ref={ref}
+      data-dark={overDark}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 text-sm font-medium transition-transform duration-300 ease-out",
+        "group/nav fixed top-0 left-0 right-0 z-50 text-sm font-medium transition-transform duration-300 ease-out",
         !visible && "-translate-y-full",
       )}
     >
