@@ -677,10 +677,10 @@ export default async function HomeV2() {
       <Process />
       <WhyChoose />
       <Reviews reviews={reviews} />
-      <Founders {...founders} />
       <AreasV2 />
-      <Resources />
+      <Founders {...founders} />
       <FaqV2 />
+      <Resources />
       <Enquiry />
     </V2Shell>
   );

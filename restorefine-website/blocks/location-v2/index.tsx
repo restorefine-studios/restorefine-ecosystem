@@ -112,8 +112,8 @@ export async function LocationPageV2({ content, extras }: Props) {
       <Industries c={c} />
       <Businesses c={c} />
       <KnowAboutGlobe knowAbout={extras.knowAbout} />
-      <Resources c={c} />
       <FaqV2 c={c} />
+      <Resources c={c} />
       <Enquiry c={c} />
     </V2Shell>
   );
