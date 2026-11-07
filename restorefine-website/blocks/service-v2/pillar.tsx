@@ -94,7 +94,7 @@ export function ServiceHero({
 }) {
   return (
     <section className="sm:px-3 sm:pt-24">
-      <div data-nav-dark className="relative isolate flex min-h-svh flex-col overflow-hidden bg-zinc-950 text-white sm:min-h-[calc(100svh-6.75rem)] sm:rounded-[2rem]">
+      <div data-nav-dark className="relative isolate flex min-h-[min(100svh,64rem)] flex-col overflow-hidden bg-zinc-950 text-white sm:min-h-[min(calc(100svh-6.75rem),64rem)] sm:rounded-[2rem]">
         <Image src={image} alt="" fill priority sizes="100vw" className="-z-20 object-cover object-[70%_center] lg:object-center" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,9,11,0.9)_0%,rgba(9,9,11,0.62)_50%,rgba(9,9,11,0.35)_100%)]" />
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-zinc-950/85 to-transparent" />

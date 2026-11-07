@@ -163,9 +163,11 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
   const offer = c.services.core.map((s) => s.title);
   return (
     <section className="sm:px-3 sm:pt-24">
-      <div data-nav-dark className="relative isolate flex min-h-svh flex-col overflow-hidden sm:min-h-[calc(100svh-6.75rem)] bg-zinc-950 text-white sm:rounded-[2rem]">
+      {/* Fills the screen, capped at 64rem: tools that render in a very tall window (Google's
+          Rich Results / URL Inspection screenshots) would otherwise stretch it and push all content out */}
+      <div data-nav-dark className="relative isolate flex min-h-[min(100svh,64rem)] flex-col overflow-hidden sm:min-h-[min(calc(100svh-6.75rem),64rem)] bg-zinc-950 text-white sm:rounded-[2rem]">
         {/* Phones: the photo fills the first screen, cropped onto the person (the left half is near black), fading into the card */}
-        <div className="absolute inset-x-0 top-0 -z-20 h-svh sm:inset-0 sm:h-auto">
+        <div className="absolute inset-x-0 top-0 -z-20 h-[min(100svh,64rem)] sm:inset-0 sm:h-auto">
           <Image src={HERO_IMAGE} alt="" fill priority sizes="100vw" className="object-cover object-[70%_center] lg:object-center" />
           <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/30 to-zinc-950 sm:hidden" />
         </div>
@@ -175,7 +177,7 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
 
         <div className="v2-wrap flex flex-1 flex-col pb-8 pt-24 sm:pt-16 lg:pb-10">
 
-          <h1 className="v2-display mt-[38svh] max-w-[11ch] sm:mt-28">
+          <h1 className="v2-display mt-[min(38svh,24rem)] max-w-[11ch] sm:mt-28">
             <span className="v2-script block pb-2 text-[1.25em] text-red-600">{hero.accent}</span>{" "}
             {place && rest.endsWith(` ${place}`) ? (
               <>
