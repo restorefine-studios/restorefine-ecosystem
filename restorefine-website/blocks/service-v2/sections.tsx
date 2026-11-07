@@ -11,14 +11,14 @@ import { Typewriter } from "./typewriter";
 
 type Img = string | StaticImageData;
 
-/** Heading on the left, supporting line on the right, as across the homepage */
+/** Heading with its supporting line below it, across the full content width, as across the homepage */
 export function SectionHead({ heading, tail, body, dark = false }: { heading: string; tail?: string; body?: ReactNode; dark?: boolean }) {
   return (
     <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
       <h2 className={`v2-h2 max-w-[18ch] lg:col-span-7 ${dark ? "text-white" : "text-zinc-950"}`}>
         <DualTone text={heading.replace(/\n/g, " ")} tail={tail} dark={dark} />
       </h2>
-      {body && <div className={`v2-body max-w-[52ch] lg:col-span-4 lg:col-start-9 ${dark ? "text-zinc-400" : "text-zinc-600"}`}>{body}</div>}
+      {body && <div className={`v2-body lg:col-span-12 ${dark ? "text-zinc-400" : "text-zinc-600"}`}>{body}</div>}
     </div>
   );
 }

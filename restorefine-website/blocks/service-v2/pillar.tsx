@@ -150,7 +150,7 @@ function Overview({ overview }: { overview: PillarProps["overview"] }) {
         <h2 className="v2-h2 max-w-[18ch] text-zinc-950 lg:col-span-7">
           <DualTone text={overview.heading} tail={overview.headingTail} />
         </h2>
-        <div className="space-y-5 lg:col-span-4 lg:col-start-9">
+        <div className="space-y-5 lg:col-span-12">
           {overview.body.map((p) => (
             <p key={p.slice(0, 24)} className="v2-body text-zinc-600">
               {p}
@@ -215,7 +215,7 @@ export function Process({ process }: { process: PillarProps["process"] }) {
         <h2 className="v2-h2 max-w-[16ch] text-zinc-950 lg:col-span-7">
           <DualTone text={process.heading} tail={process.tail} />
         </h2>
-        <div className="space-y-4 lg:col-span-4 lg:col-start-9">
+        <div className="space-y-4 lg:col-span-12">
           {process.intro.map((p) => (
             <p key={p.slice(0, 24)} className="v2-body text-zinc-600">
               {p}
@@ -244,7 +244,7 @@ function Insights({ insights }: { insights: NonNullable<PillarProps["insights"]>
         <h2 className="v2-h2 text-zinc-950 lg:col-span-7">
           <DualTone text={insights.heading} tail={insights.tail} />
         </h2>
-        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{insights.body}</p>
+        <p className="v2-body text-zinc-600 lg:col-span-12">{insights.body}</p>
       </div>
       <div className="mt-14">
         <PhotoRail label={insights.heading}>
@@ -269,7 +269,7 @@ export function CaseStudies({ caseStudies }: { caseStudies: Omit<PillarProps["ca
         <h2 className="v2-h2 max-w-[18ch] text-zinc-950 lg:col-span-7">
           <DualTone text={caseStudies.heading} tail={caseStudies.tail} />
         </h2>
-        {caseStudies.intro && <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{caseStudies.intro}</p>}
+        {caseStudies.intro && <p className="v2-body text-zinc-600 lg:col-span-12">{caseStudies.intro}</p>}
       </div>
       <div className="mt-14">
         {videos.length > 0 ? (

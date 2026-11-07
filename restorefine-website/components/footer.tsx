@@ -31,6 +31,12 @@ const sectors = ["Hospitality & Restaurants", "Sport & Leisure", "Lifestyle Bran
 const locations = [
   { name: "Growth Marketing Agency London", href: "/growth-marketing-agency-london" },
   { name: "Growth Marketing Agency Manchester", href: "/growth-marketing-agency-manchester" },
+  { name: "Growth Marketing Agency Scotland", href: "/growth-marketing-agency-scotland" },
+  { name: "Growth Marketing Agency Glasgow", href: "/growth-marketing-agency-glasgow" },
+  { name: "Growth Marketing Agency Edinburgh", href: "/growth-marketing-agency-edinburgh" },
+  { name: "Growth Marketing Agency Newcastle", href: "/growth-marketing-agency-newcastle" },
+  { name: "Growth Marketing Agency Liverpool", href: "/growth-marketing-agency-liverpool" },
+  { name: "Growth Marketing Agency Birmingham", href: "/growth-marketing-agency-birmingham" },
 ];
 
 const legal = [

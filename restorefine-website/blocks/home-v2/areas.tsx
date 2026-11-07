@@ -22,6 +22,7 @@ export function GlobeSection({
   highlight,
   focusZoom,
   label,
+  highlightPath,
 }: {
   heading: string;
   tail?: string;
@@ -32,6 +33,8 @@ export function GlobeSection({
   highlight: "uk" | string;
   focusZoom?: number;
   label: string;
+  /** Outline to highlight when `highlight` isn't one of GLOBE_AREAS (location pages) */
+  highlightPath?: string;
 }) {
   const ukRed = highlight === "uk";
 
@@ -54,6 +57,9 @@ export function GlobeSection({
                   ) : name === highlight ? (
                     <path key={name} d={d} className="fill-red-600/15 stroke-red-600" strokeWidth={2} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
                   ) : null,
+                )}
+                {highlightPath && !GLOBE_AREAS[highlight] && (
+                  <path d={highlightPath} className="fill-red-600/15 stroke-red-600" strokeWidth={2} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
                 )}
               </FocusSvg>
             </GlobeZoom>

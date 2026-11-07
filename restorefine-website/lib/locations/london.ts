@@ -398,4 +398,8 @@ export const londonExtras = {
 type Section = { heading: string; body: string; items: { title: string; description: string }[] };
 
 /** Every location page's extras; `challenges` is only on pages whose brief has it */
-export type LocationExtras = typeof londonExtras & { challenges?: Section };
+export type LocationExtras = Omit<typeof londonExtras, "area"> & {
+  challenges?: Section;
+  /** Schema.org place the page targets: a city, or a whole country (Scotland) */
+  area: { name: string; type: "City" | "Country" };
+};

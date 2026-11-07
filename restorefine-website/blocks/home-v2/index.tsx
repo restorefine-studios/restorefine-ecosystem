@@ -2,10 +2,10 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { interTight } from "@/lib/fonts";
-import { BriefcaseBusiness, House, Layers, MapPin, Store, UserRound } from "lucide-react";
+import { BriefcaseBusiness, Clock, House, Layers, MapPin, Store, UserRound } from "lucide-react";
 import { GoogleG, GoogleStars, googleReviewsLinkProps } from "@/components/google-reviews";
 import { getEntry } from "@/lib/contentful";
-import { homeContent, type PageContent } from "@/lib/homepageData";
+import { homeContent, type HeroBadge, type PageContent } from "@/lib/homepageData";
 import { blogPosts } from "@/lib/blogContent";
 import { getSupaPosts } from "@/lib/supabase";
 import { getClientReviews } from "@/blocks/home/get-client-reviews";
@@ -126,6 +126,37 @@ async function getLatestPosts(limit: number): Promise<PostSummary[]> {
 
 /* Dark photo card under the navbar, headline low left, offer low right */
 /** `place` (a location page's area name) is set in grey when the heading ends with it */
+const DEFAULT_BADGES: HeroBadge[] = ["rating", "work", "roof"];
+
+const BADGE_ICON = "h-5 w-5 text-white/60";
+
+const BADGES = {
+  work: [BriefcaseBusiness, "Real client work"],
+  roof: [House, "All services under one roof"],
+  response: [Clock, "Response within minutes"],
+  studio: [MapPin, "Glasgow studio"],
+} as const;
+
+/** One hero trust badge; the Google rating links to the reviews */
+function HeroBadgeItem({ badge }: { badge: HeroBadge }) {
+  if (badge === "rating")
+    return (
+      <a {...googleReviewsLinkProps} className="flex flex-col items-center gap-2 text-center no-underline transition-colors hover:text-white sm:flex-row sm:gap-2.5 sm:text-left">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
+          <GoogleG className="h-3.5 w-3.5" />
+        </span>
+        5 star Google rating
+      </a>
+    );
+  const [Icon, label] = BADGES[badge];
+  return (
+    <>
+      <Icon aria-hidden="true" className={BADGE_ICON} strokeWidth={1.5} />
+      {label}
+    </>
+  );
+}
+
 export function Hero({ c = homeContent, place }: { c?: PageContent; place?: string } = {}) {
   const { hero, ctas } = c;
   const rest = hero.heading.replace(hero.accent, "").trim();
@@ -157,7 +188,10 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
           </h1>
 
           <div className="mt-auto grid gap-10 pt-5 sm:pt-14 lg:grid-cols-12 lg:items-end lg:gap-8">
-            <p className="v2-lead max-w-[46ch] text-white/75 lg:col-span-6">{hero.body}</p>
+            <div className="max-w-[58ch] lg:col-span-7">
+              <p className="v2-lead text-white/75">{hero.body}</p>
+              {hero.more && <p className="v2-body mt-4 text-white/60">{hero.more}</p>}
+            </div>
             <div className="lg:col-span-5 lg:col-start-8 lg:-mr-4 lg:w-fit lg:max-w-[34rem] lg:justify-self-end 2xl:-mr-10">
               <p className="v2-h3 text-white/90">
                 {offer.slice(0, -1).join(", ")}
@@ -172,22 +206,11 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
           </div>
 
           <ul className="mt-10 grid grid-cols-3 gap-3 border-t border-white/15 pt-6 text-xs leading-snug text-white/75 sm:gap-4 sm:text-sm" aria-label="Why choose RestoRefine">
-            <li className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
-              <a {...googleReviewsLinkProps} className="flex flex-col items-center gap-2 text-center no-underline transition-colors hover:text-white sm:flex-row sm:gap-2.5 sm:text-left">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
-                  <GoogleG className="h-3.5 w-3.5" />
-                </span>
-                5 star Google rating
-              </a>
-            </li>
-            <li className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
-              <BriefcaseBusiness aria-hidden="true" className="h-5 w-5 text-white/60" strokeWidth={1.5} />
-              Real client work
-            </li>
-            <li className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
-              <House aria-hidden="true" className="h-5 w-5 text-white/60" strokeWidth={1.5} />
-              All services under one roof
-            </li>
+            {(hero.badges ?? DEFAULT_BADGES).map((b) => (
+              <li key={b} className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
+                <HeroBadgeItem badge={b} />
+              </li>
+            ))}
           </ul>
         </div>
       </div>
@@ -233,10 +256,11 @@ function Intro() {
           )}
         </h2>
       </div>
-      <div className="mt-12 grid gap-8 lg:grid-cols-12">
-        <p className="v2-lead max-w-[58ch] text-zinc-800 lg:col-span-6">{lead}</p>
+      {/* One column: the lead, then the rest below it, both across the full content width */}
+      <div className="mt-12 space-y-6">
+        <p className="v2-lead text-zinc-800">{lead}</p>
         {rest.map((p) => (
-          <p key={p} className="v2-body max-w-[58ch] text-zinc-600 lg:col-span-5 lg:col-start-8">
+          <p key={p} className="v2-body text-zinc-600">
             {p}
           </p>
         ))}
@@ -306,7 +330,7 @@ export function Services({ c = homeContent, showcase = false }: { c?: PageConten
             <h2 className="v2-h2 max-w-[16ch] lg:col-span-7">
               <DualTone text={services.heading} tail="We Provide" dark />
             </h2>
-            <p className="v2-body max-w-[52ch] text-zinc-400 lg:col-span-4 lg:col-start-9">{services.body}</p>
+            <p className="v2-body text-zinc-400 lg:col-span-12">{services.body}</p>
           </div>
 
           {showcase ? (
@@ -382,7 +406,7 @@ export function Industries({ c = homeContent }: { c?: PageContent } = {}) {
         <h2 className="v2-h2 text-zinc-950 lg:col-span-7">
           <DualTone text={industries.heading} tail="We Serve" />
         </h2>
-        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{industries.body}</p>
+        <p className="v2-body text-zinc-600 lg:col-span-12">{industries.body}</p>
       </div>
       <div className="mt-14">
         <PhotoRail label={industries.heading}>
@@ -407,7 +431,7 @@ export function Businesses({ c = homeContent }: { c?: PageContent } = {}) {
             <h2 className="v2-h2 text-zinc-950 lg:col-span-7">
               <DualTone text={businesses.heading} tail="We Work With" />
             </h2>
-            <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{businesses.body}</p>
+            <p className="v2-body text-zinc-600 lg:col-span-12">{businesses.body}</p>
           </div>
           <ul className="mt-14 grid gap-x-8 gap-y-10 lg:grid-cols-3">
             {businesses.items.map((item) => (
@@ -433,7 +457,7 @@ export function Process({ c = homeContent }: { c?: PageContent } = {}) {
         <h2 className="v2-h2 text-zinc-950 lg:col-span-7">
           <DualTone text={process.heading} tail="Agency Works" />
         </h2>
-        <p className={`${process.lead.length > 80 ? "v2-body" : "v2-h3"} text-zinc-600 lg:col-span-4 lg:col-start-9`}>
+        <p className={`${process.lead.length > 80 ? "v2-body" : "v2-h3"} text-zinc-600 lg:col-span-12`}>
           {leadParts.length === 2 ? (
             <>
               {leadParts[0]}
@@ -462,7 +486,7 @@ export function WhyChoose({ c = homeContent }: { c?: PageContent } = {}) {
         <h2 className="v2-h2 max-w-[18ch] text-zinc-950 lg:col-span-7">
           <DualTone text={whyChoose.heading} tail="as your UK Growth Agency?" />
         </h2>
-        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{whyChoose.body}</p>
+        <p className="v2-body text-zinc-600 lg:col-span-12">{whyChoose.body}</p>
       </div>
       <ul className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
         {whyChoose.items.map((item) => (
@@ -543,7 +567,7 @@ function Founders({ headline, subtext, founders }: { headline: string; subtext: 
         <h2 className="v2-h2 text-zinc-950 lg:col-span-7">
           <DualTone text={headline} />
         </h2>
-        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{subtext}</p>
+        <p className="v2-body text-zinc-600 lg:col-span-12">{subtext}</p>
       </div>
       <FounderSpotlight founders={founders} cta={c.ctas.enquire} />
     </section>
@@ -559,7 +583,7 @@ export async function Resources({ c = homeContent }: { c?: PageContent } = {}) {
         <h2 className="v2-h2 text-zinc-950 lg:col-span-7">
           <DualTone text={resources.heading} tail="Resources" />
         </h2>
-        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{resources.body}</p>
+        <p className="v2-body text-zinc-600 lg:col-span-12">{resources.body}</p>
       </div>
       <ResourcesTabs posts={posts} resources={resources} caseStudies={c.clientSpotlight} />
     </section>

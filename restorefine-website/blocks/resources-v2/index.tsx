@@ -74,7 +74,7 @@ export function ResourcesV2({ posts }: { posts: ResourcePost[] }) {
             The First Word In{" "}
             <span className="v2-script block pt-[0.6em] text-[1.15em] leading-[0.8] text-red-600">What&apos;s Next</span>
           </h1>
-          <p className="v2-body max-w-[44ch] text-zinc-600 lg:col-span-4 lg:col-start-9">
+          <p className="v2-body text-zinc-600 lg:col-span-12">
             Bold brands, standout stories, and digital experiences worth remembering. From kitchens to code, it&apos;s all on the table.
           </p>
         </div>

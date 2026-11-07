@@ -5,6 +5,7 @@ import { DualTone } from "@/blocks/home-v2/dual-tone";
 import { GlobeSection } from "@/blocks/home-v2/areas";
 import { projectToGlobe } from "@/lib/globe-projection";
 import { GLOBE_AREAS, UK_GLOBE } from "@/lib/uk-globe";
+import { LOCATION_AREAS } from "@/lib/location-areas";
 import type { PageContent } from "@/lib/homepageData";
 import type { londonContent, LocationExtras } from "@/lib/locations/london";
 
@@ -18,7 +19,7 @@ function Benefits({ benefits }: { benefits: LocationExtras["benefits"] }) {
         <h2 className="v2-h2 max-w-[18ch] text-zinc-950 lg:col-span-7">
           <DualTone text={benefits.heading} />
         </h2>
-        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{benefits.body}</p>
+        <p className="v2-body text-zinc-600 lg:col-span-12">{benefits.body}</p>
       </div>
       <ul className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
         {benefits.items.map((item) => (
@@ -43,7 +44,7 @@ function Challenges({ challenges }: { challenges: NonNullable<LocationExtras["ch
         <h2 className="v2-h2 max-w-[18ch] text-zinc-950 lg:col-span-7">
           <DualTone text={challenges.heading} />
         </h2>
-        <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{challenges.body}</p>
+        <p className="v2-body text-zinc-600 lg:col-span-12">{challenges.body}</p>
       </div>
       <ol className="mt-14">
         {challenges.items.map((item, i) => (
@@ -60,7 +61,7 @@ function Challenges({ challenges }: { challenges: NonNullable<LocationExtras["ch
 
 /* The page's own area on the same globe as the homepage, zoomed to its boundary */
 function KnowAboutGlobe({ knowAbout }: { knowAbout: LocationExtras["knowAbout"] }) {
-  const d = GLOBE_AREAS[knowAbout.boundary] ?? "";
+  const d = GLOBE_AREAS[knowAbout.boundary] ?? LOCATION_AREAS[knowAbout.boundary] ?? "";
   const nums = d.match(/-?\d+(\.\d+)?/g)?.map(Number) ?? [];
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (let i = 0; i < nums.length - 1; i += 2) {
@@ -86,6 +87,7 @@ function KnowAboutGlobe({ knowAbout }: { knowAbout: LocationExtras["knowAbout"] 
       pins={knowAbout.places.map((p) => ({ name: p.name, ...projectToGlobe(p.lat, p.lon) }))}
       base={base}
       highlight={knowAbout.boundary}
+      highlightPath={GLOBE_AREAS[knowAbout.boundary] ? undefined : d}
       focusZoom={2.2}
       label={`Map of ${knowAbout.boundary} showing ${knowAbout.places.map((p) => p.name).join(", ")}`}
     />

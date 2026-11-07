@@ -316,7 +316,7 @@ export const homeContent = {
       {
         title: "Scotland",
         locations: [
-          { name: "Glasgow", href: null as string | null, lat: 55.8642, lon: -4.2518, label: "left", hub: true },
+          { name: "Glasgow", href: "/growth-marketing-agency-glasgow" as string | null, lat: 55.8642, lon: -4.2518, label: "left", hub: true },
           { name: "East Kilbride", href: null as string | null, lat: 55.7644, lon: -4.1769, label: "right", hub: false },
           { name: "Ayr", href: null as string | null, lat: 55.4586, lon: -4.6292, label: "left", hub: false },
         ],
@@ -325,8 +325,8 @@ export const homeContent = {
         title: "UK",
         locations: [
           { name: "Manchester", href: "/growth-marketing-agency-manchester" as string | null, lat: 53.4808, lon: -2.2426, label: "right", hub: false },
-          { name: "Liverpool", href: null as string | null, lat: 53.4084, lon: -2.9916, label: "left", hub: false },
-          { name: "Birmingham", href: null as string | null, lat: 52.4862, lon: -1.8904, label: "right", hub: false },
+          { name: "Liverpool", href: "/growth-marketing-agency-liverpool" as string | null, lat: 53.4084, lon: -2.9916, label: "left", hub: false },
+          { name: "Birmingham", href: "/growth-marketing-agency-birmingham" as string | null, lat: 52.4862, lon: -1.8904, label: "right", hub: false },
           { name: "London", href: "/growth-marketing-agency-london" as string | null, lat: 51.5074, lon: -0.1278, label: "right", hub: false },
         ],
       },
@@ -481,5 +481,13 @@ export const homeContent = {
   ],
 };
 
-/** Shape every content-driven page (homepage, location pages) follows */
-export type PageContent = typeof homeContent;
+/** Trust badges the hero can show under its calls to action */
+export type HeroBadge = "rating" | "work" | "roof" | "response" | "studio";
+
+/**
+ * Shape every content-driven page (homepage, location pages) follows. Location
+ * pages may add a second hero paragraph (`more`) and pick their own three badges.
+ */
+export type PageContent = Omit<typeof homeContent, "hero"> & {
+  hero: (typeof homeContent)["hero"] & { more?: string; badges?: HeroBadge[] };
+};
