@@ -5,6 +5,7 @@ import { ArrowRight, Mail, MapPin, ArrowUpRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { pushGTMEvent } from "@/lib/gtm";
+import { useSpamGuard } from "@/lib/spam-guard";
 
 const OFFICE_ADDRESS = "(Unit 54) 24 Fairley Street, Glasgow, G51 2SN, Scotland";
 const MAPS_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(OFFICE_ADDRESS)}&output=embed`;
@@ -16,6 +17,7 @@ export function ContactSection() {
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
+  const { guardFields, guardPayload, resetGuard } = useSpamGuard();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,6 +32,7 @@ export function ContactSection() {
       phone: formData.get("phone"),
       state: formData.get("state"),
       message: formData.get("message"),
+      ...(await guardPayload(formData)),
     };
 
     try {
@@ -43,11 +46,14 @@ export function ContactSection() {
         setFormStatus({ type: "success", message: "Message sent! We'll be in touch shortly." });
         form.reset();
         pushGTMEvent("contact_form_submitted");
+      } else {
+        setFormStatus({ type: "error", message: result.error || "Failed to send. Please try again." });
       }
     } catch (error) {
       setFormStatus({ type: "error", message: "Failed to send. Please try again." });
     } finally {
       setIsSubmitting(false);
+      resetGuard();
       setTimeout(() => setFormStatus({ type: null, message: "" }), 5000);
     }
   }
@@ -129,6 +135,7 @@ export function ContactSection() {
         {/* ── RIGHT: form card ── */}
         <div className="bg-zinc-100 rounded-3xl p-6 md:p-10 flex flex-col h-full">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 flex-1">
+            {guardFields}
             <div className="grid grid-cols-2 gap-4">
               <Input
                 id="name" name="name" type="text" required

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { pushGTMEvent } from "@/lib/gtm";
+import { useSpamGuard } from "@/lib/spam-guard";
 import { useFormState } from "./contact-form-context";
 import {
   budgetOptions,
@@ -178,6 +179,7 @@ export function DetailsForm({ className = "" }: { className?: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const { guardFields, guardPayload, resetGuard } = useSpamGuard();
   const labelClass = "text-sm font-medium text-zinc-800";
   const errorClass = "text-sm font-medium text-red-700";
 
@@ -216,6 +218,7 @@ export function DetailsForm({ className = "" }: { className?: string }) {
           phone: fd.get("phone"),
           company: fd.get("company"),
           message: fd.get("message"),
+          ...(await guardPayload(fd)),
         }),
       });
       if (!response.ok) {
@@ -241,11 +244,13 @@ export function DetailsForm({ className = "" }: { className?: string }) {
       setErrors((prev) => ({ ...prev, submit: err instanceof Error ? err.message : "Something went wrong. Please try again." }));
     } finally {
       setIsSubmitting(false);
+      resetGuard();
     }
   };
 
   return (
     <form onSubmit={handleSubmit} noValidate className={`grid gap-5 text-left sm:grid-cols-2 ${className}`}>
+      {guardFields}
       {FIELDS.map((f) => (
         <div key={f.name} className="flex flex-col gap-2">
           <label htmlFor={`enquiry-${f.name}`} className={labelClass}>

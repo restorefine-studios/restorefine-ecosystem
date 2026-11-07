@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowUpRight, LoaderCircle } from "lucide-react";
 import { pushGTMEvent } from "@/lib/gtm";
+import { useSpamGuard } from "@/lib/spam-guard";
 import type { PageContent } from "@/lib/homepageData";
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -27,12 +28,14 @@ function Field({ name, label, type = "text", required = false, autoComplete }: {
 export function EnquiryForm({ finalCta }: { finalCta: PageContent["finalCta"] }) {
   const { form } = finalCta;
   const [status, setStatus] = useState<Status>("idle");
+  const { guardFields, guardPayload, resetGuard } = useSpamGuard();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formEl = event.currentTarget;
-    const data = Object.fromEntries(new FormData(formEl).entries());
+    const fd = new FormData(formEl);
     setStatus("sending");
+    const data = { ...Object.fromEntries(fd.entries()), ...(await guardPayload(fd)) };
     try {
       const response = await fetch("/api/send-email", {
         method: "POST",
@@ -49,6 +52,8 @@ export function EnquiryForm({ finalCta }: { finalCta: PageContent["finalCta"] })
       }
     } catch {
       setStatus("error");
+    } finally {
+      resetGuard();
     }
   }
 
@@ -56,6 +61,7 @@ export function EnquiryForm({ finalCta }: { finalCta: PageContent["finalCta"] })
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-5 rounded-[1.75rem] bg-white p-6 text-zinc-950 sm:grid-cols-2 sm:p-9">
+      {guardFields}
       <Field name="name" label={form.name} required autoComplete="name" />
       <Field name="email" label={form.email} type="email" required autoComplete="email" />
       <Field name="phone" label={form.phone} type="tel" autoComplete="tel" />

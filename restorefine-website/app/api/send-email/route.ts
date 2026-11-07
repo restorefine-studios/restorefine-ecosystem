@@ -1,13 +1,30 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getMainServiceLabel, getServiceTypeLabel } from "@/blocks/enquire/service-options";
+import { checkEnquiry, escapeHtml } from "@/lib/spam-check";
 
 export async function POST(req: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
-    const data = await req.json();
-    const mainServiceLabel = getMainServiceLabel(data.mainService);
-    const serviceTypeLabel = getServiceTypeLabel(data.mainService, data.serviceType);
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+    const check = await checkEnquiry(body as Record<string, unknown>, ip);
+    if (!check.ok) {
+      console.warn("Enquiry rejected:", check.reason);
+      // Silent rejections look like a success so bots get no signal to adapt to
+      if (check.silent) return NextResponse.json({ success: true });
+      const message = check.reason === "turnstile" ? "Verification failed. Please refresh the page and try again." : "Please check your details and try again.";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+
+    const { enquiry } = check;
+    const mainServiceLabel = getMainServiceLabel(enquiry.mainService);
+    const serviceTypeLabel = getServiceTypeLabel(enquiry.mainService, enquiry.serviceType);
+    // Escaped copies for the HTML body; the plain-text body uses the raw values
+    const data = Object.fromEntries(Object.entries(enquiry).map(([k, v]) => [k, escapeHtml(v)])) as typeof enquiry;
+    const mailto = escapeHtml(encodeURIComponent(enquiry.email).replace(/%40/g, "@"));
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -65,7 +82,7 @@ export async function POST(req: Request) {
                     <span style="font-size:13px;color:#71717a;font-family:'Inter',Arial,sans-serif;">Service</span>
                   </td>
                   <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;text-align:right;">
-                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${mainServiceLabel}</span>
+                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${escapeHtml(mainServiceLabel)}</span>
                   </td>
                 </tr>
                 <tr>
@@ -73,7 +90,7 @@ export async function POST(req: Request) {
                     <span style="font-size:13px;color:#71717a;font-family:'Inter',Arial,sans-serif;">Service Type</span>
                   </td>
                   <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;text-align:right;">
-                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${serviceTypeLabel}</span>
+                    <span style="font-size:13px;font-weight:600;color:#09090b;font-family:'Inter',Arial,sans-serif;">${escapeHtml(serviceTypeLabel)}</span>
                   </td>
                 </tr>
                 <tr>
@@ -119,7 +136,7 @@ export async function POST(req: Request) {
                     <span style="font-size:13px;color:#71717a;font-family:'Inter',Arial,sans-serif;">Email</span>
                   </td>
                   <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;text-align:right;">
-                    <a href="mailto:${data.email}" style="font-size:13px;font-weight:600;color:#ff0000;text-decoration:none;font-family:'Inter',Arial,sans-serif;">${data.email}</a>
+                    <a href="mailto:${mailto}" style="font-size:13px;font-weight:600;color:#ff0000;text-decoration:none;font-family:'Inter',Arial,sans-serif;">${data.email}</a>
                   </td>
                 </tr>
                 <tr>
@@ -162,7 +179,7 @@ export async function POST(req: Request) {
           <!-- Reply CTA -->
           <tr>
             <td style="background:#ffffff;padding:36px 40px;">
-              <a href="mailto:${data.email}" style="display:inline-block;background:#09090b;color:#ffffff;font-size:12px;font-weight:700;text-decoration:none;padding:14px 28px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Inter',Arial,sans-serif;">Reply to ${data.name}</a>
+              <a href="mailto:${mailto}" style="display:inline-block;background:#09090b;color:#ffffff;font-size:12px;font-weight:700;text-decoration:none;padding:14px 28px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Inter',Arial,sans-serif;">Reply to ${data.name}</a>
             </td>
           </tr>
 
@@ -180,13 +197,14 @@ export async function POST(req: Request) {
 </body>
 </html>`;
 
-    const text = `New Enquiry — RestoRefine\n\nService: ${mainServiceLabel}\nService Type: ${serviceTypeLabel}\nBudget: ${data.budget}\nTimeline: ${data.timeline}\n\nContact\n-------\nName:    ${data.name}\nEmail:   ${data.email}\nPhone:   ${data.phone}\nCompany: ${data.company}\n\nMessage:\n${data.message}`;
+    const text = `New Enquiry — RestoRefine\n\nService: ${mainServiceLabel}\nService Type: ${serviceTypeLabel}\nBudget: ${enquiry.budget}\nTimeline: ${enquiry.timeline}\n\nContact\n-------\nName:    ${enquiry.name}\nEmail:   ${enquiry.email}\nPhone:   ${enquiry.phone}\nCompany: ${enquiry.company}\n\nMessage:\n${enquiry.message}`;
+    const subjectName = enquiry.name.replace(/[\r\n]+/g, " ");
 
     const { data: emailData, error } = await resend.emails.send({
       from: `RestoRefine Enquiries <${process.env.RESEND_FROM_EMAIL}>`,
       to: process.env.RESEND_TO_EMAIL!,
-      replyTo: data.email,
-      subject: `New Enquiry from ${data.name} — ${mainServiceLabel}`,
+      replyTo: enquiry.email,
+      subject: `New Enquiry from ${subjectName}${mainServiceLabel ? ` — ${mainServiceLabel}` : ""}`,
       html,
       text,
     });

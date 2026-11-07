@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { pushGTMEvent } from "@/lib/gtm";
+import { useSpamGuard } from "@/lib/spam-guard";
 import { homeContent, type PageContent } from "@/lib/homepageData";
 import { AccentText } from "./accent-text";
 import { EnquireLink, WhatsAppLink } from "./cta-links";
@@ -36,12 +37,14 @@ export function FinalCta({ finalCta = homeContent.finalCta }: { finalCta?: Final
   const { form } = finalCta;
   const Heading = finalCta.headingAsH2 ? "h2" : "p";
   const [status, setStatus] = useState<Status>("idle");
+  const { guardFields, guardPayload, resetGuard } = useSpamGuard();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formEl = event.currentTarget;
-    const data = Object.fromEntries(new FormData(formEl).entries());
+    const fd = new FormData(formEl);
     setStatus("sending");
+    const data = { ...Object.fromEntries(fd.entries()), ...(await guardPayload(fd)) };
     try {
       const response = await fetch("/api/send-email", {
         method: "POST",
@@ -58,6 +61,8 @@ export function FinalCta({ finalCta = homeContent.finalCta }: { finalCta?: Final
       }
     } catch {
       setStatus("error");
+    } finally {
+      resetGuard();
     }
   }
 
@@ -78,6 +83,7 @@ export function FinalCta({ finalCta = homeContent.finalCta }: { finalCta?: Final
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-5 rounded-[2rem] bg-white p-6 shadow-[0_30px_60px_-40px_rgba(63,63,70,0.4)] sm:grid-cols-2 sm:p-10 lg:col-span-7">
+          {guardFields}
           <Field name="name" label={form.name} required autoComplete="name" />
           <Field name="email" label={form.email} type="email" required autoComplete="email" />
           <Field name="phone" label={form.phone} type="tel" autoComplete="tel" />
