@@ -9,6 +9,8 @@ import { DualTone } from "@/blocks/home-v2/dual-tone";
 import { PhotoCard, PhotoRail, PhotoRailItem } from "@/blocks/home-v2/photo-card";
 import { ServicesShowcase } from "@/blocks/home-v2/services-showcase";
 import { portfolioItems, type PortfolioItem } from "@/lib/portfolio";
+import type { TikTokVideo } from "@/lib/tiktok-videos";
+import { TikTokRail } from "@/blocks/service-v2/tiktok-rail";
 
 /*
  * Service pillar page in the homepage v2 design. Every string comes from the
@@ -40,7 +42,7 @@ export type PillarProps = {
   services: PillarService[];
   process: { heading: string; tail?: string; intro: string[]; steps: { number: string; title: string; description: string }[] };
   insights?: { heading: string; tail?: string; body: string; posts: PillarPost[] };
-  caseStudies: { heading: string; tail?: string; intro: ReactNode; categories: string[]; extraItems: PortfolioItem[] };
+  caseStudies: { heading: string; tail?: string; intro: ReactNode; categories: string[]; extraItems: PortfolioItem[]; /** Client TikToks played in place of the portfolio cards */ videos?: TikTokVideo[] };
 };
 
 const thumb = (t: PortfolioItem["thumbnail"]) => (typeof t === "string" ? t : t.src);
@@ -259,7 +261,8 @@ function Insights({ insights }: { insights: NonNullable<PillarProps["insights"]>
 
 export function CaseStudies({ caseStudies }: { caseStudies: Omit<PillarProps["caseStudies"], "intro"> & { intro?: ReactNode } }) {
   const items = [...caseStudies.extraItems, ...portfolioItems].filter((p) => caseStudies.categories.includes(p.category) && p.thumbnail);
-  if (items.length === 0) return null;
+  const videos = caseStudies.videos ?? [];
+  if (items.length === 0 && videos.length === 0) return null;
   return (
     <section className="pb-24 pt-8 lg:pb-32">
       <div className="v2-wrap grid gap-8 lg:grid-cols-12 lg:items-end">
@@ -269,6 +272,9 @@ export function CaseStudies({ caseStudies }: { caseStudies: Omit<PillarProps["ca
         {caseStudies.intro && <p className="v2-body max-w-[52ch] text-zinc-600 lg:col-span-4 lg:col-start-9">{caseStudies.intro}</p>}
       </div>
       <div className="mt-14">
+        {videos.length > 0 ? (
+          <TikTokRail label={caseStudies.heading} videos={videos} />
+        ) : (
         <PhotoRail label={caseStudies.heading}>
           {items.map((item) => {
             const src = thumb(item.thumbnail);
@@ -288,6 +294,7 @@ export function CaseStudies({ caseStudies }: { caseStudies: Omit<PillarProps["ca
             );
           })}
         </PhotoRail>
+        )}
       </div>
     </section>
   );

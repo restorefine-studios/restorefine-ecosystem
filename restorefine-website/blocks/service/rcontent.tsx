@@ -1,6 +1,7 @@
 import { PillarPageV2 } from "@/blocks/service-v2/pillar";
 import type { PortfolioItem } from "@/lib/portfolio";
 import { contentPillarContent as c } from "@/lib/pillar-content/content-pillar";
+import { tiktokVideos } from "@/lib/tiktok-videos";
 
 /** /services/content: the content pillar content on the v2 pillar layout */
 function RContent({ caseStudies = [] }: { caseStudies?: PortfolioItem[] }) {
@@ -14,7 +15,7 @@ function RContent({ caseStudies = [] }: { caseStudies?: PortfolioItem[] }) {
       servicesTail="Services"
       services={c.subServices}
       process={{ heading: "From Strategy to Content That Performs", tail: "Content That Performs", intro: [c.process.intro], steps: c.process.steps }}
-      caseStudies={{ heading: "Content That Creates More Than Attention.", tail: "More Than Attention.", intro: c.caseStudies.body, categories: ["Media", "Branding"], extraItems: caseStudies }}
+      caseStudies={{ heading: "Content That Creates More Than Attention.", tail: "More Than Attention.", intro: c.caseStudies.body, categories: ["Media", "Branding"], extraItems: caseStudies, videos: tiktokVideos }}
     />
   );
 }
