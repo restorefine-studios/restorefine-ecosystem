@@ -7,17 +7,14 @@ import { formatLaunch } from "@/lib/format";
 
 type Confetti = (opts?: import("canvas-confetti").Options) => Promise<null> | null;
 
-const PREVIEW_MS = 7000;
-
 export function Countdown({ client }: { client: Client }) {
   // ?launch=2026-11-14T15:30:00Z overrides the launch time for testing the real hand-over
   const [launchAt, setLaunchAt] = useState(() => new Date(client.launchAt).getTime());
   const [now, setNow] = useState<number | null>(null);
-  const [preview, setPreview] = useState(false);
+  const [confettiReady, setConfettiReady] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const shootRef = useRef<Confetti | null>(null);
-  const previewTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const celebrated = useRef(false);
 
   useEffect(() => {
@@ -42,6 +39,7 @@ export function Countdown({ client }: { client: Client }) {
     import("canvas-confetti").then(({ default: confetti }) => {
       if (cancelled || !canvasRef.current) return;
       shootRef.current = confetti.create(canvasRef.current, { resize: true, useWorker: true });
+      setConfettiReady(true);
     });
     return () => {
       cancelled = true;
@@ -49,14 +47,11 @@ export function Countdown({ client }: { client: Client }) {
     };
   }, []);
 
-  useEffect(() => () => clearTimeout(previewTimer.current), []);
-
   const remaining = now === null ? null : Math.max(0, launchAt - now);
   const isLive = remaining === 0;
-  const showLaunched = isLive || preview;
 
   const celebrate = useCallback(
-    (long: boolean) => {
+    () => {
       const shoot = shootRef.current;
       if (!shoot) return;
       const colors = [client.colors.accent, client.colors.deep, "#fbf7f7", "#ffffff", "#d9d9d9"];
@@ -68,7 +63,7 @@ export function Countdown({ client }: { client: Client }) {
       // Big centre burst
       shoot({ particleCount: 160, spread: 100, startVelocity: 55, origin: { x: 0.5, y: 0.55 }, colors, scalar: 1.1 });
       // Side cannons for a few seconds
-      const end = Date.now() + (long ? 6000 : 3500);
+      const end = Date.now() + 6000;
       const frame = () => {
         shoot({ particleCount: 4, angle: 60, spread: 55, startVelocity: 70, origin: { x: 0, y: 0.9 }, colors });
         shoot({ particleCount: 4, angle: 120, spread: 55, startVelocity: 70, origin: { x: 1, y: 0.9 }, colors });
@@ -93,23 +88,14 @@ export function Countdown({ client }: { client: Client }) {
     [client.colors],
   );
 
-  // The real launch moment
+  // The launch moment: fires when the clock hits zero, and also for anyone who
+  // opens the page after launch (waits for the confetti script to finish loading)
   useEffect(() => {
-    if (isLive && !celebrated.current) {
+    if (isLive && confettiReady && !celebrated.current) {
       celebrated.current = true;
-      clearTimeout(previewTimer.current);
-      setPreview(false);
-      celebrate(true);
+      celebrate();
     }
-  }, [isLive, celebrate]);
-
-  // Test button: plays the launch moment, then hands back to the clock, which never stopped
-  const testLaunch = () => {
-    if (isLive || preview) return;
-    setPreview(true);
-    celebrate(false);
-    previewTimer.current = setTimeout(() => setPreview(false), PREVIEW_MS);
-  };
+  }, [isLive, confettiReady, celebrate]);
 
   const parts = useMemo(() => {
     const s = Math.floor((remaining ?? 0) / 1000);
@@ -141,7 +127,7 @@ export function Countdown({ client }: { client: Client }) {
 
   return (
     <>
-      <main className="stage" style={stageVars} data-launched={showLaunched || undefined}>
+      <main className="stage" style={stageVars} data-launched={isLive || undefined}>
         <header className="brand">
           <Image
             src={client.logo.src}
@@ -154,7 +140,7 @@ export function Countdown({ client }: { client: Client }) {
         </header>
 
         <section className="centre">
-          {!showLaunched ? (
+          {!isLive ? (
             <div className="counting">
               <h1 className="kicker">Opening in</h1>
 
@@ -200,15 +186,9 @@ export function Countdown({ client }: { client: Client }) {
           <a className="credit" href="https://restorefine.co.uk" target="_blank" rel="noopener">
             <Image src="/restorefine-mark.svg" alt="" width={22} height={22} />
             <span>
-              <span className="long">Launch by </span>
-              <strong>RestoRefine</strong>
+              Launch by <strong>RestoRefine</strong>
             </span>
           </a>
-          {!isLive && (
-            <button className="test-btn" type="button" onClick={testLaunch} disabled={preview}>
-              Launch now
-            </button>
-          )}
         </footer>
       </main>
 

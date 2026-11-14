@@ -243,8 +243,7 @@ body {
 .foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
 }
 
 .credit {
@@ -259,24 +258,6 @@ body {
 .credit img { width: 22px; height: 22px; display: block; }
 .credit strong { color: var(--white); font-weight: 700; }
 
-.test-btn {
-  appearance: none;
-  border: 1px solid rgb(251 247 247 / 0.32);
-  background: transparent;
-  color: var(--white);
-  font: inherit;
-  font-weight: 700;
-  font-size: clamp(12px, 1.4vw, 14px);
-  padding: 0.7em 1.2em;
-  border-radius: 999px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 300ms var(--ease), color 300ms var(--ease), transform 150ms var(--ease);
-}
-.test-btn:hover:not([disabled]) { background: var(--white); color: var(--accent); }
-.test-btn:active:not([disabled]) { transform: scale(0.97); }
-.test-btn[disabled] { opacity: 0.5; cursor: default; }
-.test-btn:focus-visible,
 .address:focus-visible,
 .credit:focus-visible {
   outline: 2px solid var(--white);
@@ -298,9 +279,4 @@ body {
   .brand img { width: clamp(140px, 26vh, 220px); }
   .address { display: none; }
   .clock { --size: clamp(56px, 30vh, 200px); }
-}
-
-/* Narrow phones: credit text shortens */
-@media (max-width: 420px) {
-  .credit .long { display: none; }
 }
