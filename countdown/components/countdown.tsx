@@ -35,6 +35,9 @@ export function Countdown({ client }: { client: Client }) {
   useEffect(() => {
     const override = new URLSearchParams(window.location.search).get("launch");
     if (override && !Number.isNaN(Date.parse(override))) setLaunchAt(Date.parse(override));
+    // ?in=15 launches 15 seconds after the page opens (handy for watching the last moments)
+    const inSecs = Number(new URLSearchParams(window.location.search).get("in"));
+    if (inSecs > 0) setLaunchAt(Date.now() + inSecs * 1000);
     // ?variant=green previews another colour variant
     const v = new URLSearchParams(window.location.search).get("variant");
     if (v && client.variants?.some((x) => x.name === v)) setVariant(v);
