@@ -1,0 +1,306 @@
+/*
+  Single theme on purpose: each countdown is a branded launch stage in the
+  client's colours, not a reading page, so it does not flip with the OS scheme.
+  --accent / --deep / --ink are set per client on .stage (see lib/clients.ts).
+*/
+:root {
+  --accent: #e30613;
+  --deep: #8a000b;
+  --ink: #3d0005;
+  --white: #fbf7f7;
+  --white-dim: rgb(251 247 247 / 0.68);
+  --line: rgb(251 247 247 / 0.16);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --gutter: clamp(16px, 4vw, 48px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden; /* no scroll, ever */
+}
+
+body {
+  background: #1a0003;
+  color: var(--white);
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-variation-settings: "wdth" 100;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Stage ---------- */
+.stage {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter)
+    max(clamp(16px, 3vh, 32px), env(safe-area-inset-bottom));
+  isolation: isolate;
+  background:
+    radial-gradient(120% 70% at 50% 110%, rgb(0 0 0 / 0.55), transparent 60%),
+    radial-gradient(90% 80% at 50% 0%, var(--deep) 0%, color-mix(in srgb, var(--deep) 60%, var(--ink)) 45%, var(--ink) 100%);
+}
+
+/* Spotlight beam from the top, same idea as the launch poster */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: -10% 0 0 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 85%, white 15%) 0%,
+    color-mix(in srgb, var(--accent) 35%, transparent) 45%,
+    transparent 85%
+  );
+  clip-path: polygon(36% 0, 64% 0, 92% 100%, 8% 100%);
+  filter: blur(48px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Grain lives on a fixed, non-interactive layer */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* ---------- Header ---------- */
+.brand {
+  display: flex;
+  justify-content: center;
+  padding-top: clamp(4px, 2vh, 24px);
+}
+.brand img {
+  width: clamp(180px, min(34vw, 30vh), 360px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 24px rgb(0 0 0 / 0.35));
+}
+
+/* ---------- Centre ---------- */
+.centre {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: clamp(10px, 2.4vh, 28px);
+  text-align: center;
+  min-height: 0;
+}
+
+.counting,
+.launched {
+  display: grid;
+  justify-items: center;
+  gap: clamp(10px, 2.4vh, 28px);
+}
+
+.kicker {
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: clamp(16px, min(3.4vw, 3.6vh), 34px);
+  line-height: 1.1;
+}
+
+.clock {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(4px, 1.2vw, 18px);
+  font-variation-settings: "wdth" 62;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  --size: clamp(64px, min(19vw, 27vh), 300px);
+  /* Hidden until the browser knows the real time, so the server's 00:00:00 never flashes */
+  opacity: 0;
+  transition: opacity 500ms var(--ease);
+}
+.clock[data-ready] { opacity: 1; }
+/* Four units (days showing) need smaller digits to fit a phone */
+.clock[data-units="4"] { --size: clamp(48px, min(14vw, 27vh), 260px); }
+
+.unit { display: grid; justify-items: center; gap: clamp(4px, 1vh, 12px); }
+
+.digits {
+  display: flex;
+  font-size: var(--size);
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-shadow: 0 10px 40px rgb(0 0 0 / 0.35);
+}
+
+.digit {
+  display: inline-block;
+  width: 0.5em;
+  text-align: center;
+  overflow: hidden;
+  padding-block: 0.04em; /* keeps the glyph tops from clipping */
+}
+.digit span {
+  display: inline-block;
+  animation: roll 520ms var(--ease) both;
+}
+
+@keyframes roll {
+  from { transform: translateY(-55%); opacity: 0; filter: blur(6px); }
+  to   { transform: translateY(0);    opacity: 1; filter: blur(0); }
+}
+
+.colon {
+  font-size: var(--size);
+  line-height: 0.86;
+  padding-block: 0.04em;
+  color: var(--white-dim);
+  font-weight: 700;
+  transform: translateY(-0.04em);
+}
+
+.label {
+  font-variation-settings: "wdth" 110;
+  font-weight: 600;
+  font-size: clamp(11px, min(1.6vw, 1.8vh), 15px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.when {
+  display: inline-block;
+  background: var(--white);
+  color: var(--accent);
+  font-variation-settings: "wdth" 125;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(14px, min(2.6vw, 2.8vh), 28px);
+  line-height: 1;
+  padding: 0.45em 0.7em 0.4em;
+}
+
+.address {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+  border-radius: 999px;
+  padding: 0.6em 1.1em;
+  font-weight: 600;
+  font-size: clamp(12px, min(1.9vw, 2vh), 17px);
+  color: var(--white);
+  text-decoration: none;
+  transition: background 300ms var(--ease), border-color 300ms var(--ease);
+}
+.address:hover {
+  background: color-mix(in srgb, var(--ink) 60%, transparent);
+  border-color: rgb(251 247 247 / 0.32);
+}
+.address svg { width: 1.15em; height: 1.15em; flex: none; }
+
+/* Launched view swaps in for the clock */
+.open {
+  font-variation-settings: "wdth" 62;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: clamp(72px, min(22vw, 30vh), 340px);
+  line-height: 0.86;
+  text-shadow: 0 10px 40px rgb(0 0 0 / 0.35);
+}
+.open-sub {
+  max-width: 34ch;
+  font-size: clamp(15px, min(2.2vw, 2.4vh), 22px);
+  line-height: 1.4;
+  color: var(--white-dim);
+}
+.launched > * { animation: rise 900ms var(--ease) both; }
+.launched > *:nth-child(2) { animation-delay: 120ms; }
+.launched > *:nth-child(3) { animation-delay: 240ms; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Footer ---------- */
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--white-dim);
+  text-decoration: none;
+  font-size: clamp(12px, 1.4vw, 14px);
+  font-weight: 500;
+}
+.credit img { width: 22px; height: 22px; display: block; }
+.credit strong { color: var(--white); font-weight: 700; }
+
+.test-btn {
+  appearance: none;
+  border: 1px solid rgb(251 247 247 / 0.32);
+  background: transparent;
+  color: var(--white);
+  font: inherit;
+  font-weight: 700;
+  font-size: clamp(12px, 1.4vw, 14px);
+  padding: 0.7em 1.2em;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 300ms var(--ease), color 300ms var(--ease), transform 150ms var(--ease);
+}
+.test-btn:hover:not([disabled]) { background: var(--white); color: var(--accent); }
+.test-btn:active:not([disabled]) { transform: scale(0.97); }
+.test-btn[disabled] { opacity: 0.5; cursor: default; }
+.test-btn:focus-visible,
+.address:focus-visible,
+.credit:focus-visible {
+  outline: 2px solid var(--white);
+  outline-offset: 3px;
+}
+
+/* Entry */
+@media (prefers-reduced-motion: no-preference) {
+  .brand, .centre, .foot { animation: rise 1000ms var(--ease) both; }
+  .centre { animation-delay: 120ms; }
+  .foot { animation-delay: 260ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .digit span, .launched > * { animation: none; }
+}
+
+/* Short landscape phones: tighten everything so nothing scrolls */
+@media (max-height: 520px) {
+  .brand img { width: clamp(140px, 26vh, 220px); }
+  .address { display: none; }
+  .clock { --size: clamp(56px, 30vh, 200px); }
+}
+
+/* Narrow phones: credit text shortens */
+@media (max-width: 420px) {
+  .credit .long { display: none; }
+}
