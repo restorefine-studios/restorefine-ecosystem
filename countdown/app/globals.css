@@ -89,7 +89,7 @@ body {
   padding-top: clamp(4px, 2vh, 24px);
 }
 .brand img {
-  width: clamp(180px, min(34vw, 30vh), 360px);
+  width: var(--logo-w, clamp(180px, min(34vw, 30vh), 360px));
   height: auto;
   display: block;
   filter: drop-shadow(0 6px 24px rgb(0 0 0 / 0.35));
@@ -145,7 +145,9 @@ body {
   font-size: var(--size);
   line-height: 0.86;
   letter-spacing: -0.01em;
-  text-shadow: 0 10px 40px rgb(0 0 0 / 0.35);
+  /* Shadow on the row, not the glyphs: each digit clips its own box for the roll animation,
+     which would otherwise cut the shadow into visible rectangles */
+  filter: drop-shadow(0 10px 28px rgb(0 0 0 / 0.35));
 }
 
 .digit {
@@ -185,8 +187,8 @@ body {
 
 .when {
   display: inline-block;
-  background: var(--white);
-  color: var(--accent);
+  background: var(--tag-bg, var(--white));
+  color: var(--tag-text, var(--accent));
   font-variation-settings: "wdth" 125;
   font-weight: 800;
   text-transform: uppercase;
@@ -276,7 +278,24 @@ body {
 
 /* Short landscape phones: tighten everything so nothing scrolls */
 @media (max-height: 520px) {
-  .brand img { width: clamp(140px, 26vh, 220px); }
+  .brand img { width: auto; max-width: clamp(140px, 26vh, 220px); max-height: 18vh; }
   .address { display: none; }
   .clock { --size: clamp(56px, 30vh, 200px); }
 }
+
+/* Local-only test button (rendered in `pnpm dev`, never in production builds) */
+.dev-launch {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  appearance: none;
+  border: 1px dashed rgb(255 255 255 / 0.6);
+  background: rgb(20 20 20 / 0.75);
+  color: #fff;
+  font: 700 13px/1 system-ui, sans-serif;
+  padding: 0.7em 1.1em;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.dev-launch[disabled] { opacity: 0.5; cursor: default; }
