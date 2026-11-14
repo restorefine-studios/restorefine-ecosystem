@@ -1,0 +1,292 @@
+/*
+  Spud Kingz "bowls" design: the dark table from the Wishaw banner with the four loaded
+  Spud Kingz bowls in the corners and toppings drifting between them. Centred countdown.
+*/
+.stage {
+  --yellow: #fdbf14;
+  --green: #124a2a;
+  --cream: #fff6df;
+  --ink: #1b1f25;
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --gutter: clamp(16px, 3vw, 40px);
+
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding-bottom: max(clamp(12px, 2.4vh, 24px), env(safe-area-inset-bottom));
+  background: radial-gradient(70% 60% at 50% 45%, #2b323b 0%, #1f242b 55%, #15181d 100%);
+  color: var(--cream);
+  font-family: var(--font-barlow), system-ui, sans-serif;
+}
+
+/* ---------- Bowls + toppings ---------- */
+.bowl {
+  position: absolute;
+  z-index: 1;
+  width: clamp(170px, 27vw, 440px);
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 26px 30px rgb(0 0 0 / 0.55));
+}
+.tl { top: -7vh; left: -4vw; rotate: -14deg; }
+.tr { top: -5vh; right: -5vw; rotate: 12deg; }
+.bl { bottom: 3vh; left: -5vw; rotate: 9deg; }
+.br { bottom: 4vh; right: -4vw; rotate: -10deg; }
+
+.topping {
+  position: absolute;
+  z-index: 1;
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 14px rgb(0 0 0 / 0.5));
+}
+.t1 { width: clamp(80px, 10vw, 170px); top: 40%; left: 4vw; rotate: -10deg; }
+.t2 { width: clamp(80px, 10vw, 170px); top: 44%; right: 4vw; rotate: 8deg; }
+.t3 { width: clamp(70px, 8vw, 140px); top: 6vh; left: 50%; translate: -50% 0; rotate: -4deg; opacity: 0.9; }
+
+/* ---------- Centre ---------- */
+.centre {
+  position: relative;
+  z-index: 2;
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  justify-items: center;
+  gap: clamp(8px, 1.8vh, 20px);
+  text-align: center;
+  padding-inline: var(--gutter);
+}
+/* Soft pool of shadow so the type always reads over the bowls */
+.centre::before {
+  content: "";
+  position: absolute;
+  inset: -12% -18%;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgb(21 24 29 / 0.92), rgb(21 24 29 / 0.6) 60%, transparent);
+  pointer-events: none;
+}
+.open {
+  display: grid;
+  justify-items: center;
+  gap: clamp(8px, 1.8vh, 20px);
+}
+.logo {
+  height: clamp(56px, 11vh, 120px);
+  width: auto;
+}
+.title {
+  font-family: var(--font-comicy), system-ui, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--yellow);
+  font-size: clamp(36px, min(8vw, 8.5vh), 104px);
+  line-height: 0.95;
+}
+.sub {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: clamp(12px, min(2vw, 2vh), 18px);
+  color: rgb(255 246 223 / 0.75);
+}
+
+.clock {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(2px, 0.6vw, 8px);
+  --d: clamp(46px, min(13vw, 13vh), 150px);
+  opacity: 0;
+  transition: opacity 500ms var(--ease);
+}
+.clock[data-ready] { opacity: 1; }
+.clock[data-units="4"] { --d: clamp(32px, min(9.6vw, 10vh), 112px); }
+.unit {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.digits {
+  display: flex;
+  font-family: var(--font-comicy), system-ui, sans-serif;
+  font-size: var(--d);
+  line-height: 1;
+  color: var(--cream);
+  text-shadow: 0 0.06em 0 rgb(0 0 0 / 0.35);
+}
+.unit:last-child .digits { color: var(--yellow); }
+.digit {
+  display: inline-block;
+  width: 0.72em;
+  text-align: center;
+  overflow: hidden;
+  padding-block: 0.06em;
+}
+.digit > span {
+  display: inline-block;
+  animation: drop 600ms var(--spring) both;
+}
+@keyframes drop {
+  from { transform: translateY(-90%); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: clamp(10px, min(1.6vw, 1.6vh), 14px);
+  color: rgb(255 246 223 / 0.7);
+}
+.colon {
+  font-family: var(--font-comicy), system-ui, sans-serif;
+  font-size: var(--d);
+  line-height: 1;
+  padding-block: 0.06em;
+  color: var(--yellow);
+}
+
+/* Two-part ticket: date stub + offer, with a perforated split */
+.ticket {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: var(--font-comicy), system-ui, sans-serif;
+  text-transform: uppercase;
+  font-size: clamp(16px, min(3vw, 3vh), 30px);
+  line-height: 1;
+  color: var(--green);
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 0.4));
+}
+.ticket > span {
+  padding: 0.45em 0.9em 0.4em;
+  background: var(--cream);
+}
+.ticket > span:first-child { border-radius: 0.5em 0 0 0.5em; }
+.ticketPrice {
+  background: var(--yellow) !important;
+  border-radius: 0 0.5em 0.5em 0;
+  border-left: 3px dashed var(--green);
+}
+
+/* ---------- Mascot: pops up at launch ---------- */
+.mascot {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: clamp(56px, 9vh, 90px);
+  height: clamp(130px, 26vh, 280px);
+  width: auto;
+  translate: -50% 0;
+  transform: translateY(calc(100% + 40vh)) scale(0.8);
+  transition: transform 900ms var(--spring);
+  pointer-events: none;
+}
+.stage[data-launched] .mascot {
+  transform: none;
+  transition-delay: 300ms;
+}
+
+/* ---------- Footer ---------- */
+.foot {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-inline: var(--gutter);
+}
+.address {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: var(--yellow);
+  color: var(--green);
+  border-radius: 999px;
+  padding: 0.6em 1.1em;
+  font-weight: 700;
+  font-size: clamp(12px, min(3.2vw, 1.9vh), 16px);
+  text-decoration: none;
+  transition: background 250ms var(--ease), transform 150ms var(--ease);
+}
+.address:hover { background: #ffd24d; }
+.address:active { transform: scale(0.97); }
+.address svg { width: 1.15em; height: 1.15em; flex: none; }
+.credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cream);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: clamp(12px, 1.4vw, 14px);
+}
+.credit img { width: 20px; height: 20px; }
+.credit strong { font-weight: 800; }
+.address:focus-visible,
+.credit:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .bowl { animation: float 7s ease-in-out infinite; }
+  .tr { animation-delay: -1.8s; }
+  .bl { animation-delay: -3.4s; }
+  .br { animation-delay: -5s; }
+  .topping { animation: drift 9s ease-in-out infinite; }
+  .t2 { animation-delay: -3s; }
+  .t3 { animation-delay: -6s; }
+  .centre > * { animation: rise 800ms var(--spring) both; }
+  .centre > *:nth-child(2) { animation-delay: 80ms; }
+  .centre > *:nth-child(3) { animation-delay: 160ms; }
+  .centre > *:nth-child(4) { animation-delay: 240ms; }
+  .centre > *:nth-child(5) { animation-delay: 320ms; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(6px, -14px) rotate(6deg); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .digit > span { animation: none; }
+  .mascot { transition: none; }
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 700px) {
+  .bowl { width: 46vw; }
+  .tl { top: -4vh; left: -12vw; }
+  .tr { top: -3vh; right: -12vw; }
+  .bl { bottom: 12vh; left: -14vw; }
+  .br { bottom: 13vh; right: -14vw; }
+  .t1, .t2 { display: none; }
+  .t3 { top: auto; bottom: 22vh; width: 26vw; }
+  .ticket { flex-direction: column; align-items: stretch; }
+  .ticket > span:first-child { border-radius: 0.5em 0.5em 0 0; }
+  .ticketPrice { border-radius: 0 0 0.5em 0.5em; border-left: 0; border-top: 3px dashed var(--green); }
+  .foot { flex-direction: column; gap: 8px; }
+}
+
+/* ---------- Short landscape phones ---------- */
+@media (max-height: 520px) {
+  .bowl { width: 22vw; }
+  .t1, .t2, .t3 { display: none; }
+  .logo { height: 14vh; }
+  .title { font-size: 11vh; }
+  .sub { display: none; }
+  .clock { --d: 18vh; }
+}

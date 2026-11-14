@@ -16,7 +16,6 @@ const themes: Record<NonNullable<Client["theme"]>, (props: ThemeProps) => React.
 // Local `pnpm dev` only: production builds drop the test button entirely
 const IS_DEV = process.env.NODE_ENV === "development";
 const PREVIEW_MS = 7000;
-const shooters = new WeakMap<HTMLCanvasElement, Confetti>();
 
 export function Countdown({ client }: { client: Client }) {
   // ?launch=2026-11-14T15:30:00Z overrides the launch time for testing the real hand-over
@@ -25,6 +24,8 @@ export function Countdown({ client }: { client: Client }) {
   const [confettiReady, setConfettiReady] = useState(false);
   const [preview, setPreview] = useState(false);
   const [burst, setBurst] = useState(0);
+  const variants = client.variants?.map((v) => v.name) ?? [];
+  const [variant, setVariant] = useState<string | undefined>(variants[0]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const shootRef = useRef<Confetti | null>(null);
@@ -34,7 +35,10 @@ export function Countdown({ client }: { client: Client }) {
   useEffect(() => {
     const override = new URLSearchParams(window.location.search).get("launch");
     if (override && !Number.isNaN(Date.parse(override))) setLaunchAt(Date.parse(override));
-  }, []);
+    // ?variant=green previews another colour variant
+    const v = new URLSearchParams(window.location.search).get("variant");
+    if (v && client.variants?.some((x) => x.name === v)) setVariant(v);
+  }, [client.variants]);
 
   // Tick on the second boundary so every digit changes together
   useEffect(() => {
@@ -53,14 +57,9 @@ export function Countdown({ client }: { client: Client }) {
     import("canvas-confetti").then(({ default: confetti }) => {
       const canvas = canvasRef.current;
       if (cancelled || !canvas) return;
-      // A canvas can hand itself to the worker only once, and React dev mode mounts effects twice,
-      // so reuse the first instance for this canvas instead of creating another (which throws)
-      let shoot = shooters.get(canvas);
-      if (!shoot) {
-        shoot = confetti.create(canvas, { resize: true, useWorker: true }) as Confetti;
-        shooters.set(canvas, shoot);
-      }
-      shootRef.current = shoot;
+      // Drawn on the main thread on purpose: the worker option moves the canvas off-thread, which
+      // can only happen once per canvas, so any re-mount (React dev mode, hot reload) left it dead
+      shootRef.current = confetti.create(canvas, { resize: true, useWorker: false }) as Confetti;
       setConfettiReady(true);
     });
     return () => {
@@ -78,7 +77,8 @@ export function Countdown({ client }: { client: Client }) {
     setBurst((b) => b + 1);
     const shoot = shootRef.current;
     if (!shoot) return;
-    const colors = client.confetti ?? [client.colors.accent, client.colors.deep, "#fbf7f7", "#ffffff", "#d9d9d9"];
+    const colors = client.variants?.find((v) => v.name === variant)?.confetti ??
+      client.confetti ?? [client.colors.accent, client.colors.deep, "#fbf7f7", "#ffffff", "#d9d9d9"];
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       shoot({ particleCount: 80, spread: 90, origin: { y: 0.6 }, colors });
@@ -108,7 +108,7 @@ export function Countdown({ client }: { client: Client }) {
         scalar: 1.2,
       });
     }, 700);
-  }, [client.colors, client.confetti]);
+  }, [client.colors, client.confetti, client.variants, variant]);
 
   // The launch moment: fires when the clock hits zero, and also for anyone who
   // opens the page after launch (waits for the confetti script to finish loading)
@@ -161,13 +161,93 @@ export function Countdown({ client }: { client: Client }) {
         launched={isLive || preview}
         burst={burst}
         launchAt={launchAt}
+        variant={variant}
       />
       <canvas ref={canvasRef} className="confetti" aria-hidden="true" />
-      {IS_DEV && !isLive && (
-        <button className="dev-launch" type="button" onClick={testLaunch} disabled={preview}>
-          Launch now
-        </button>
+      {(variants.length > 1 || IS_DEV) && (
+        <Toolbox>
+          {variants.length > 1 &&
+            variants.map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={v === variant}
+                onClick={() => {
+                  setVariant(v);
+                  const url = new URL(window.location.href);
+                  url.searchParams.set("variant", v);
+                  window.history.replaceState(null, "", url);
+                }}
+              >
+                {v}
+              </button>
+            ))}
+          {IS_DEV && !isLive && (
+            <button className="dev-launch" type="button" onClick={testLaunch} disabled={preview}>
+              Launch now
+            </button>
+          )}
+        </Toolbox>
       )}
     </>
+  );
+}
+
+const TOOLBOX_IDLE_MS = 5000;
+
+/**
+ * Design switcher (and, locally, the test launch), tucked behind a faint corner button so visitors
+ * don't see it. Tap the button or press V to open; it closes after a few idle seconds or an outside tap.
+ */
+function Toolbox({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const idle = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const poke = useCallback(() => {
+    clearTimeout(idle.current);
+    idle.current = setTimeout(() => setOpen(false), TOOLBOX_IDLE_MS);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    poke();
+    const outside = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", outside);
+    return () => {
+      clearTimeout(idle.current);
+      document.removeEventListener("pointerdown", outside);
+    };
+  }, [open, poke]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "v" || e.key === "V") setOpen((o) => !o);
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <div ref={ref} className="toolbox" data-open={open || undefined} onPointerMove={open ? poke : undefined}>
+      <button
+        type="button"
+        className="toolbox-toggle"
+        aria-expanded={open}
+        aria-label={open ? "Hide design options" : "Show design options"}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="toolbox-panel" onClick={poke}>
+          {children}
+        </div>
+      )}
+    </div>
   );
 }

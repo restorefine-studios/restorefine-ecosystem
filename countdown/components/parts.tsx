@@ -15,6 +15,8 @@ export type ThemeProps = {
   launched: boolean;
   burst: number;
   launchAt: number;
+  /** Colour variant for themes that offer several (see Client.variants) */
+  variant?: string;
 };
 
 /** Two digits that roll in whenever their value changes */

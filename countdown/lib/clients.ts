@@ -27,6 +27,11 @@ export type Client = {
   colors: { accent: string; deep: string; ink: string; tagBg?: string; tagText?: string };
   /** Confetti colours (default: accent, deep and whites) */
   confetti?: string[];
+  /**
+   * Colour variants the theme offers. The first is the default; preview others with ?variant=<name>.
+   * `confetti` per variant overrides the client-wide colours.
+   */
+  variants?: { name: string; confetti?: string[] }[];
 };
 
 export const clients: Client[] = [
@@ -78,6 +83,12 @@ export const clients: Client[] = [
     colors: { accent: "#fdbf14", deep: "#124a2a", ink: "#124a2a" },
     // Yellow would vanish on the yellow table, so the confetti is greens, whites and crust brown
     confetti: ["#124a2a", "#1e7a46", "#2fa043", "#ffffff", "#fff6df", "#b8742a"],
+    // Three separate creatives (components/themes/spudkingz.tsx); preview with ?variant=king etc.
+    variants: [
+      { name: "pennant" },
+      { name: "king", confetti: ["#fdbf14", "#ffcb2e", "#fff6df", "#ffffff", "#e6ae5b"] },
+      { name: "bowls", confetti: ["#fdbf14", "#ffcb2e", "#1e7a46", "#2fa043", "#fff6df"] },
+    ],
   },
 ];
 

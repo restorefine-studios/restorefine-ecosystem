@@ -1,14 +1,33 @@
 /*
-  Spud Kingz: colours lifted from the brand's "£5 Spuds" launch post.
-  Yellow table, bottle-green pennant, white + yellow type. One light theme on purpose.
+  Spud Kingz: colours lifted from the brand's "£5 Spuds" launch post and TV screen animations.
+  This is the "pennant" design; "king" and "bowls" have their own modules.
 */
 .stage {
   --yellow: #fdbf14;
-  --yellow-hi: #ffcb2e;
-  --yellow-lo: #f0ab00;
   --green: #124a2a;
   --green-hi: #1e7a46;
+  --cream: #fff6df;
   --white: #ffffff;
+
+  /* Yellow (default): yellow table, bottle-green pennant */
+  --bg: var(--yellow);
+  --bg-hi: #ffcb2e;
+  --bg-lo: #f0ab00;
+  --pennant: var(--green);
+  --pennant-line: var(--yellow);
+  --title: var(--white);
+  --accent: var(--yellow);
+  --strip-bg: var(--yellow);
+  --strip-text: var(--green);
+  --pill-bg: var(--yellow);
+  --pill-text: var(--green);
+  --address-bg: var(--green);
+  --address-bg-hover: var(--green-hi);
+  --address-text: var(--white);
+  --address-icon: var(--yellow);
+  --credit: var(--green);
+  --shadow: 120 70 0;
+
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --gutter: clamp(14px, 3vw, 36px);
@@ -23,10 +42,10 @@
   justify-items: center;
   padding-bottom: max(clamp(12px, 2.4vh, 24px), env(safe-area-inset-bottom));
   background:
-    radial-gradient(70% 55% at 50% 0%, var(--yellow-hi), transparent 70%),
-    radial-gradient(120% 60% at 50% 115%, var(--yellow-lo), transparent 65%),
-    var(--yellow);
-  color: var(--white);
+    radial-gradient(70% 55% at 50% 0%, var(--bg-hi), transparent 70%),
+    radial-gradient(120% 60% at 50% 115%, var(--bg-lo), transparent 65%),
+    var(--bg);
+  color: var(--title);
   font-family: var(--font-barlow), system-ui, sans-serif;
 }
 
@@ -35,26 +54,28 @@
   position: relative;
   z-index: 2;
   width: min(560px, 90vw);
-  filter: drop-shadow(0 18px 30px rgb(120 70 0 / 0.28));
+  filter: drop-shadow(0 18px 30px rgb(var(--shadow) / 0.28));
+  /* Height of the pointed bottom, in px; the content pads itself clear of it */
+  --point: clamp(34px, 9vw, 60px);
 }
+/* Drawn at its real pixel size (see <PennantShape>), so the point never stretches into the content */
 .pennantShape {
   position: absolute;
-  inset: -14px 14px 14px 14px; /* top bleeds off-screen; sides/bottom pulled in by half the 28px stroke */
-  width: calc(100% - 28px);
+  inset: 0;
+  width: 100%;
   height: 100%;
   overflow: visible;
-  fill: var(--green);
 }
-/* A thick same-colour stroke with round joins rounds the corners and the point evenly,
-   even though the SVG stretches (preserveAspectRatio="none") */
+/* Same-colour stroke with round joins rounds the corners and the point */
 .pennantFill {
-  stroke: var(--green);
-  stroke-width: 28px;
+  fill: var(--pennant);
+  stroke: var(--pennant);
+  stroke-width: 20px;
   stroke-linejoin: round;
 }
 .pennantLine {
   fill: none;
-  stroke: var(--yellow);
+  stroke: var(--pennant-line);
   stroke-width: 2px;
   stroke-linejoin: round;
   stroke-linecap: round;
@@ -64,7 +85,8 @@
   display: grid;
   justify-items: center;
   gap: clamp(6px, 1.3vh, 14px);
-  padding: max(clamp(12px, 2.2vh, 26px), env(safe-area-inset-top)) clamp(18px, 4vw, 40px) clamp(40px, 8vh, 72px);
+  padding: max(clamp(12px, 2.2vh, 26px), env(safe-area-inset-top)) clamp(18px, 4vw, 40px)
+    calc(var(--point) + clamp(16px, 2.6vh, 28px));
   text-align: center;
 }
 
@@ -134,19 +156,19 @@
   font-size: var(--d);
   line-height: 1;
   padding-block: 0.06em;
-  color: var(--yellow);
+  color: var(--accent);
   transform: translateY(-0.04em);
 }
 
-/* Seconds in brand yellow so the live tick reads first */
-.unit:last-child .digits { color: var(--yellow); }
+/* Seconds in the accent so the live tick reads first */
+.unit:last-child .digits { color: var(--accent); }
 
 .label {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: clamp(10px, min(2.4vw, 1.5vh), 13px);
-  color: var(--yellow);
+  color: var(--label, var(--accent));
 }
 
 /* Brush-stroke strip, like "ALL DAY LONG" on the post */
@@ -155,8 +177,8 @@
   text-transform: uppercase;
   font-size: clamp(16px, min(4.6vw, 3.2vh), 30px);
   line-height: 1;
-  color: var(--green);
-  background: var(--yellow);
+  color: var(--strip-text);
+  background: var(--strip-bg);
   padding: 0.32em 0.8em 0.28em;
   transform: rotate(-2deg);
   clip-path: polygon(1.5% 10%, 30% 2%, 70% 6%, 99% 0, 100% 48%, 97.5% 100%, 60% 94%, 25% 99%, 0.5% 92%, 0 50%);
@@ -167,8 +189,8 @@
   text-transform: uppercase;
   font-size: clamp(18px, min(5.4vw, 4vh), 38px);
   line-height: 1;
-  color: var(--green);
-  background: var(--yellow);
+  color: var(--pill-text);
+  background: var(--pill-bg);
   border-radius: 999px;
   padding: 0.28em 0.9em 0.24em;
 }
@@ -182,7 +204,7 @@
   display: grid;
   justify-items: center;
 }
-.price { color: var(--yellow); }
+.price { color: var(--accent); }
 
 .open > * { animation: rise 800ms var(--spring) both; }
 .open > *:nth-child(2) { animation-delay: 120ms; }
@@ -212,7 +234,7 @@
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
-  filter: drop-shadow(22px 20px 18px rgb(150 92 0 / 0.42));
+  filter: drop-shadow(22px 20px 18px rgb(var(--shadow) / 0.42));
 }
 
 /* ---------- Shakers ---------- */
@@ -221,7 +243,7 @@
   z-index: 3;
   height: auto;
   pointer-events: none;
-  filter: drop-shadow(10px 16px 18px rgb(120 70 0 / 0.3));
+  filter: drop-shadow(10px 16px 18px rgb(var(--shadow) / 0.3));
 }
 .salt {
   width: clamp(110px, 16vw, 260px);
@@ -269,8 +291,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
-  background: var(--green);
-  color: var(--white);
+  background: var(--address-bg);
+  color: var(--address-text);
   border-radius: 999px;
   padding: 0.6em 1.1em;
   font-weight: 700;
@@ -278,25 +300,23 @@
   text-decoration: none;
   transition: background 250ms var(--ease), transform 150ms var(--ease);
 }
-.address:hover { background: var(--green-hi); }
+.address:hover { background: var(--address-bg-hover); }
 .address:active { transform: scale(0.97); }
-.address svg { width: 1.15em; height: 1.15em; flex: none; color: var(--yellow); }
+.address svg { width: 1.15em; height: 1.15em; flex: none; color: var(--address-icon); }
 
 .credit {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--green);
+  color: var(--credit);
   text-decoration: none;
   font-weight: 600;
   font-size: clamp(12px, 1.4vw, 14px);
 }
 .credit img { width: 20px; height: 20px; }
-.credit strong { font-weight: 800; }
-
 .address:focus-visible,
 .credit:focus-visible {
-  outline: 2px solid var(--green);
+  outline: 2px solid var(--credit);
   outline-offset: 3px;
 }
 
@@ -314,7 +334,7 @@
   left: 0;
   height: auto;
   will-change: transform;
-  filter: drop-shadow(4px 6px 6px rgb(120 70 0 / 0.35));
+  filter: drop-shadow(4px 6px 6px rgb(var(--shadow) / 0.35));
 }
 
 /* ---------- Motion ---------- */
