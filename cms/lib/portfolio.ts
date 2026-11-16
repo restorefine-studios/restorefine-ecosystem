@@ -98,10 +98,55 @@ export interface PortfolioSections {
   results: SectionBase & { items: string[] };
   stats: SectionBase & { items: StatItem[] };
   charts: SectionBase & { items: ChartTile[] };
+  tiktok: SectionBase & { intro: string; videos: TikTokItem[]; ctaLabel: string; ctaHref: string };
   faq: SectionBase & { items: FaqItem[] };
 }
 
 export type SectionKey = keyof PortfolioSections;
+
+/** One picture inside an image block. */
+export interface ImageItem {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+
+/**
+ * A free-standing block of images. A project can hold any number of these, and
+ * each is placed anywhere between the sections through `section_order`, where
+ * it appears as `image:<id>`.
+ */
+export interface ImageBlock {
+  id: string;
+  /** Optional title. A block with a title also gets a table-of-contents entry. */
+  heading?: string;
+  /** How many images sit side by side on a wide screen. */
+  layout: "full" | "two" | "three";
+  items: ImageItem[];
+}
+
+/** One TikTok in the TikTok section. The view count is read from TikTok by the website. */
+export interface TikTokItem {
+  /** The full video link: https://www.tiktok.com/@handle/video/123... */
+  url: string;
+  /** Name shown under the video. Falls back to the @handle. */
+  client: string;
+}
+
+export type ImageOrderKey = `image:${string}`;
+/** An entry in section_order: a fixed section, or one image block. */
+export type OrderKey = SectionKey | ImageOrderKey;
+export const imageKey = (id: string): ImageOrderKey => `image:${id}`;
+export const isImageKey = (key: string): key is ImageOrderKey => key.startsWith("image:");
+
+/** What is stored in the `sections` column: the fixed sections plus the image blocks. */
+export type ProjectSections = PortfolioSections & { imageBlocks: ImageBlock[] };
+
+/** Splits a TikTok video link into its handle and video id, or null if it isn't one. */
+export function parseTikTokUrl(url: string): { handle: string; id: string } | null {
+  const m = /tiktok\.com\/@([^/?#]+)\/video\/(\d+)/i.exec(url.trim());
+  return m ? { handle: m[1], id: m[2] } : null;
+}
 
 /** The full valid key set. Used for validation/normalization, not render order. */
 export const ALL_SECTION_KEYS: SectionKey[] = [
@@ -113,6 +158,7 @@ export const ALL_SECTION_KEYS: SectionKey[] = [
   "results",
   "stats",
   "charts",
+  "tiktok",
   "faq",
 ];
 
@@ -129,6 +175,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   results: "Results",
   stats: "Stats",
   charts: "Charts",
+  tiktok: "On TikTok",
   faq: "FAQs",
 };
 
@@ -146,8 +193,8 @@ export interface PortfolioProject {
   card_logo_alt: string;
   card_bg: string;
   services: ServicePill[];
-  sections: PortfolioSections;
-  section_order: SectionKey[];
+  sections: ProjectSections;
+  section_order: OrderKey[];
   cta_heading: string;
   cta_body: string;
   meta_title: string;
@@ -159,7 +206,7 @@ export interface PortfolioProject {
   updated_at?: string;
 }
 
-export function emptySections(): PortfolioSections {
+export function emptySections(): ProjectSections {
   return {
     overview: { enabled: true, body: "" },
     liveWebsite: { enabled: true, url: "", domain: "", linkLabel: "" },
@@ -185,7 +232,9 @@ export function emptySections(): PortfolioSections {
         },
       ],
     },
+    tiktok: { enabled: false, intro: "", videos: [{ url: "", client: "" }], ctaLabel: "", ctaHref: "" },
     faq: { enabled: false, items: [{ question: "", answer: "" }] },
+    imageBlocks: [],
   };
 }
 
@@ -193,10 +242,10 @@ export function emptySections(): PortfolioSections {
  * Fill in any section missing from a stored row. Rows saved before a section
  * existed would otherwise render as undefined in the form.
  */
-export function normaliseSections(raw: unknown): PortfolioSections {
+export function normaliseSections(raw: unknown): ProjectSections {
   const base = emptySections();
   if (!raw || typeof raw !== "object") return base;
-  const stored = raw as Partial<PortfolioSections>;
+  const stored = raw as Partial<ProjectSections>;
   return {
     overview: { ...base.overview, ...(stored.overview ?? {}) },
     liveWebsite: { ...base.liveWebsite, ...(stored.liveWebsite ?? {}) },
@@ -206,17 +255,25 @@ export function normaliseSections(raw: unknown): PortfolioSections {
     results: { ...base.results, ...(stored.results ?? {}) },
     stats: { ...base.stats, ...(stored.stats ?? {}) },
     charts: { ...base.charts, ...(stored.charts ?? {}) },
+    tiktok: { ...base.tiktok, ...(stored.tiktok ?? {}) },
     faq: { ...base.faq, ...(stored.faq ?? {}) },
+    imageBlocks: Array.isArray(stored.imageBlocks) ? stored.imageBlocks : [],
   };
 }
 
 /**
- * Repairs a stored section_order: drops unknown keys, then appends any
- * missing keys (e.g. "charts" on a row saved before it existed) at the end.
+ * Repairs a stored section_order: drops unknown keys and image blocks that no
+ * longer exist, then appends anything missing (a section added after the row
+ * was saved, or an image block without a position) at the end.
  */
-export function normaliseSectionOrder(raw: unknown): SectionKey[] {
-  const stored = Array.isArray(raw) ? (raw as SectionKey[]).filter((k) => ALL_SECTION_KEYS.includes(k)) : [];
-  const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
+export function normaliseSectionOrder(raw: unknown, imageBlocks: ImageBlock[] = []): OrderKey[] {
+  const imageKeys = imageBlocks.map((b) => imageKey(b.id));
+  const valid = new Set<string>([...ALL_SECTION_KEYS, ...imageKeys]);
+  const stored: OrderKey[] = [];
+  for (const k of Array.isArray(raw) ? (raw as OrderKey[]) : []) {
+    if (valid.has(k) && !stored.includes(k)) stored.push(k);
+  }
+  const missing = ([...ALL_SECTION_KEYS, ...imageKeys] as OrderKey[]).filter((k) => !stored.includes(k));
   return [...stored, ...missing];
 }
 
@@ -288,7 +345,7 @@ export async function fetchProject(slug: string): Promise<PortfolioProject> {
     ...row,
     services: Array.isArray(row.services) ? row.services : [],
     sections: normaliseSections(row.sections),
-    section_order: normaliseSectionOrder(row.section_order),
+    section_order: normaliseSectionOrder(row.section_order, normaliseSections(row.sections).imageBlocks),
   };
 }
 

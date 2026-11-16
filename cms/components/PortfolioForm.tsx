@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Image as ImageIcon, Plus } from "lucide-react";
 import { createClient, type ContentBlock } from "@/lib/supabase";
 import { uploadImage as uploadToStorage } from "@/lib/upload";
 import {
@@ -13,10 +14,16 @@ import {
   PORTFOLIO_CATEGORIES,
   SECTION_LABELS,
   DEFAULT_CHART_PALETTE,
+  imageKey,
+  isImageKey,
+  parseTikTokUrl,
   type ChartSeries,
   type ChartTile,
+  type ImageBlock,
+  type OrderKey,
   type PortfolioProject,
   type PortfolioSections,
+  type ProjectSections,
   type SectionKey,
   type ServicePill,
 } from "@/lib/portfolio";
@@ -30,6 +37,10 @@ interface PortfolioFormProps {
   initialData?: PortfolioProject;
   mode: "new" | "edit";
 }
+
+/** A short id for a new image block, and a timestamp for upload file names. */
+const newBlockId = () => crypto.randomUUID().slice(0, 8);
+const uploadStamp = () => Date.now();
 
 function slugify(text: string) {
   return text.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
@@ -118,6 +129,8 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
 
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingCard, setUploadingCard] = useState(false);
+  // Id of the image block that is uploading right now, if any
+  const [uploadingBlock, setUploadingBlock] = useState<string | null>(null);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [slugLocked, setSlugLocked] = useState(mode === "edit");
   // The slug the DB row is keyed by right now: kept separate from form.slug so
@@ -130,7 +143,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           ...initialData,
           services: initialData.services ?? [],
           sections: normaliseSections(initialData.sections),
-          section_order: normaliseSectionOrder(initialData.section_order),
+          section_order: normaliseSectionOrder(initialData.section_order, normaliseSections(initialData.sections).imageBlocks),
         }
       : emptyProject()
   );
@@ -145,13 +158,13 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
       sections: {
         ...prev.sections,
         [key]: { ...prev.sections[key], ...patch },
-      } as PortfolioSections,
+      } as ProjectSections,
     }));
   }
 
-  function moveSection(key: SectionKey, direction: -1 | 1) {
+  function moveSection(key: OrderKey, direction: -1 | 1) {
     setForm((prev) => {
-      const order = normaliseSectionOrder(prev.section_order);
+      const order = normaliseSectionOrder(prev.section_order, prev.sections.imageBlocks);
       const i = order.indexOf(key);
       const j = i + direction;
       if (j < 0 || j >= order.length) return prev;
@@ -211,6 +224,65 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
     setUploading(false);
   }
 
+  // -- Image blocks: any number, placed anywhere between the sections --
+
+  /** Adds an empty image block at position `at` in the section order. */
+  function addImageBlock(at: number) {
+    const id = newBlockId();
+    setForm((prev) => {
+      const order = normaliseSectionOrder(prev.section_order, prev.sections.imageBlocks);
+      const next = [...order];
+      next.splice(at, 0, imageKey(id));
+      return {
+        ...prev,
+        sections: {
+          ...prev.sections,
+          imageBlocks: [...prev.sections.imageBlocks, { id, heading: "", layout: "full", items: [] }],
+        },
+        section_order: next,
+      };
+    });
+  }
+
+  function updateImageBlock(id: string, change: (block: ImageBlock) => ImageBlock) {
+    setForm((prev) => ({
+      ...prev,
+      sections: {
+        ...prev.sections,
+        imageBlocks: prev.sections.imageBlocks.map((b) => (b.id === id ? change(b) : b)),
+      },
+    }));
+  }
+
+  function removeImageBlock(id: string) {
+    setForm((prev) => ({
+      ...prev,
+      sections: { ...prev.sections, imageBlocks: prev.sections.imageBlocks.filter((b) => b.id !== id) },
+      section_order: prev.section_order.filter((k) => k !== imageKey(id)),
+    }));
+  }
+
+  /** Uploads the chosen files one by one and adds each to the block as it lands. */
+  async function uploadBlockImages(id: string, files: File[]) {
+    setUploadingBlock(id);
+    for (const [n, file] of files.entries()) {
+      try {
+        const src = await uploadToStorage({
+          file,
+          // Same folder as hero images, so no extra storage policy is needed
+          folder: "portfolio-hero",
+          base: form.slug?.trim() || "",
+          suffix: `-content-${uploadStamp()}-${n}`,
+          maxPx: 2400,
+        });
+        updateImageBlock(id, (b) => ({ ...b, items: [...b.items, { src, alt: "", caption: "" }] }));
+      } catch (err) {
+        alert(`Upload failed for ${file.name}: ` + (err as Error).message);
+      }
+    }
+    setUploadingBlock(null);
+  }
+
   // -- Services --
 
   function updateService(index: number, patch: Partial<ServicePill>) {
@@ -268,6 +340,24 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
     onError: (err) => alert("Save failed: " + err.message),
   });
 
+  // Cmd/Ctrl+S saves without publishing, like any editor
+  const saveRef = useRef(() => {});
+  useEffect(() => {
+    saveRef.current = () => {
+      if (!saveMutation.isPending) saveMutation.mutate(undefined);
+    };
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        saveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const supabase = createClient();
@@ -288,8 +378,8 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
   }, [savedMsg]);
 
   // Section order and numbers are per-project now, not a fixed constant.
-  const sectionOrder = normaliseSectionOrder(form.section_order);
-  const enabledOrder = sectionOrder.filter((key) => form.sections[key].enabled);
+  const sectionOrder = normaliseSectionOrder(form.section_order, form.sections.imageBlocks);
+  const enabledOrder = sectionOrder.filter((key) => !isImageKey(key) && form.sections[key].enabled);
   const sectionNumber = (key: SectionKey) => {
     const i = enabledOrder.indexOf(key);
     return i === -1 ? "--" : String(i + 1).padStart(2, "0");
@@ -353,7 +443,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           {s.challenges.items.map((item, i) => (
             <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <span className="text-xs font-medium text-zinc-500">
                   Challenge {String(i + 1).padStart(2, "0")}
                 </span>
                 <button
@@ -405,7 +495,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           {s.strategy.groups.map((group, i) => (
             <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <span className="text-xs font-medium text-zinc-500">
                   Column {String(i + 1).padStart(2, "0")}
                 </span>
                 <button
@@ -487,7 +577,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           {s.stats.items.map((item, i) => (
             <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <span className="text-xs font-medium text-zinc-500">
                   Stat {String(i + 1).padStart(2, "0")}
                 </span>
                 <button
@@ -556,7 +646,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
                   <button
                     type="button"
                     onClick={() => updateChartTile(i, { kind: "chart" })}
-                    className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition ${
+                    className={`px-3 py-1.5 rounded-full border text-xs font-medium transition ${
                       tile.kind === "chart" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-500"
                     }`}
                   >
@@ -565,7 +655,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
                   <button
                     type="button"
                     onClick={() => updateChartTile(i, { kind: "text" })}
-                    className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition ${
+                    className={`px-3 py-1.5 rounded-full border text-xs font-medium transition ${
                       tile.kind === "text" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-500"
                     }`}
                   >
@@ -631,13 +721,101 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
       </>
     ),
 
+    tiktok: (
+      <>
+        <Field label="Intro Text (optional)">
+          <textarea
+            value={s.tiktok.intro}
+            onChange={(e) => updateSection("tiktok", { intro: e.target.value })}
+            rows={2}
+            placeholder="A line about the content you made for this client."
+            className={inputCls}
+          />
+        </Field>
+        <div className="space-y-3">
+          {s.tiktok.videos.map((video, i) => {
+            const parsed = parseTikTokUrl(video.url);
+            const setVideo = (patch: Partial<typeof video>) =>
+              updateSection("tiktok", {
+                videos: s.tiktok.videos.map((v, j) => (j === i ? { ...v, ...patch } : v)),
+              });
+            return (
+              <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-zinc-500">
+                    Video {i + 1}
+                    {parsed && <span className="ml-2 normal-case tracking-normal text-emerald-600">@{parsed.handle}</span>}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => updateSection("tiktok", { videos: s.tiktok.videos.filter((_, j) => j !== i) })}
+                    className={removeBtnCls}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <input
+                  value={video.url}
+                  onChange={(e) => setVideo({ url: e.target.value })}
+                  placeholder="https://www.tiktok.com/@handle/video/7665771825154034966"
+                  className={inputCls}
+                />
+                {video.url.trim() && !parsed && (
+                  <p className="text-[11px] text-amber-600">
+                    Paste the full video link (tiktok.com/@name/video/123...). Short vm.tiktok.com links
+                    don&apos;t work: open the video in a browser and copy the address from there.
+                  </p>
+                )}
+                <input
+                  value={video.client}
+                  onChange={(e) => setVideo({ client: e.target.value })}
+                  placeholder="Name shown under the video (defaults to the @handle)"
+                  className={inputCls}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          onClick={() => updateSection("tiktok", { videos: [...s.tiktok.videos, { url: "", client: "" }] })}
+          className={addBtnCls}
+        >
+          + Add Video
+        </button>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Button Label (optional)">
+            <input
+              value={s.tiktok.ctaLabel}
+              onChange={(e) => updateSection("tiktok", { ctaLabel: e.target.value })}
+              placeholder="Follow on TikTok"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Button Link">
+            <input
+              value={s.tiktok.ctaHref}
+              onChange={(e) => updateSection("tiktok", { ctaHref: e.target.value })}
+              placeholder="https://www.tiktok.com/@handle"
+              className={inputCls}
+            />
+          </Field>
+        </div>
+        <p className="text-[11px] text-gray-400">
+          Just paste the links. The website reads each video&apos;s view count from TikTok, refreshes it
+          about every six hours, and shows the most-viewed video first. The button only appears when
+          both its label and link are filled in.
+        </p>
+      </>
+    ),
+
     faq: (
       <>
         <div className="space-y-3">
           {s.faq.items.map((item, i) => (
             <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Question {i + 1}</span>
+                <span className="text-xs font-medium text-zinc-500">Question {i + 1}</span>
                 <button
                   type="button"
                   onClick={() => updateSection("faq", { items: s.faq.items.filter((_, j) => j !== i) })}
@@ -689,8 +867,8 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
         <div className="space-y-6">
 
           {/* Project details */}
-          <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Project Details</h3>
+          <section className="cms-card">
+            <h3 className="cms-card-title">Project Details</h3>
 
             <Field label="Client Name">
               <input value={form.client_name} onChange={handleClientNameChange} placeholder="It's Padel" className={inputCls} />
@@ -715,7 +893,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
                       setSlugLocked(true);
                     }
                   }}
-                  className={`flex-shrink-0 px-3 py-2.5 rounded-lg border text-[10px] font-black uppercase tracking-widest transition ${
+                  className={`flex-shrink-0 px-3 py-2.5 rounded-full border text-xs font-medium transition ${
                     slugLocked
                       ? "border-gray-200 bg-gray-100 text-gray-500 hover:text-white"
                       : "border-emerald-700 bg-emerald-950 text-emerald-400"
@@ -768,8 +946,8 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           </section>
 
           {/* Images */}
-          <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Images</h3>
+          <section className="cms-card">
+            <h3 className="cms-card-title">Images</h3>
 
             <Field label="Hero Image">
               <div className="flex gap-3 items-start">
@@ -795,7 +973,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
               </p>
               {form.hero_image && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={form.hero_image} alt="hero preview" className="mt-3 w-full aspect-video object-cover rounded-xl border border-gray-200" />
+                <img src={form.hero_image} alt="hero preview" className="w-full max-w-md aspect-video object-cover rounded-xl ring-1 ring-zinc-950/10" />
               )}
             </Field>
 
@@ -808,7 +986,6 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
               />
             </Field>
 
-            <div className="h-px bg-gray-100" />
 
             <Field label="Grid Card Logo">
               <div className="flex gap-3 items-start">
@@ -868,9 +1045,9 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           </section>
 
           {/* Service pills */}
-          <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+          <section className="cms-card cms-card--plain">
             <div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Services</h3>
+              <h3 className="cms-card-title">Services</h3>
               <p className="text-[11px] text-gray-400 mt-1">The pill row above the case study, e.g. Branding, Web Development.</p>
             </div>
 
@@ -882,7 +1059,7 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
               {form.services.map((service, i) => (
                 <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Service {i + 1}</span>
+                    <span className="text-xs font-medium text-zinc-500">Service {i + 1}</span>
                     <button type="button" onClick={() => removeService(i)} className={removeBtnCls}>Remove</button>
                   </div>
                   <IconPicker value={service.icon || ""} onChange={(icon) => updateService(i, { icon })} />
@@ -900,33 +1077,57 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           </section>
 
           {/* -- Case study sections -- */}
-          <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+          <section className="cms-card cms-card--plain">
             <div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Case Study Sections</h3>
+              <h3 className="cms-card-title">Case Study Sections</h3>
               <p className="text-[11px] text-gray-400 mt-1">
-                Use the arrows to reorder. Switch off anything this client doesn&apos;t need:
-                numbering and the sidebar contents renumber automatically.
+                Reorder with the arrows, fold a section by clicking its name, and switch off anything this
+                client doesn&apos;t need. To place pictures anywhere, press &quot;Images here&quot; between two sections.
               </p>
             </div>
 
-            {sectionOrder.map((key, i) => (
-              <SectionPanel
-                key={key}
-                num={sectionNumber(key)}
-                label={SECTION_LABELS[key]}
-                enabled={s[key].enabled}
-                onToggle={(enabled) => updateSection(key, { enabled })}
-                onMoveUp={i > 0 ? () => moveSection(key, -1) : undefined}
-                onMoveDown={i < sectionOrder.length - 1 ? () => moveSection(key, 1) : undefined}
-              >
-                {sectionBodies[key]}
-              </SectionPanel>
-            ))}
+            {sectionOrder.map((key, i) => {
+              const onMoveUp = i > 0 ? () => moveSection(key, -1) : undefined;
+              const onMoveDown = i < sectionOrder.length - 1 ? () => moveSection(key, 1) : undefined;
+              const block = isImageKey(key) ? s.imageBlocks.find((b) => imageKey(b.id) === key) : undefined;
+              return (
+                <Fragment key={key}>
+                  <InsertImages onClick={() => addImageBlock(i)} />
+                  {isImageKey(key) ? (
+                    block && (
+                      <ImageBlockPanel
+                        block={block}
+                        uploading={uploadingBlock === block.id}
+                        onChange={(change) => updateImageBlock(block.id, change)}
+                        onUpload={(files) => uploadBlockImages(block.id, files)}
+                        onRemove={() => {
+                          if (block.items.length === 0 || confirm("Remove this image block?")) removeImageBlock(block.id);
+                        }}
+                        onMoveUp={onMoveUp}
+                        onMoveDown={onMoveDown}
+                      />
+                    )
+                  ) : (
+                    <SectionPanel
+                      num={sectionNumber(key)}
+                      label={SECTION_LABELS[key]}
+                      enabled={s[key].enabled}
+                      onToggle={(enabled) => updateSection(key, { enabled })}
+                      onMoveUp={onMoveUp}
+                      onMoveDown={onMoveDown}
+                    >
+                      {sectionBodies[key]}
+                    </SectionPanel>
+                  )}
+                </Fragment>
+              );
+            })}
+            <InsertImages onClick={() => addImageBlock(sectionOrder.length)} />
           </section>
 
           {/* CTA */}
-          <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Call to Action</h3>
+          <section className="cms-card">
+            <h3 className="cms-card-title">Call to Action</h3>
             <Field label="CTA Heading">
               <input
                 value={form.cta_heading}
@@ -947,8 +1148,8 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
           </section>
 
           {/* SEO */}
-          <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Search</h3>
+          <section className="cms-card">
+            <h3 className="cms-card-title">Search</h3>
             <Field label="Meta Title">
               <input
                 value={form.meta_title}
@@ -998,22 +1199,22 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
       </div>
 
       {/* -- Actions - fixed bottom bar -- */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-200">
-        <div className="max-w-screen-2xl mx-auto px-6 py-3.5 flex items-center justify-between">
+      <div className="fixed bottom-0 left-0 right-0 z-50 cms-bar border-t border-zinc-950/10">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => saveMutation.mutate(undefined)}
               disabled={saveMutation.isPending}
-              className="bg-gray-100 text-gray-700 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-200 transition disabled:opacity-50 border border-gray-200"
+              className="bg-zinc-100 text-zinc-950 text-sm font-medium px-4 py-2 rounded-full hover:bg-zinc-200 transition disabled:opacity-50"
             >
-              {saveMutation.isPending ? "Saving..." : "Save Draft"}
+              {saveMutation.isPending ? "Saving..." : "Save draft"}
             </button>
             <button
               onClick={() => saveMutation.mutate(true)}
               disabled={saveMutation.isPending}
-              className="bg-gray-900 text-white text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-700 transition disabled:opacity-50"
+              className="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-red-700 transition disabled:opacity-50"
             >
-              {form.published ? "Update & Publish" : "Publish"}
+              {form.published ? "Update and publish" : "Publish"}
             </button>
             {mode === "edit" && (
               <button
@@ -1026,13 +1227,14 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
                   window.open(url, "_blank", "noopener,noreferrer");
                   setSavedMsg("Preview link copied");
                 }}
-                className="bg-white text-gray-700 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-100 transition border border-gray-200"
+                className="bg-white text-zinc-950 text-sm font-medium px-4 py-2 rounded-full hover:bg-zinc-50 transition ring-1 ring-zinc-950/10"
               >
                 Preview
               </button>
             )}
+            <span className="hidden text-xs text-zinc-500 lg:inline">Cmd/Ctrl+S saves a draft</span>
             {savedMsg && (
-              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-700">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
                 {savedMsg}
               </span>
@@ -1042,9 +1244,9 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
             <button
               onClick={() => { if (!confirm("Delete this project? This cannot be undone.")) return; deleteMutation.mutate(); }}
               disabled={deleteMutation.isPending}
-              className="text-xs font-semibold text-red-400 hover:text-red-600 transition disabled:opacity-50"
+              className="rounded-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition disabled:opacity-50"
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete Project"}
+              {deleteMutation.isPending ? "Deleting..." : "Delete project"}
             </button>
           )}
         </div>
@@ -1058,6 +1260,27 @@ export default function PortfolioForm({ initialData, mode }: PortfolioFormProps)
 
 // -- Sub-components --
 
+/** Up/down buttons shared by the section panels and the image blocks. */
+function MoveButtons({ label, onMoveUp, onMoveDown }: { label: string; onMoveUp?: () => void; onMoveDown?: () => void }) {
+  const cls =
+    "flex h-7 w-7 items-center justify-center rounded-full text-zinc-500 transition hover:bg-zinc-950/5 hover:text-zinc-950 disabled:opacity-25 disabled:hover:bg-transparent";
+  return (
+    <div className="flex items-center">
+      <button type="button" onClick={onMoveUp} disabled={!onMoveUp} aria-label={`Move ${label} up`} className={cls}>
+        <ChevronUp className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+      </button>
+      <button type="button" onClick={onMoveDown} disabled={!onMoveDown} aria-label={`Move ${label} down`} className={cls}>
+        <ChevronDown className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+/**
+ * One case-study section. The header shows its place in the running order and
+ * carries the move buttons and the on/off switch. Clicking the title folds the
+ * fields away, so a long case study stays easy to scan.
+ */
 function SectionPanel({
   num,
   label,
@@ -1075,55 +1298,201 @@ function SectionPanel({
   onMoveDown?: () => void;
   children: React.ReactNode;
 }) {
+  const [open, setOpen] = useState(true);
+  const showBody = enabled && open;
   return (
-    <div className={`border rounded-xl overflow-hidden transition-colors ${enabled ? "border-gray-200 bg-white" : "border-gray-100 bg-gray-50"}`}>
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
-        <div className="flex items-center gap-3">
-          <span className={`text-[11px] font-black tabular-nums ${enabled ? "text-red-600" : "text-gray-300"}`}>{num}</span>
-          <span className={`text-[11px] font-black uppercase tracking-widest ${enabled ? "text-gray-700" : "text-gray-400"}`}>
-            {label}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col gap-0.5">
-            <button
-              type="button"
-              onClick={onMoveUp}
-              disabled={!onMoveUp}
-              aria-label={`Move ${label} up`}
-              className="w-5 h-4 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-200 disabled:opacity-25 disabled:hover:bg-transparent transition"
-            >
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 5.5L4 1.5L7 5.5" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={onMoveDown}
-              disabled={!onMoveDown}
-              aria-label={`Move ${label} down`}
-              className="w-5 h-4 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-200 disabled:opacity-25 disabled:hover:bg-transparent transition"
-            >
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 2.5L4 6.5L7 2.5" />
-              </svg>
-            </button>
-          </div>
+    <div className={`overflow-hidden rounded-xl ring-1 transition ${enabled ? "bg-white ring-zinc-950/10" : "bg-zinc-50 ring-zinc-950/5"}`}>
+      <div className="flex items-center justify-between gap-3 py-2 pl-2 pr-3">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          disabled={!enabled}
+          aria-expanded={showBody}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-1.5 text-left transition enabled:hover:bg-zinc-950/5"
+        >
+          <ChevronRight
+            className={`h-4 w-4 shrink-0 text-zinc-400 transition-transform ${showBody ? "rotate-90" : ""}`}
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+          <span className={`w-6 shrink-0 text-xs tabular-nums ${enabled ? "text-zinc-500" : "text-zinc-300"}`}>{num}</span>
+          <span className={`truncate text-[0.9375rem] font-medium ${enabled ? "text-zinc-950" : "text-zinc-500"}`}>{label}</span>
+          {!enabled && <span className="text-xs text-zinc-500">Hidden</span>}
+        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <MoveButtons label={label} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />
           <button
             type="button"
             role="switch"
             aria-checked={enabled}
             aria-label={`${enabled ? "Hide" : "Show"} ${label}`}
             onClick={() => onToggle(!enabled)}
-            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${enabled ? "bg-emerald-500" : "bg-gray-300"}`}
+            className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${enabled ? "bg-emerald-500" : "bg-zinc-300"}`}
           >
             <span
-              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0"}`}
+              className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-5" : "translate-x-0"}`}
             />
           </button>
         </div>
       </div>
-      {enabled && <div className="p-4 space-y-4">{children}</div>}
+      {showBody && <div className="space-y-4 border-t border-zinc-950/5 p-4">{children}</div>}
+    </div>
+  );
+}
+
+/** The thin "add images at this spot" row shown between every two panels. */
+function InsertImages({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex w-full items-center gap-3 py-0.5 text-xs font-medium text-zinc-400 transition hover:text-zinc-950"
+    >
+      <span className="h-px flex-1 border-t border-dashed border-zinc-300 group-hover:border-zinc-500" />
+      <span className="flex items-center gap-1">
+        <Plus className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+        Images here
+      </span>
+      <span className="h-px flex-1 border-t border-dashed border-zinc-300 group-hover:border-zinc-500" />
+    </button>
+  );
+}
+
+const IMAGE_LAYOUTS: { value: ImageBlock["layout"]; label: string }[] = [
+  { value: "full", label: "One per row (full width)" },
+  { value: "two", label: "Two side by side" },
+  { value: "three", label: "Three side by side" },
+];
+
+/** Editor for one image block: upload several pictures, order them, caption them. */
+function ImageBlockPanel({
+  block,
+  uploading,
+  onChange,
+  onUpload,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+}: {
+  block: ImageBlock;
+  uploading: boolean;
+  onChange: (change: (block: ImageBlock) => ImageBlock) => void;
+  onUpload: (files: File[]) => void;
+  onRemove: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+}) {
+  const setItem = (i: number, patch: Partial<ImageBlock["items"][number]>) =>
+    onChange((b) => ({ ...b, items: b.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) }));
+  const moveItem = (i: number, dir: -1 | 1) =>
+    onChange((b) => {
+      const j = i + dir;
+      if (j < 0 || j >= b.items.length) return b;
+      const items = [...b.items];
+      [items[i], items[j]] = [items[j], items[i]];
+      return { ...b, items };
+    });
+
+  return (
+    <div className="overflow-hidden rounded-xl bg-white ring-1 ring-zinc-950/10">
+      <div className="flex items-center justify-between gap-3 py-2 pl-4 pr-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <ImageIcon className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={2} aria-hidden="true" />
+          <span className="truncate text-[0.9375rem] font-medium text-zinc-950">
+            Images{block.heading?.trim() ? `: ${block.heading.trim()}` : ""}
+          </span>
+          <span className="shrink-0 text-xs tabular-nums text-zinc-500">{block.items.length}</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <MoveButtons label="images" onMoveUp={onMoveUp} onMoveDown={onMoveDown} />
+          <button type="button" onClick={onRemove} className="rounded-full px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50">
+            Remove
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-4 border-t border-zinc-950/5 p-4">
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Heading (optional)">
+            <input
+              value={block.heading ?? ""}
+              onChange={(e) => onChange((b) => ({ ...b, heading: e.target.value }))}
+              placeholder="e.g. Brand Identity"
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Layout">
+            <select
+              value={block.layout}
+              onChange={(e) => onChange((b) => ({ ...b, layout: e.target.value as ImageBlock["layout"] }))}
+              className={inputCls}
+            >
+              {IMAGE_LAYOUTS.map((l) => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
+        {block.items.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            {block.items.map((item, i) => (
+              <div key={item.src + i} className="border border-gray-100 rounded-xl p-2 space-y-2 bg-gray-50">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.src} alt={item.alt || "preview"} className="w-full aspect-video object-cover rounded-lg border border-gray-200 bg-white" />
+                <input
+                  value={item.alt}
+                  onChange={(e) => setItem(i, { alt: e.target.value })}
+                  placeholder="Describe the image (for SEO)"
+                  className={inputCls}
+                />
+                <input
+                  value={item.caption ?? ""}
+                  onChange={(e) => setItem(i, { caption: e.target.value })}
+                  placeholder="Caption (optional)"
+                  className={inputCls}
+                />
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-1">
+                    <button type="button" onClick={() => moveItem(i, -1)} disabled={i === 0} className={addBtnCls + " !px-2 !py-1 disabled:opacity-30"} aria-label="Move image earlier">
+                      <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                    </button>
+                    <button type="button" onClick={() => moveItem(i, 1)} disabled={i === block.items.length - 1} className={addBtnCls + " !px-2 !py-1 disabled:opacity-30"} aria-label="Move image later">
+                      <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onChange((b) => ({ ...b, items: b.items.filter((_, j) => j !== i) }))}
+                    className={removeBtnCls}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <label className={uploadBtnCls + " inline-block cursor-pointer" + (uploading ? " opacity-50 pointer-events-none" : "")}>
+          {uploading ? "Uploading..." : "+ Upload images"}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              const files = Array.from(e.target.files ?? []);
+              // Reset so picking the same file again still fires a change
+              e.target.value = "";
+              if (files.length) onUpload(files);
+            }}
+          />
+        </label>
+        <p className="text-[11px] text-gray-400">
+          You can pick several images at once. Remember to save the project afterwards.
+        </p>
+      </div>
     </div>
   );
 }
@@ -1193,7 +1562,7 @@ function ChartOrTextTile({
           {bullets.map((b, i) => (
             <div key={i} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-white">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Bullet {i + 1}</span>
+                <span className="text-xs font-medium text-zinc-500">Bullet {i + 1}</span>
                 <button
                   type="button"
                   onClick={() => onChange({ bullets: bullets.filter((_, j) => j !== i) })}
@@ -1322,7 +1691,7 @@ function ChartTileEditor({
             <button
               type="button"
               onClick={() => onChange({ categoryMode: "custom" })}
-              className={`px-4 py-2 rounded-lg border text-xs font-bold uppercase tracking-widest transition ${
+              className={`px-4 py-2 rounded-full border text-sm font-medium transition ${
                 !isMonth
                   ? "border-gray-900 bg-gray-900 text-white"
                   : "border-gray-200 text-gray-500 hover:border-gray-400"
@@ -1333,7 +1702,7 @@ function ChartTileEditor({
             <button
               type="button"
               onClick={() => onChange({ categoryMode: "month" })}
-              className={`px-4 py-2 rounded-lg border text-xs font-bold uppercase tracking-widest transition ${
+              className={`px-4 py-2 rounded-full border text-sm font-medium transition ${
                 isMonth
                   ? "border-gray-900 bg-gray-900 text-white"
                   : "border-gray-200 text-gray-500 hover:border-gray-400"
@@ -1395,7 +1764,7 @@ function ChartTileEditor({
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr>
-              <th className="text-left p-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              <th className="text-left p-2 text-xs font-medium text-zinc-500">
                 {isPie ? "Slice" : isMonth ? "Month" : "Category"}
               </th>
               {series.map((sr, si) => (
@@ -1486,9 +1855,9 @@ function ChartTileEditor({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
-      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest">{label}</label>
-      {children}
+    <div className="cms-field">
+      <label className="cms-label">{label}</label>
+      <div className="min-w-0 space-y-1.5">{children}</div>
     </div>
   );
 }
@@ -1508,7 +1877,7 @@ const MONTH_NAMES = [
   "Dec",
 ];
 
-const inputCls = "w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:border-gray-400 placeholder:text-gray-400 resize-none";
-const uploadBtnCls = "text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-700 px-3 py-2.5 rounded-lg hover:bg-gray-200 transition whitespace-nowrap disabled:opacity-50";
-const addBtnCls = "text-xs font-bold text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 px-4 py-2 rounded-lg transition";
-const removeBtnCls = "text-[10px] text-red-400 hover:text-red-600 font-semibold";
+const inputCls = "w-full rounded-lg border border-transparent bg-zinc-100 px-3 py-2 text-[0.9375rem] text-zinc-950 placeholder:text-zinc-500 transition hover:bg-zinc-200/70";
+const uploadBtnCls = "text-sm font-medium bg-zinc-100 text-zinc-950 px-4 py-2.5 rounded-full hover:bg-zinc-200 transition whitespace-nowrap disabled:opacity-50";
+const addBtnCls = "text-sm font-medium text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-4 py-2 rounded-full transition";
+const removeBtnCls = "text-xs font-medium text-red-600 hover:underline";

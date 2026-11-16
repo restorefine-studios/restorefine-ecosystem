@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { ChevronLeft, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 const SECTIONS = [
-  { key: "blogs", label: "Blogs", base: "/dashboard/blogs", newLabel: "+ New Post" },
-  { key: "portfolio", label: "Portfolio", base: "/dashboard/portfolio", newLabel: "+ New Project" },
+  { key: "blogs", label: "Blogs", base: "/dashboard/blogs", newLabel: "New post" },
+  { key: "portfolio", label: "Portfolio", base: "/dashboard/portfolio", newLabel: "New project" },
 ] as const;
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -20,72 +21,73 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.refresh();
   }
 
-  // null on the chooser screen at /dashboard, where there's nothing to act on yet
+  // null on the home screen at /dashboard, where no section is open yet
   const section = SECTIONS.find((s) => pathname === s.base || pathname.startsWith(`${s.base}/`)) ?? null;
   // Inside an editor (new or edit) rather than on a section's list page
   const isEditor = !!section && pathname !== section.base;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
-
-          {/* Left: brand + nav */}
-          <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2.5">
+    <div className="min-h-screen bg-canvas text-zinc-950">
+      <header className="cms-bar sticky top-0 z-50 border-b border-zinc-950/10">
+        <div className="mx-auto flex h-14 max-w-screen-2xl items-center justify-between gap-6 px-4 sm:px-6">
+          {/* Left: brand, then the section switch */}
+          <div className="flex min-w-0 items-center gap-5">
+            <Link href="/dashboard" className="flex shrink-0 items-center gap-2" aria-label="RestoRefine CMS home">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/restorefine-logoblack.svg" alt="RestoRefine" style={{ height: 28, width: "auto" }} />
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 border border-gray-200 rounded px-1.5 py-0.5">CMS</span>
+              <img src="/restorefine-logoblack.svg" alt="RestoRefine" style={{ height: 24, width: "auto" }} />
+              <span className="rounded-full bg-zinc-950/5 px-2 py-0.5 text-xs font-medium text-zinc-500">CMS</span>
             </Link>
 
-            {section && (
-              <nav className="flex items-center gap-1">
-                {SECTIONS.map((s) => (
+            {/* Segmented control: always visible, so either section is one click away */}
+            <nav aria-label="Sections" className="flex items-center rounded-full bg-zinc-950/5 p-0.5">
+              {SECTIONS.map((s) => {
+                const active = section?.key === s.key;
+                return (
                   <Link
                     key={s.key}
                     href={s.base}
-                    className={`text-[11px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-md transition ${
-                      section.key === s.key
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
+                    aria-current={active ? "page" : undefined}
+                    className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+                      active ? "bg-white text-zinc-950 shadow-sm" : "text-zinc-500 hover:text-zinc-950"
                     }`}
                   >
                     {s.label}
                   </Link>
-                ))}
-              </nav>
-            )}
+                );
+              })}
+            </nav>
           </div>
 
           {/* Right: actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2">
             {isEditor && section && (
               <Link
                 href={section.base}
-                className="text-[11px] font-semibold text-gray-400 hover:text-gray-700 transition"
+                className="hidden items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm font-medium text-zinc-500 transition hover:bg-zinc-950/5 hover:text-zinc-950 sm:flex"
               >
-                ← Back
+                <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                All {section.label.toLowerCase()}
               </Link>
             )}
             {section && (
               <Link
                 href={`${section.base}/new`}
-                className="text-[11px] font-bold uppercase tracking-widest bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+                className="flex items-center gap-1.5 rounded-full bg-zinc-950 py-1.5 pl-3 pr-4 text-sm font-medium text-white transition hover:bg-zinc-700"
               >
+                <Plus className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                 {section.newLabel}
               </Link>
             )}
-            <div className="w-px h-5 bg-gray-200" />
             <button
               onClick={handleSignOut}
-              className="text-[11px] font-semibold text-gray-400 hover:text-gray-700 uppercase tracking-widest transition"
+              className="rounded-full px-3 py-1.5 text-sm font-medium text-zinc-500 transition hover:bg-zinc-950/5 hover:text-zinc-950"
             >
               Sign out
             </button>
           </div>
         </div>
       </header>
-      <main className="px-6 py-8 max-w-screen-2xl mx-auto">{children}</main>
+      <main className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }

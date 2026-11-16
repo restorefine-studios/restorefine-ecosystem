@@ -148,7 +148,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
       {/* Inline link bar — appears when Link is clicked */}
       {linkBarOpen && (
         <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 bg-white">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">URL</span>
+          <span className="text-xs font-medium text-zinc-500 whitespace-nowrap">URL</span>
           <input
             ref={linkInputRef}
             value={linkUrl}
@@ -178,7 +178,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
       {/* Inline table-insert bar — appears when Table is clicked and cursor isn't already in a table */}
       {tableBarOpen && !editor.isActive("table") && (
         <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 bg-white">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">Rows</span>
+          <span className="text-xs font-medium text-zinc-500 whitespace-nowrap">Rows</span>
           <input
             type="number"
             min={1}
@@ -187,7 +187,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write c
             onChange={(e) => setTableRows(Number(e.target.value))}
             className="w-16 bg-gray-100 border border-gray-200 rounded px-2 py-1.5 text-sm text-gray-900 focus:outline-none focus:border-gray-400"
           />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">Columns</span>
+          <span className="text-xs font-medium text-zinc-500 whitespace-nowrap">Columns</span>
           <input
             type="number"
             min={1}

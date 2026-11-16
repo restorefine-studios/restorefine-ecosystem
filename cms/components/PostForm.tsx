@@ -240,6 +240,24 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     return () => clearTimeout(t);
   }, [savedMsg]);
 
+  // Cmd/Ctrl+S saves without publishing, like any editor
+  const saveRef = useRef(() => {});
+  useEffect(() => {
+    saveRef.current = () => {
+      if (!saveMutation.isPending) saveMutation.mutate(undefined);
+    };
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        saveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const supabase = createClient();
@@ -259,8 +277,8 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     {/* ── Left: form ── */}
     <div className="space-y-6">
       {/* Post Details */}
-      <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-        <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Post Details</h3>
+      <section className="cms-card">
+        <h3 className="cms-card-title">Post Details</h3>
         <Field label="Title">
           <input value={form.title} onChange={handleTitleChange} placeholder="Post title" className={inputCls} />
         </Field>
@@ -283,7 +301,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
                   setSlugLocked(true);
                 }
               }}
-              className={`flex-shrink-0 px-3 py-2.5 rounded-lg border text-[10px] font-black uppercase tracking-widest transition ${
+              className={`flex-shrink-0 px-3 py-2.5 rounded-full border text-xs font-medium transition ${
                 slugLocked
                   ? "border-gray-200 bg-gray-100 text-gray-500 hover:text-white"
                   : "border-emerald-700 bg-emerald-950 text-emerald-400"
@@ -352,8 +370,8 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
       </section>
 
       {/* Images */}
-      <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-        <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Images</h3>
+      <section className="cms-card">
+        <h3 className="cms-card-title">Images</h3>
         <Field label="Thumbnail">
           <div className="flex gap-3 items-start">
             <input value={form.thumbnail} onChange={(e) => update("thumbnail", e.target.value)} placeholder="URL or upload" className={inputCls + " flex-1"} />
@@ -369,7 +387,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
               : `https://www.restorefine.co.uk${form.thumbnail}`;
             return (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={src} alt="thumbnail preview" className="mt-3 w-full aspect-video object-cover rounded-xl border border-gray-200" />
+              <img src={src} alt="thumbnail preview" className="w-full max-w-md aspect-video object-cover rounded-xl ring-1 ring-zinc-950/10" />
             );
           })()}
         </Field>
@@ -379,8 +397,8 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
       </section>
 
       {/* CTA */}
-      <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
-        <h3 className="text-xs font-black uppercase tracking-widest text-gray-500">Call to Action</h3>
+      <section className="cms-card">
+        <h3 className="cms-card-title">Call to Action</h3>
         <Field label="CTA Heading">
           <input
             value={form.cta_heading ?? ""}
@@ -401,8 +419,8 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
       </section>
 
       {/* Content blocks */}
-      <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-3">
-        <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4">Content</h3>
+      <section className="cms-card cms-card--plain">
+        <h3 className="cms-card-title">Content</h3>
 
         {form.content.length === 0 && (
           <p className="text-gray-400 text-sm py-4 text-center">No sections yet. Hit + to add your first section.</p>
@@ -418,23 +436,23 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             return (
               <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-50">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Feature List: Section {i + 1}</span>
+                  <span className="text-xs font-medium text-zinc-500">Feature List: Section {i + 1}</span>
                   <BlockControls i={i} total={form.content.length} onMove={moveBlock} onRemove={removeBlock} />
                 </div>
                 <div className="p-4 space-y-4">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Section Heading (optional)</label>
+                    <label className="block text-sm font-medium text-zinc-700 mb-1.5">Section Heading (optional)</label>
                     <input value={fb.heading || ""} onChange={e => updateBlock(i, { heading: e.target.value } as Partial<ContentBlock>)} placeholder="e.g. What You Get" className={inputCls} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Section Description (optional)</label>
+                    <label className="block text-sm font-medium text-zinc-700 mb-1.5">Section Description (optional)</label>
                     <RichTextEditor value={fb.description || ""} onChange={html => updateBlock(i, { description: html } as Partial<ContentBlock>)} />
                   </div>
                   <div className="space-y-3">
                     {fb.items.map((item, idx) => (
                       <div key={idx} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Item {idx + 1}</span>
+                          <span className="text-xs font-medium text-zinc-500">Item {idx + 1}</span>
                           <button type="button" onClick={() => { const items = fb.items.filter((_, j) => j !== idx); updateBlock(i, { items } as Partial<ContentBlock>); }} className="text-[10px] text-red-400 hover:text-red-600 font-semibold">Remove</button>
                         </div>
                         <IconPicker value={item.icon || ""} onChange={icon => { const items = fb.items.map((it, j) => j === idx ? { ...it, icon } : it); updateBlock(i, { items } as Partial<ContentBlock>); }} />
@@ -443,11 +461,11 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
                       </div>
                     ))}
                   </div>
-                  <button type="button" onClick={() => updateBlock(i, { items: [...fb.items, { icon: "", title: "", description: "" }] } as Partial<ContentBlock>)} className="text-xs font-bold text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 px-4 py-2 rounded-lg transition">
+                  <button type="button" onClick={() => updateBlock(i, { items: [...fb.items, { icon: "", title: "", description: "" }] } as Partial<ContentBlock>)} className="text-sm font-medium text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 px-4 py-2 rounded-full transition">
                     + Add Item
                   </button>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Description After Items (optional)</label>
+                    <label className="block text-sm font-medium text-zinc-700 mb-1.5">Description After Items (optional)</label>
                     <RichTextEditor value={fb.footerDescription || ""} onChange={html => updateBlock(i, { footerDescription: html } as Partial<ContentBlock>)} />
                   </div>
                 </div>
@@ -459,7 +477,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             return (
               <div key={i} className="border border-gray-200 rounded-xl bg-gray-50 overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-100">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Image</span>
+                  <span className="text-xs font-medium text-zinc-500">Image</span>
                   <BlockControls i={i} total={form.content.length} onMove={moveBlock} onRemove={removeBlock} />
                 </div>
                 <div className="p-4 space-y-2">
@@ -487,19 +505,19 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             return (
               <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-50">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">FAQ: Section {i + 1}</span>
+                  <span className="text-xs font-medium text-zinc-500">FAQ: Section {i + 1}</span>
                   <BlockControls i={i} total={form.content.length} onMove={moveBlock} onRemove={removeBlock} />
                 </div>
                 <div className="p-4 space-y-4">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Section Heading (optional)</label>
+                    <label className="block text-sm font-medium text-zinc-700 mb-1.5">Section Heading (optional)</label>
                     <input value={qb.heading || ""} onChange={e => updateBlock(i, { heading: e.target.value } as Partial<ContentBlock>)} placeholder="e.g. Frequently Asked Questions" className={inputCls} />
                   </div>
                   <div className="space-y-3">
                     {qb.faqs.map((item, idx) => (
                       <div key={idx} className="border border-gray-100 rounded-xl p-3 space-y-2 bg-gray-50">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Question {idx + 1}</span>
+                          <span className="text-xs font-medium text-zinc-500">Question {idx + 1}</span>
                           <button type="button" onClick={() => { const faqs = qb.faqs.filter((_, j) => j !== idx); updateBlock(i, { faqs } as Partial<ContentBlock>); }} className="text-[10px] text-red-400 hover:text-red-600 font-semibold">Remove</button>
                         </div>
                         <input value={item.question} onChange={e => { const faqs = qb.faqs.map((it, j) => j === idx ? { ...it, question: e.target.value } : it); updateBlock(i, { faqs } as Partial<ContentBlock>); }} placeholder="Question" className={inputCls} />
@@ -507,7 +525,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
                       </div>
                     ))}
                   </div>
-                  <button type="button" onClick={() => updateBlock(i, { faqs: [...qb.faqs, { question: "", answer: "" }] } as Partial<ContentBlock>)} className="text-xs font-bold text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 px-4 py-2 rounded-lg transition">
+                  <button type="button" onClick={() => updateBlock(i, { faqs: [...qb.faqs, { question: "", answer: "" }] } as Partial<ContentBlock>)} className="text-sm font-medium text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 px-4 py-2 rounded-full transition">
                     + Add Question
                   </button>
                 </div>
@@ -527,12 +545,12 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
             <div key={i} className="border border-gray-200 rounded-xl bg-gray-50 overflow-hidden">
               {/* Block header */}
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-100">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Section {i + 1}</span>
+                <span className="text-xs font-medium text-zinc-500">Section {i + 1}</span>
                 <BlockControls i={i} total={form.content.length} onMove={moveBlock} onRemove={removeBlock} />
               </div>
               {/* Heading */}
               <div className="px-4 pt-4 pb-2">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Heading</label>
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5">Heading</label>
                 <input
                   value={headingVal}
                   onChange={(e) => {
@@ -548,7 +566,7 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
               </div>
               {/* Rich text paragraph */}
               <div className="px-4 pb-4">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 mt-3">Paragraph</label>
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5 mt-3">Paragraph</label>
                 <RichTextEditor
                   value={contentVal}
                   onChange={(html) => {
@@ -569,28 +587,28 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
           <button
             type="button"
             onClick={addSection}
-            className="flex items-center gap-2 text-sm font-bold text-gray-900 bg-gray-200 hover:bg-gray-100 border border-gray-300 px-5 py-2.5 rounded-xl transition"
+            className="flex items-center gap-2 text-sm font-medium text-gray-900 bg-gray-200 hover:bg-gray-100 border border-gray-300 px-5 py-2.5 rounded-full transition"
           >
             <span className="text-lg leading-none">+</span> Add Section
           </button>
           <button
             type="button"
             onClick={addFeatures}
-            className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-xl transition"
+            className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-full transition"
           >
             <span className="text-base leading-none">+</span> Feature List
           </button>
           <button
             type="button"
             onClick={addImage}
-            className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-xl transition"
+            className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-full transition"
           >
             <span className="text-base leading-none">+</span> Image
           </button>
           <button
             type="button"
             onClick={addFaq}
-            className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-xl transition"
+            className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 px-4 py-2.5 rounded-full transition"
           >
             <span className="text-base leading-none">+</span> FAQ
           </button>
@@ -610,16 +628,16 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
     </div>
 
     {/* ── Actions — fixed bottom bar ── */}
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-200">
-      <div className="max-w-screen-2xl mx-auto px-6 py-3.5 flex items-center justify-between">
+    <div className="fixed bottom-0 left-0 right-0 z-50 cms-bar border-t border-zinc-950/10">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <button onClick={() => saveMutation.mutate(undefined)} disabled={saveMutation.isPending}
-          className="bg-gray-100 text-gray-700 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-200 transition disabled:opacity-50 border border-gray-200">
-          {saveMutation.isPending ? "Saving..." : "Save Draft"}
+          className="bg-zinc-100 text-zinc-950 text-sm font-medium px-4 py-2 rounded-full hover:bg-zinc-200 transition disabled:opacity-50">
+          {saveMutation.isPending ? "Saving..." : "Save draft"}
         </button>
         <button onClick={() => saveMutation.mutate(true)} disabled={saveMutation.isPending}
-          className="bg-gray-900 text-white text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-700 transition disabled:opacity-50">
-          {form.published ? "Update & Publish" : "Publish"}
+          className="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-red-700 transition disabled:opacity-50">
+          {form.published ? "Update and publish" : "Publish"}
         </button>
         {mode === "edit" && (
           <button
@@ -632,13 +650,14 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
               window.open(url, "_blank", "noopener,noreferrer");
               setSavedMsg("Preview link copied");
             }}
-            className="bg-white text-gray-700 text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg hover:bg-gray-100 transition border border-gray-200"
+            className="bg-white text-zinc-950 text-sm font-medium px-4 py-2 rounded-full hover:bg-zinc-50 transition ring-1 ring-zinc-950/10"
           >
             Preview
           </button>
         )}
+        <span className="hidden text-xs text-zinc-500 lg:inline">Cmd/Ctrl+S saves a draft</span>
         {savedMsg && (
-          <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
+          <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-700">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
             {savedMsg}
           </span>
@@ -647,8 +666,8 @@ export default function PostForm({ initialData, mode }: PostFormProps) {
       {mode === "edit" && (
         <button onClick={() => { if (!confirm("Delete this post? This cannot be undone.")) return; deleteMutation.mutate(); }}
           disabled={deleteMutation.isPending}
-          className="text-xs font-semibold text-red-400 hover:text-red-600 transition disabled:opacity-50">
-          {deleteMutation.isPending ? "Deleting..." : "Delete Post"}
+          className="rounded-full px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition disabled:opacity-50">
+          {deleteMutation.isPending ? "Deleting..." : "Delete post"}
         </button>
       )}
       </div>
@@ -687,13 +706,13 @@ function BlockControls({ i, total, onMove, onRemove }: { i: number; total: numbe
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
-      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest">{label}</label>
-      {children}
+    <div className="cms-field">
+      <label className="cms-label">{label}</label>
+      <div className="min-w-0 space-y-1.5">{children}</div>
     </div>
   );
 }
 
-const inputCls = "w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:border-gray-400 placeholder:text-gray-400 resize-none";
-const uploadBtnCls = "text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-700 px-3 py-2.5 rounded-lg hover:bg-gray-200 transition whitespace-nowrap disabled:opacity-50";
+const inputCls = "w-full rounded-lg border border-transparent bg-zinc-100 px-3 py-2 text-[0.9375rem] text-zinc-950 placeholder:text-zinc-500 transition hover:bg-zinc-200/70";
+const uploadBtnCls = "text-sm font-medium bg-zinc-100 text-zinc-950 px-4 py-2.5 rounded-full hover:bg-zinc-200 transition whitespace-nowrap disabled:opacity-50";
 const controlBtnCls = "text-xs text-gray-400 hover:text-gray-700 font-semibold px-2 py-1 rounded transition disabled:opacity-30";

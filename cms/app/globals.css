@@ -1,21 +1,130 @@
 @import "tailwindcss";
 
+/*
+ * RestoRefine CMS. The look follows the website's homepage: Inter Tight for
+ * headings, Inter for text, zinc neutrals and one red accent, on a calm grey
+ * canvas with white cards.
+ *
+ * Shape rule, used everywhere: buttons and chips are pills, cards are 16px,
+ * inputs and inner tiles are 12px.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #f5f5f7;
+  --foreground: #09090b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-script: var(--font-holiday), cursive;
+
+  /* One neutral family: every older gray-* class now resolves to zinc */
+  --color-gray-50: var(--color-zinc-50);
+  --color-gray-100: var(--color-zinc-100);
+  --color-gray-200: var(--color-zinc-200);
+  --color-gray-300: var(--color-zinc-300);
+  --color-gray-400: var(--color-zinc-400);
+  --color-gray-500: var(--color-zinc-500);
+  --color-gray-600: var(--color-zinc-600);
+  --color-gray-700: var(--color-zinc-700);
+  --color-gray-800: var(--color-zinc-800);
+  --color-gray-900: var(--color-zinc-900);
+  --color-gray-950: var(--color-zinc-950);
 }
 
 body {
-  background: var(--background);
+  background: var(--canvas);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings take the display face with the homepage's tight tracking */
+.cms :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+/*
+ * Calm type across the editors. Labels used to be tiny, bold, wide-tracked
+ * capitals; here they read as normal words at a legible size. These rules sit
+ * outside Tailwind's layers on purpose, so they win over the utility classes.
+ */
+.cms .uppercase { text-transform: none; }
+.cms :is(.tracking-widest, .tracking-wider, [class*="tracking-[0."]) { letter-spacing: 0; }
+.cms .font-black { font-weight: 600; }
+.cms :is(.text-\[9px\], .text-\[10px\], .text-\[11px\]) { font-size: 0.75rem; line-height: 1.45; }
+/* Small grey text has to stay readable on white and on the grey tiles */
+.cms :is(label, p, span).text-gray-400 { color: var(--color-zinc-500); }
+
+/*
+ * Editor cards, in the style of a grouped settings list: a small title, then
+ * rows split by hairlines. Each field is a row with its label on the left and
+ * the control on the right, so labels line up in one column and a screen holds
+ * far more than stacked full-width fields did.
+ */
+.cms-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 0 0 1px rgb(9 9 11 / 0.05);
+  padding: 0 1.25rem;
+}
+.cms-card:not(.cms-card--plain) > * { padding-block: 0.875rem; }
+.cms-card:not(.cms-card--plain) > * + * { border-top: 1px solid rgb(9 9 11 / 0.06); }
+.cms .cms-card-title {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--color-zinc-950);
+  margin: 0;
+}
+/* Cards that hold a list of panels keep plain spacing, with no row dividers */
+.cms-card--plain { padding-block: 0.875rem 1.25rem; }
+.cms-card--plain > * + * { margin-top: 0.875rem; }
+
+.cms-field { display: grid; grid-template-columns: 11rem minmax(0, 1fr); column-gap: 1.5rem; row-gap: 0.375rem; align-items: start; }
+.cms-label { font-size: 0.875rem; line-height: 1.4; font-weight: 500; color: var(--color-zinc-700); padding-top: 0.5rem; }
+/* Fields that sit side by side in a grid, or on a narrow screen, put the label on top */
+.grid > .cms-field { grid-template-columns: minmax(0, 1fr); }
+.grid > .cms-field > .cms-label { padding-top: 0; }
+@media (max-width: 767px) {
+  .cms-field { grid-template-columns: minmax(0, 1fr); }
+  .cms-label { padding-top: 0; }
+}
+/* On the grey inner tiles a filled input would disappear, so it turns white there */
+.cms .bg-gray-50 :is(input:not([type="checkbox"]):not([type="color"]), textarea, select) { background: #fff; border-color: var(--color-zinc-200); }
+
+/* One focus treatment for every control */
+.cms :is(input, textarea, select):focus-visible {
+  outline: none;
+  background: #fff;
+  border-color: var(--color-zinc-950);
+  box-shadow: 0 0 0 4px rgb(9 9 11 / 0.06);
+}
+.cms :is(a, button, [role="switch"]):focus-visible {
+  outline: 2px solid var(--color-zinc-950);
+  outline-offset: 2px;
+}
+/* A light press, so buttons feel physical */
+.cms :is(button, a[href]):active:not(:disabled) { transform: scale(0.985); }
+@media (prefers-reduced-motion: reduce) {
+  .cms * { transition-duration: 0.01ms !important; }
+  .cms :is(button, a[href]):active { transform: none; }
+}
+
+/* The frosted bars (top and bottom). Solid when transparency is reduced. */
+.cms-bar {
+  background: rgb(255 255 255 / 0.78);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cms-bar { background: #fff; backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 /* Rich text editor list styles (Tailwind resets these by default) */

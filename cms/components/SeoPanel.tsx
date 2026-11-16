@@ -148,36 +148,36 @@ function runSeoChecks(form: SeoInput, kp: string): { checks: Check[]; score: num
   if (!kp) {
     checks.push({ label: "Keyphrase density", status: "bad", detail: "Set a focus keyphrase first." });
   } else if (density >= 0.5 && density <= 3) {
-    checks.push({ label: "Keyphrase density", status: "good", detail: `${density.toFixed(1)}% — ideal range (0.5–3%).` });
+    checks.push({ label: "Keyphrase density", status: "good", detail: `${density.toFixed(1)}%: ideal range (0.5-3%).` });
   } else if (density < 0.5) {
-    checks.push({ label: "Keyphrase density", status: "ok", detail: `${density.toFixed(1)}% — too low, use keyphrase more.` });
+    checks.push({ label: "Keyphrase density", status: "ok", detail: `${density.toFixed(1)}%: too low, use keyphrase more.` });
   } else {
-    checks.push({ label: "Keyphrase density", status: "bad", detail: `${density.toFixed(1)}% — too high, reduce usage.` });
+    checks.push({ label: "Keyphrase density", status: "bad", detail: `${density.toFixed(1)}%: too high, reduce usage.` });
   }
 
   // 7. Content length (15pts)
   if (totalWords >= 900) {
-    checks.push({ label: "Content length", status: "good", detail: `${totalWords} words — excellent length.` });
+    checks.push({ label: "Content length", status: "good", detail: `${totalWords} words: excellent length.` });
   } else if (totalWords >= 300) {
-    checks.push({ label: "Content length", status: "ok", detail: `${totalWords} words — aim for 900+.` });
+    checks.push({ label: "Content length", status: "ok", detail: `${totalWords} words: aim for 900+.` });
   } else {
-    checks.push({ label: "Content length", status: "bad", detail: `${totalWords} words — too short (min 300).` });
+    checks.push({ label: "Content length", status: "bad", detail: `${totalWords} words: too short (min 300).` });
   }
 
   // 8. Meta description length (7pts)
   if (metaDescriptionLen >= 120 && metaDescriptionLen <= 155) {
-    checks.push({ label: "Meta description length", status: "good", detail: `${metaDescriptionLen} chars — perfect.` });
+    checks.push({ label: "Meta description length", status: "good", detail: `${metaDescriptionLen} chars: perfect.` });
   } else if (metaDescriptionLen > 0) {
-    checks.push({ label: "Meta description length", status: "ok", detail: `${metaDescriptionLen} chars — aim for 120–155.` });
+    checks.push({ label: "Meta description length", status: "ok", detail: `${metaDescriptionLen} chars: aim for 120-155.` });
   } else {
     checks.push({ label: "Meta description length", status: "bad", detail: "No meta description set." });
   }
 
   // 9. SEO title length (7pts)
   if (titleLen >= 30 && titleLen <= 60) {
-    checks.push({ label: "SEO title length", status: "good", detail: `${titleLen} chars — ideal.` });
+    checks.push({ label: "SEO title length", status: "good", detail: `${titleLen} chars: ideal.` });
   } else if (titleLen > 0) {
-    checks.push({ label: "SEO title length", status: "ok", detail: `${titleLen} chars — aim for 30–60.` });
+    checks.push({ label: "SEO title length", status: "ok", detail: `${titleLen} chars: aim for 30-60.` });
   } else {
     checks.push({ label: "SEO title length", status: "bad", detail: "Title is empty." });
   }
@@ -198,9 +198,9 @@ function runSeoChecks(form: SeoInput, kp: string): { checks: Check[]; score: num
 
   // 11. Indexability (5pts)
   if (form.noindex) {
-    checks.push({ label: "Indexability", status: "bad", detail: "Noindex is on — this post will be hidden from search results." });
+    checks.push({ label: "Indexability", status: "bad", detail: "Noindex is on: this post will be hidden from search results." });
   } else {
-    checks.push({ label: "Indexability", status: "good", detail: "Indexable — search engines can show this post." });
+    checks.push({ label: "Indexability", status: "good", detail: "Indexable: search engines can show this post." });
   }
 
   // Score calculation
@@ -261,7 +261,7 @@ function runReadabilityChecks(form: SeoInput): { checks: Check[]; score: number 
   if (longParas === 0) {
     checks.push({ label: "Paragraph length", status: "good", detail: "All paragraphs are a good length." });
   } else if (longParas <= 2) {
-    checks.push({ label: "Paragraph length", status: "ok", detail: `${longParas} paragraph(s) over 150 words — consider splitting.` });
+    checks.push({ label: "Paragraph length", status: "ok", detail: `${longParas} paragraph(s) over 150 words: consider splitting.` });
   } else {
     checks.push({ label: "Paragraph length", status: "bad", detail: `${longParas} paragraphs are too long (>150 words).` });
   }
@@ -269,7 +269,7 @@ function runReadabilityChecks(form: SeoInput): { checks: Check[]; score: number 
   // Subheading distribution (25pts)
   const wordsPerHeading = headingCount > 0 ? totalWords / headingCount : totalWords;
   if (headingCount === 0 && totalWords < 300) {
-    checks.push({ label: "Subheading distribution", status: "ok", detail: "Short post — subheadings optional." });
+    checks.push({ label: "Subheading distribution", status: "ok", detail: "Short post: subheadings optional." });
   } else if (wordsPerHeading <= 300) {
     checks.push({ label: "Subheading distribution", status: "good", detail: "Good use of subheadings." });
   } else if (wordsPerHeading <= 600) {
@@ -280,11 +280,11 @@ function runReadabilityChecks(form: SeoInput): { checks: Check[]; score: number 
 
   // Sentence length (25pts)
   if (avgSentLen <= 20) {
-    checks.push({ label: "Sentence length", status: "good", detail: `Avg ${avgSentLen.toFixed(0)} words/sentence — great.` });
+    checks.push({ label: "Sentence length", status: "good", detail: `Avg ${avgSentLen.toFixed(0)} words/sentence: great.` });
   } else if (avgSentLen <= 25) {
-    checks.push({ label: "Sentence length", status: "ok", detail: `Avg ${avgSentLen.toFixed(0)} words/sentence — slightly long.` });
+    checks.push({ label: "Sentence length", status: "ok", detail: `Avg ${avgSentLen.toFixed(0)} words/sentence: slightly long.` });
   } else {
-    checks.push({ label: "Sentence length", status: "bad", detail: `Avg ${avgSentLen.toFixed(0)} words/sentence — too long.` });
+    checks.push({ label: "Sentence length", status: "bad", detail: `Avg ${avgSentLen.toFixed(0)} words/sentence: too long.` });
   }
 
   // Consecutive sentences (25pts)
@@ -353,7 +353,7 @@ function CheckList({ checks }: { checks: Check[] }) {
 
 // ── Main Panel ────────────────────────────────────────────────────────────────
 
-const inputCls = "w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-gray-400 placeholder:text-gray-400";
+const inputCls = "w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-[0.9375rem] text-zinc-950 placeholder:text-zinc-400 transition";
 
 export default function SeoPanel({ form, onKeyphrase }: Props) {
   const kp = form.seo_keyphrase || "";
@@ -373,8 +373,8 @@ export default function SeoPanel({ form, onKeyphrase }: Props) {
   return (
     <div className="space-y-4">
       {/* Score indicators */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">SEO Score</p>
+      <div className="bg-white rounded-2xl p-5 ring-1 ring-zinc-950/5">
+        <p className="text-xs font-medium text-zinc-500 mb-4">SEO Score</p>
         <div className="flex justify-around">
           <ScoreCircle score={seoScore} label="SEO" />
           <ScoreCircle score={readScore} label="Readability" />
@@ -403,21 +403,21 @@ export default function SeoPanel({ form, onKeyphrase }: Props) {
       </div>
 
       {/* Focus keyphrase */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Focus Keyphrase</p>
+      <div className="bg-white rounded-2xl p-5 ring-1 ring-zinc-950/5 space-y-4">
+        <p className="text-xs font-medium text-zinc-500">Focus Keyphrase</p>
         <input value={kp} onChange={e => onKeyphrase(e.target.value)}
           placeholder="e.g. viral food content" className={inputCls} />
       </div>
 
       {/* SEO Analysis */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">SEO Analysis</p>
+      <div className="bg-white rounded-2xl p-5 ring-1 ring-zinc-950/5">
+        <p className="text-xs font-medium text-zinc-500 mb-4">SEO Analysis</p>
         <CheckList checks={seoChecks} />
       </div>
 
       {/* Readability */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Readability</p>
+      <div className="bg-white rounded-2xl p-5 ring-1 ring-zinc-950/5">
+        <p className="text-xs font-medium text-zinc-500 mb-4">Readability</p>
         <CheckList checks={readChecks} />
       </div>
     </div>

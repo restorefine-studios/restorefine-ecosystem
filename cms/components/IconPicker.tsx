@@ -101,7 +101,7 @@ export default function IconPicker({ value, onChange }: Props) {
             )}
           </div>
           {!search && (
-            <p className="text-[10px] text-gray-400 mb-2 -mt-1">Popular icons — search for more</p>
+            <p className="text-[10px] text-gray-400 mb-2 -mt-1">Popular icons. Search for more.</p>
           )}
           <div className="grid grid-cols-6 gap-1 max-h-56 overflow-y-auto pr-1">
             {filtered.map(name => {
