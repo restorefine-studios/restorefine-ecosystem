@@ -182,7 +182,7 @@ export function RestoExpectation({
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/20 rounded-full blur-2xl" />
             <div className="flex items-center gap-4 relative z-10">
               <Image
-                src={buildingCard.image || "/placeholder.svg?height=80&width=80"}
+                src={buildingCard.image || "/placeholder.svg"}
                 alt="Globe"
                 width={80}
                 height={80}
@@ -211,14 +211,14 @@ export function RestoExpectation({
           >
             <div className="absolute top-5 left-5 flex flex-row items-center gap-3">
               <Image
-                src={supportCard.avatar || "/placeholder.svg?height=80&width=80"}
+                src={supportCard.avatar || "/placeholder.svg"}
                 alt="Communications Support Avatar"
                 width={80}
                 height={80}
                 className="object-contain w-[60px]"
               />
               <Image
-                src={iterationsCard.image || "/placeholder.svg?height=80&width=80"}
+                src={iterationsCard.image || "/placeholder.svg"}
                 alt="Communications Support Text"
                 width={80}
                 height={80}
@@ -242,7 +242,7 @@ export function RestoExpectation({
           >
             <div className="flex items-center justify-center p-0">
               <Image
-                src={supportCard.textImage || "/placeholder.svg?height=80&width=80"}
+                src={supportCard.textImage || "/placeholder.svg"}
                 alt="Resto Iterations Pulse"
                 width={80}
                 height={80}
