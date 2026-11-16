@@ -10,6 +10,8 @@ import {
   toPortfolioItem,
 } from "@/lib/portfolio-cms";
 import { PortfolioStoryClient } from "./PortfolioStoryClient";
+import { V2Shell } from "@/blocks/home-v2";
+import { Footer } from "@/components/footer";
 import type { Metadata } from "next";
 
 const BASE = "https://www.restorefine.co.uk";
@@ -111,12 +113,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   if (project) {
     const idx = portfolioItems.indexOf(project);
     return (
-      <PortfolioStoryClient
-        project={project}
-        prevProject={idx > 0 ? portfolioItems[idx - 1] : null}
-        nextProject={idx < portfolioItems.length - 1 ? portfolioItems[idx + 1] : null}
-        heroBg={project.heroImage ?? project.thumbnail}
-      />
+      <>
+        <V2Shell>
+          <PortfolioStoryClient
+            project={project}
+            prevProject={idx > 0 ? portfolioItems[idx - 1] : null}
+            nextProject={idx < portfolioItems.length - 1 ? portfolioItems[idx + 1] : null}
+            heroBg={project.heroImage ?? project.thumbnail}
+          />
+        </V2Shell>
+        <Footer />
+      </>
     );
   }
 
@@ -130,12 +137,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const idx = merged.findIndex((m) => m.id === cms.slug);
 
   return (
+    <>
+      <V2Shell>
     <PortfolioStoryClient
-      project={item}
-      prevProject={idx > 0 ? merged[idx - 1] : null}
-      nextProject={idx >= 0 && idx < merged.length - 1 ? merged[idx + 1] : null}
-      heroBg={item.heroImage ?? item.thumbnail}
-      cmsProject={cms}
-    />
+          project={item}
+          prevProject={idx > 0 ? merged[idx - 1] : null}
+          nextProject={idx >= 0 && idx < merged.length - 1 ? merged[idx + 1] : null}
+          heroBg={item.heroImage ?? item.thumbnail}
+          cmsProject={cms}
+        />
+      </V2Shell>
+      <Footer />
+    </>
   );
 }

@@ -68,3 +68,7 @@
 
 /* Services showcase progress bar */
 @keyframes v2-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Case studies: older blocks used wide-tracked caps for labels; with caps off (v2-reuse) they read as normal words */
+.v2-case [class*="tracking-["], .v2-case .tracking-widest, .v2-case .tracking-wider { letter-spacing: 0.01em; }
+.v2-case .tracking-tight { letter-spacing: -0.025em; }

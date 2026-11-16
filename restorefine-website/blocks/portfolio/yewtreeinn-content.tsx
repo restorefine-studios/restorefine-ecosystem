@@ -2,6 +2,7 @@ import { Globe, Palette, Share2, Layers } from "lucide-react";
 import { PortfolioBrowserPreview } from "./portfolio-browser-preview";
 import { TableOfContents } from "@/blocks/blog/toc";
 import { ExpandingCta } from "./expanding-cta";
+import { LightHeader, SectionHeading } from "./case-heading";
 
 const services = [
   { label: "Website Development", icon: <Globe size={14} /> },
@@ -56,20 +57,11 @@ const tocItems = [
   { id: "results", label: "Results" },
 ];
 
-function LightHeader({ num, label }: { num: string; label: string }) {
-  return (
-    <div className="flex items-center gap-3 mb-6">
-      <span className="text-red-600 font-black text-xs tracking-widest uppercase">{num}</span>
-      <div className="h-px flex-1 bg-zinc-100" />
-      <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium">{label}</span>
-    </div>
-  );
-}
 
 export function YewTreeInnContent() {
   return (
     <>
-    <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-zinc-100">
+    <div className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
 
       {/* Services */}
       <div className="flex flex-wrap gap-2 mb-12">
@@ -108,11 +100,7 @@ export function YewTreeInnContent() {
 
           {/* Challenges — dark feature block */}
           <div id="challenges" className="bg-zinc-950 rounded-3xl px-8 py-12">
-            <div className="flex items-center gap-3 mb-10">
-              <span className="text-red-500 font-black text-xs tracking-widest uppercase">03</span>
-              <div className="h-px flex-1 bg-zinc-800" />
-              <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 font-medium">The Challenges</span>
-            </div>
+            <SectionHeading num="03" label="The Challenges" dark className="mb-10" />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {challenges.map((c, i) => (
                 <div key={i} className="flex flex-col gap-4 border border-zinc-800 rounded-2xl p-6 hover:border-zinc-700 transition-colors">
@@ -128,11 +116,7 @@ export function YewTreeInnContent() {
 
           {/* Strategy — directly after challenges */}
           <div id="strategy">
-            <div className="flex items-center gap-4 mb-10">
-              <div className="h-px flex-1 bg-zinc-100" />
-              <span className="text-[10px] tracking-[0.35em] uppercase text-zinc-400 font-medium px-3">How We Solved It</span>
-              <div className="h-px flex-1 bg-zinc-100" />
-            </div>
+            <SectionHeading num="03" label="How We Solved It" className="mb-10" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {strategy.map((s, i) => (
                 <div key={i} className="border border-zinc-200 rounded-2xl p-6 hover:border-red-200 hover:bg-red-50/30 transition-colors">

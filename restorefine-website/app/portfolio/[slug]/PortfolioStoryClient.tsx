@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import type { StaticImageData } from "next/image";
-import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
 import type { PortfolioItem } from "@/lib/portfolio";
 import { SaladClubContent } from "@/blocks/portfolio/saladclub-content";
@@ -24,8 +23,9 @@ import { PulpContent } from "@/blocks/portfolio/pulp-content";
 import { SpudKingzContent } from "@/blocks/portfolio/spudkingz-content";
 import { ZaCleaningContent } from "@/blocks/portfolio/za-cleaning-content";
 import { DayTodayContent } from "@/blocks/portfolio/day-today-content";
-import { CmsPortfolioContent } from "@/blocks/portfolio/cms-content";
+import { CmsPortfolioContent, ServicePills } from "@/blocks/portfolio/cms-content";
 import { ParallaxHeroMedia } from "@/blocks/portfolio/case-study-motion";
+import { SectionHeading } from "@/blocks/portfolio/case-heading";
 import type { PortfolioProject } from "@/lib/portfolio-cms";
 
 function getImageSrc(img: string | StaticImageData): string {
@@ -82,125 +82,105 @@ export function PortfolioStoryClient({
     visible: { opacity: 1, transition: { duration: 1.2, ease: "easeOut" } },
   };
 
+  const year = project.date ? new Date(project.date).getFullYear() : NaN;
+  // Under the title: the case study's headline, or its summary when there is no custom block
+  const lead = hasCustomContent ? project.title : project.description;
+  // The title shares the content's container, so both start on the same edge
+  const frame = cmsProject
+    ? "portfolio-content-bleed mx-auto max-w-[104rem] px-6 md:px-12 min-[1201px]:px-0"
+    : "mx-auto max-w-7xl px-6 md:px-12";
+
+  const site = cmsProject?.sections.liveWebsite;
+  const siteUrl = site?.url.trim();
+  const facts: { term: string; value: React.ReactNode }[] = [
+    { term: "Client", value: project.clientName },
+    { term: "Category", value: project.category },
+    ...(!Number.isNaN(year) ? [{ term: "Year", value: String(year) }] : []),
+    ...(siteUrl
+      ? [{
+          term: "Website",
+          value: (
+            <a href={siteUrl} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-1.5 text-zinc-950 underline decoration-zinc-300 underline-offset-4 hover:decoration-red-600">
+              {site!.domain || siteUrl.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
+          ),
+        }]
+      : []),
+  ].filter((f) => f.value);
+
   return (
-    <article className="min-h-screen bg-white">
-      {/* ─── HERO ─── */}
-      <motion.div
+    <article>
+      {/* ─── HERO: the project image on a rounded card, as on the homepage ─── */}
+      <section className="px-2 pt-20 sm:px-3 sm:pt-24">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className={`relative w-full overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] ${
+            isCleanHero ? "aspect-[32/15] max-h-[1200px] bg-zinc-100" : "aspect-[4/3] max-h-[min(80svh,56rem)] bg-zinc-950 sm:aspect-[16/9]"
+          }`}
+        >
+          <motion.div variants={slowFade} className="absolute inset-0">
+            {isCleanHero ? (
+              <ParallaxHeroMedia>
+                <Image src={getImageSrc(heroBg)} alt={project.clientName} fill priority className="object-cover object-center" sizes="100vw" />
+              </ParallaxHeroMedia>
+            ) : (
+              <Image src={getImageSrc(heroBg)} alt={project.clientName} fill priority className="object-contain object-center" sizes="100vw" />
+            )}
+          </motion.div>
+
+          <motion.div variants={fadeInUp} className="absolute left-4 top-4 z-10 sm:left-6 sm:top-6">
+            <Link
+              href="/portfolio"
+              className="group inline-flex items-center gap-2 rounded-full bg-white/90 py-2 pl-3 pr-4 text-sm font-medium text-zinc-950 backdrop-blur-sm transition-colors hover:bg-white"
+            >
+              <ArrowLeft aria-hidden="true" className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+              Portfolio
+            </Link>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ─── TITLE + PROJECT DETAILS ─── */}
+      <motion.header
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className={`relative mt-16 w-full overflow-hidden hero-full-bleed ${
-          isCleanHero
-            ? "aspect-[32/15] max-h-[1200px]"
-            : "min-h-[55vh] md:min-h-[900px] md:max-h-[1100px]"
-        }`}
+        variants={staggerContainer}
+        className={`${frame} grid gap-10 pb-12 pt-10 md:pt-14 lg:grid-cols-12 lg:items-end lg:gap-8`}
       >
-        {/* Background image */}
-        <motion.div variants={slowFade} className="absolute inset-0 z-0">
-          {isCleanHero ? (
-            <ParallaxHeroMedia>
-              <Image
-                src={getImageSrc(heroBg)}
-                alt={project.clientName}
-                fill
-                priority
-                className="object-cover object-center"
-                sizes="100vw"
-              />
-            </ParallaxHeroMedia>
-          ) : (
-            <Image
-              src={getImageSrc(heroBg)}
-              alt={project.clientName}
-              fill
-              priority
-              className="object-contain object-center"
-              sizes="100vw"
-            />
-          )}
-        </motion.div>
-
-        {/* Dark gradient overlay */}
-        {!isCleanHero && <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/85 via-black/30 to-black/20" />}
-
-        {/* Back button */}
-        <motion.div variants={fadeInUp} className="absolute top-8 left-8 z-20">
-          <Link
-            href="/portfolio"
-            className={`inline-flex items-center gap-2 transition-colors duration-300 group ${isCleanHero ? "text-zinc-700 hover:text-zinc-900" : "text-white/70 hover:text-white"}`}
-          >
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm tracking-wide">Back</span>
-          </Link>
-        </motion.div>
-
-        {/* Hero bottom bar */}
-        {!isCleanHero && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 px-8 pb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-2">
-            <motion.h1
-              variants={fadeInUp}
-              className="font-black uppercase text-white leading-none tracking-tight"
-              style={{ fontSize: "clamp(1.8rem, 5vw, 6rem)" }}
-            >
-              {project.clientName}
-            </motion.h1>
-            <motion.p
-              variants={fadeInUp}
-              className="text-white/80 text-sm max-w-sm text-right leading-snug shrink-0"
-            >
-              {project.title}
+        <div className="lg:col-span-7">
+          <motion.h1 variants={fadeInUp} className="v2-display text-zinc-950">
+            {project.clientName}
+          </motion.h1>
+          {lead && lead !== project.clientName && (
+            <motion.p variants={fadeInUp} className="v2-lead mt-5 max-w-[52ch] text-zinc-600">
+              {lead}
             </motion.p>
-          </div>
-        )}
-
-        {/* Category pill */}
-        {!isCleanHero && (
-          <motion.div variants={fadeInUp} className="absolute top-8 right-8 z-20">
-            <span className="text-[10px] tracking-[0.25em] uppercase text-white/60 font-medium border border-white/20 rounded-full px-3 py-1">
-              {project.category}
-            </span>
-          </motion.div>
-        )}
-      </motion.div>
-
-      {/* ─── CONTENT ─── */}
-      <div className="bg-white">
-        {/* ── Project intro strip ── */}
-        {!isCleanHero && <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-10%" }}
-          variants={staggerContainer}
-          className="border-b border-zinc-100"
-        >
-          <div className="max-w-7xl mx-auto px-6 md:px-12 py-14 md:py-20 flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
-            <div>
-              <motion.p variants={fadeInUp} className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium mb-3">
-                {project.category}
-              </motion.p>
-              <motion.h2
-                variants={fadeInUp}
-                className="font-black uppercase text-zinc-950 leading-none tracking-tight"
-                style={{ fontSize: "clamp(2rem, 5vw, 4rem)" }}
-              >
-                {project.clientName}
-              </motion.h2>
-              {/* Contentful-fetched description: hidden when hardcoded content block exists */}
-              {!hasCustomContent && (
-                <motion.p variants={fadeInUp} className="mt-4 text-zinc-500 text-sm md:text-base leading-relaxed max-w-xl">
-                  {project.description}
-                </motion.p>
-              )}
-            </div>
-            <motion.div variants={fadeInUp} className="shrink-0 text-right">
-              <p className="text-[10px] tracking-[0.25em] uppercase text-zinc-400 font-medium mb-1">Year</p>
-              <p className="text-2xl font-black text-red-600">
-                {new Date(project.date).getFullYear()}
-              </p>
+          )}
+          {/* Services sit under the lead, so the facts column stays as tall as the title */}
+          {cmsProject && cmsProject.services.length > 0 && (
+            <motion.div variants={fadeInUp} className="mt-8">
+              <ServicePills services={cmsProject.services} />
             </motion.div>
-          </div>
-        </motion.div>}
+          )}
+        </div>
 
+        {/* Every row comes from the project's data; a row with nothing to show is left out */}
+        <motion.dl variants={fadeInUp} className="border-t border-dashed border-zinc-300 lg:col-span-5 lg:col-start-8">
+          {facts.map((f) => (
+            <div key={f.term} className="grid grid-cols-[7rem_minmax(0,1fr)] items-baseline gap-4 border-b border-dashed border-zinc-300 py-3.5">
+              <dt className="v2-small pt-0.5 text-zinc-500">{f.term}</dt>
+              <dd className="v2-body text-zinc-950">{f.value}</dd>
+            </div>
+          ))}
+        </motion.dl>
+      </motion.header>
+
+      {/* ─── CONTENT: older blocks take the homepage type through v2-reuse ─── */}
+      <div className="v2-reuse v2-case">
         {/* ── CMS-authored content ── */}
         {cmsProject && <CmsPortfolioContent project={cmsProject} />}
 
@@ -223,175 +203,125 @@ export function PortfolioStoryClient({
         {project.id === "day-today-tiktok-marketing-case-study" && <DayTodayContent />}
         {project.id === "za-cleaning" && <ZaCleaningContent />}
 
-        {/* Challenge + Solution - hidden when hardcoded content block exists */}
+        {/* Challenge + Solution: only for projects without a custom block */}
         {!hasCustomContent && (project.challenge || project.solution) && (
-          <div className="border-b border-zinc-100">
-            <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-24">
-              {project.challenge && (
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-14 px-6 py-16 md:grid-cols-2 md:gap-24 md:px-12 md:py-24">
+            {[
+              { num: "01", label: "The Challenge", text: project.challenge },
+              { num: "02", label: "The Solution", text: project.solution },
+            ]
+              .filter((b) => b.text)
+              .map((b) => (
+                <motion.div key={b.num} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-10%" }} variants={staggerContainer}>
+                  <motion.div variants={fadeInUp}>
+                    <SectionHeading num={b.num} label={b.label} />
+                  </motion.div>
+                  <motion.p variants={fadeInUp} className="v2-body text-zinc-600">
+                    {b.text}
+                  </motion.p>
+                </motion.div>
+              ))}
+          </div>
+        )}
+
+        {/* Image gallery: skipped when there are no assets */}
+        {project.images.length > 0 && (
+          <div className="mx-auto max-w-7xl px-6 py-16 md:px-12 md:py-20">
+            <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="v2-h2 mb-10 text-zinc-950">
+              Project <span className="text-zinc-400">Assets</span>
+            </motion.h2>
+            <div className="space-y-4">
+              {project.images.map((image, index) => (
                 <motion.div
+                  key={index}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: "-10%" }}
-                  variants={staggerContainer}
+                  variants={fadeInUp}
+                  className="relative w-full overflow-hidden rounded-[1.5rem] bg-zinc-100"
+                  style={{ aspectRatio: "16/9" }}
                 >
-                  <motion.div variants={fadeInUp} className="flex items-center gap-3 mb-6">
-                    <span className="text-red-600 font-black text-xs tracking-widest uppercase">01</span>
-                    <div className="h-px flex-1 bg-zinc-100" />
-                  </motion.div>
-                  <motion.p variants={fadeInUp} className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium mb-4">
-                    The Challenge
-                  </motion.p>
-                  <motion.p variants={fadeInUp} className="text-zinc-600 text-sm md:text-base leading-relaxed">
-                    {project.challenge}
-                  </motion.p>
+                  <Image
+                    src={image}
+                    alt={`${project.title} ${index + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-700 hover:scale-[1.02]"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1400px) 90vw, 1400px"
+                    loading={index === 0 ? "eager" : "lazy"}
+                  />
                 </motion.div>
-              )}
-              {project.solution && (
-                <motion.div
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: "-10%" }}
-                  variants={staggerContainer}
-                >
-                  <motion.div variants={fadeInUp} className="flex items-center gap-3 mb-6">
-                    <span className="text-red-600 font-black text-xs tracking-widest uppercase">02</span>
-                    <div className="h-px flex-1 bg-zinc-100" />
-                  </motion.div>
-                  <motion.p variants={fadeInUp} className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium mb-4">
-                    The Solution
-                  </motion.p>
-                  <motion.p variants={fadeInUp} className="text-zinc-600 text-sm md:text-base leading-relaxed">
-                    {project.solution}
-                  </motion.p>
-                </motion.div>
-              )}
+              ))}
             </div>
           </div>
         )}
 
-        {/* Image gallery - skipped entirely when there are no assets, so the
-             "Project Assets" label never appears over an empty space */}
-        {project.images.length > 0 && (
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-20">
-          <motion.p
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium mb-10"
-          >
-            Project Assets
-          </motion.p>
-          <div className="space-y-5">
-            {project.images.map((image, index) => (
-              <motion.div
-                key={index}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-10%" }}
-                variants={fadeInUp}
-                className="relative w-full overflow-hidden rounded-2xl bg-zinc-100 shadow-sm"
-                style={{ aspectRatio: "16/9" }}
-              >
-                <Image
-                  src={image}
-                  alt={`${project.title} ${index + 1}`}
-                  fill
-                  className="object-cover transition-transform duration-700 hover:scale-[1.02]"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1400px) 90vw, 1400px"
-                  loading={index === 0 ? "eager" : "lazy"}
-                />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-        )}
-
-        {/* Outcome block - hidden when hardcoded content block exists */}
+        {/* Outcome: only for projects without a custom block */}
         {!hasCustomContent && project.outcome && (
-          <div className="border-t border-zinc-100">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-15%" }}
-              variants={staggerContainer}
-              className="max-w-4xl mx-auto px-6 md:px-12 py-20 md:py-28 text-center"
-            >
-              <motion.div variants={fadeInUp} className="flex items-center justify-center gap-4 mb-8">
-                <div className="h-px w-16 bg-zinc-200" />
-                <span className="text-red-600 font-black text-xs tracking-widest uppercase">03</span>
-                <div className="h-px w-16 bg-zinc-200" />
-              </motion.div>
-              <motion.p variants={fadeInUp} className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium mb-6">
-                The Outcome
-              </motion.p>
-              <motion.p variants={fadeInUp} className="text-zinc-700 text-base md:text-xl leading-relaxed font-light">
-                {project.outcome}
-              </motion.p>
-            </motion.div>
-          </div>
-        )}
-
-        {/* ── Prev / Next navigation ── */}
-        <div className="border-t-2 border-red-900">
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="max-w-7xl mx-auto px-6 md:px-12 py-14 flex flex-col sm:flex-row justify-between items-center gap-10"
+            viewport={{ once: true, margin: "-15%" }}
+            variants={staggerContainer}
+            className="mx-auto max-w-4xl px-6 py-20 md:px-12 md:py-28"
           >
-            {/* Prev */}
-            {prevProject ? (
-              <Link href={`/portfolio/${prevProject.id}`} className="group flex items-center gap-4 text-left">
-                <div className="w-9 h-9 rounded-full border border-zinc-200 group-hover:border-red-500 flex items-center justify-center transition-colors shrink-0">
-                  <ArrowLeft className="w-4 h-4 text-zinc-400 group-hover:text-red-600 transition-all group-hover:-translate-x-0.5" />
-                </div>
-                <div>
-                  <p className="text-[9px] tracking-[0.3em] uppercase text-zinc-400 mb-0.5">Previous Project</p>
-                  <p className="text-sm font-black uppercase text-zinc-900 group-hover:text-red-600 transition-colors leading-none">
-                    {prevProject.clientName}
-                  </p>
-                </div>
-              </Link>
-            ) : (
-              <div />
-            )}
-
-            {/* Centre CTA */}
-            <Link href="/portfolio" className="group flex flex-col items-center gap-1 text-center shrink-0">
-              <span className="text-[9px] tracking-[0.35em] uppercase text-zinc-400 font-medium">Browse</span>
-              <span
-                className="flex items-center gap-2 font-black uppercase text-zinc-950 group-hover:text-red-600 transition-colors"
-                style={{ fontSize: "clamp(1rem, 2vw, 1.35rem)" }}
-              >
-                Our Portfolio
-                <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-              </span>
-              <div className="h-0.5 w-0 bg-red-600 group-hover:w-full transition-all duration-300 rounded-full" />
-            </Link>
-
-            {/* Next */}
-            {nextProject ? (
-              <Link href={`/portfolio/${nextProject.id}`} className="group flex items-center gap-4 text-right">
-                <div>
-                  <p className="text-[9px] tracking-[0.3em] uppercase text-zinc-400 mb-0.5">Next Project</p>
-                  <p className="text-sm font-black uppercase text-zinc-900 group-hover:text-red-600 transition-colors leading-none">
-                    {nextProject.clientName}
-                  </p>
-                </div>
-                <div className="w-9 h-9 rounded-full border border-zinc-200 group-hover:border-red-500 flex items-center justify-center transition-colors shrink-0">
-                  <ArrowRight className="w-4 h-4 text-zinc-400 group-hover:text-red-600 transition-all group-hover:translate-x-0.5" />
-                </div>
-              </Link>
-            ) : (
-              <div />
-            )}
+            <motion.div variants={fadeInUp}>
+              <SectionHeading num="03" label="The Outcome" />
+            </motion.div>
+            <motion.p variants={fadeInUp} className="v2-statement text-zinc-950">
+              {project.outcome}
+            </motion.p>
           </motion.div>
-        </div>
+        )}
       </div>
 
-      <Footer />
+      {/* ─── PREV / NEXT: a grey rounded panel, like the homepage's Businesses section ─── */}
+      <nav aria-label="More projects" className="px-2 py-3 sm:px-3">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="rounded-[1.75rem] bg-zinc-100 py-12 sm:rounded-[2rem] lg:py-16"
+        >
+          <div className="v2-wrap grid items-center gap-8 sm:grid-cols-3">
+            {prevProject ? (
+              <Link href={`/portfolio/${prevProject.id}`} className="group flex items-center gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-zinc-950 transition-colors group-hover:bg-zinc-950 group-hover:text-white">
+                  <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                </span>
+                <span>
+                  <span className="v2-small block text-zinc-500">Previous project</span>
+                  <span className="v2-h3 block text-zinc-950">{prevProject.clientName}</span>
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
+
+            <Link
+              href="/portfolio"
+              className="group mx-auto inline-flex items-center gap-2 rounded-full bg-zinc-950 py-3 pl-6 pr-5 text-[0.9375rem] font-medium text-white transition-colors hover:bg-red-600"
+            >
+              All projects
+              <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+
+            {nextProject ? (
+              <Link href={`/portfolio/${nextProject.id}`} className="group flex items-center justify-end gap-4 text-right">
+                <span>
+                  <span className="v2-small block text-zinc-500">Next project</span>
+                  <span className="v2-h3 block text-zinc-950">{nextProject.clientName}</span>
+                </span>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-zinc-950 transition-colors group-hover:bg-zinc-950 group-hover:text-white">
+                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
+          </div>
+        </motion.div>
+      </nav>
     </article>
   );
 }

@@ -4,6 +4,7 @@ import { TableOfContents } from "@/blocks/blog/toc";
 import { AnimatedBuiltNumber } from "./animated-built-number";
 import { AnimatedStepsCard } from "./animated-steps-card";
 import { ExpandingCta } from "./expanding-cta";
+import { SectionHeading } from "./case-heading";
 
 const { client, problem, realisation, strategy, whatWeBuilt, results, cta } = caseStudy;
 
@@ -23,21 +24,13 @@ const tocItems = [
   { id: "results", label: "Results" },
 ];
 
-function SectionHeader({ num, label }: { num: string; label: string }) {
-  return (
-    <div className="flex items-center gap-3 mb-6">
-      <span className="text-red-600 font-black text-xs tracking-widest uppercase">{num}</span>
-      <div className="h-px flex-1 bg-zinc-100" />
-      <span className="text-sm tracking-[0.3em] uppercase text-red-600 font-black">{label}</span>
-    </div>
-  );
-}
+const SectionHeader = SectionHeading;
 
 export function ZaCleaningContent() {
   return (
     <>
 
-    <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-zinc-100">
+    <div className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
       {/* Service tag + coverage — full width */}
       <div className="flex flex-wrap gap-2 mb-10">
         <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 border border-red-200 text-xs font-medium text-red-700">
@@ -89,11 +82,7 @@ export function ZaCleaningContent() {
 
           {/* 03 — The Realisation */}
           <div id="realisation" className="bg-zinc-950 rounded-3xl px-8 py-12">
-            <div className="flex items-center gap-3 mb-10">
-              <span className="text-red-500 font-black text-xs tracking-widest uppercase">03</span>
-              <div className="h-px flex-1 bg-zinc-800" />
-              <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 font-medium">The Realisation</span>
-            </div>
+            <SectionHeading num="03" label="The Realisation" dark className="mb-10" />
             <p className="text-zinc-300 text-base leading-relaxed max-w-2xl mb-8">{realisation.summary}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
               {realisation.customerQuestions.map((q, i) => (

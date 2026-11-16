@@ -8,6 +8,7 @@ import { AnimatedStatValue } from "./animated-stat-value";
 import { TableOfContents, type TocItem } from "@/blocks/blog/toc";
 import { FaqAccordion } from "@/blocks/blog/faq-accordion";
 import { jsonLd } from "@/lib/utils";
+import { LightHeader, SectionHeading } from "./case-heading";
 import {
   normaliseSectionOrder,
   SECTION_LABELS,
@@ -39,15 +40,6 @@ function isChartTileVisible(t: ChartTile): boolean {
       (t.series ?? []).some((sr) => sr.name.trim() || sr.values.some((v) => v.trim()));
 }
 
-function LightHeader({ num, label }: { num: string; label: string }) {
-  return (
-    <div className="flex items-center gap-3 mb-6">
-      <span className="text-red-600 font-black text-xs tracking-widest uppercase">{num}</span>
-      <div className="h-px flex-1 bg-zinc-100" />
-      <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium">{label}</span>
-    </div>
-  );
-}
 
 export function CmsPortfolioContent({ project }: { project: PortfolioProject }) {
   const s = project.sections;
@@ -154,15 +146,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
 
     challenges: isVisible("challenges") && (
       <div id={SECTION_IDS.challenges} key="challenges" className="bg-zinc-950 rounded-3xl px-8 py-12">
-        <div className="flex items-center gap-3 mb-10">
-          <span className="text-red-500 font-black text-xs tracking-widest uppercase">
-            {numberFor("challenges")}
-          </span>
-          <div className="h-px flex-1 bg-zinc-800" />
-          <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 font-medium">
-            {labelFor("challenges")}
-          </span>
-        </div>
+        <SectionHeading num={numberFor("challenges")} label={labelFor("challenges")} dark className="mb-10" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {s.challenges.items
             .filter((c) => c.title.trim() || c.description.trim())
@@ -184,13 +168,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
 
     strategy: isVisible("strategy") && (
       <div id={SECTION_IDS.strategy} key="strategy">
-        <div className="flex items-center gap-4 mb-10">
-          <div className="h-px flex-1 bg-zinc-100" />
-          <span className="text-[10px] tracking-[0.35em] uppercase text-zinc-400 font-medium px-3">
-            {labelFor("strategy")}
-          </span>
-          <div className="h-px flex-1 bg-zinc-100" />
-        </div>
+        <SectionHeading num={numberFor("strategy")} label={labelFor("strategy")} className="mb-10" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {s.strategy.groups
             .filter((g) => g.title.trim() || g.items.some((i) => i.trim()))
@@ -350,27 +328,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }} />
       )}
 
-      <div className="portfolio-content-bleed max-w-[104rem] mx-auto py-16 border-t border-zinc-100">
-
-        {/* Services */}
-        {project.services.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-12">
-            {project.services.map((service, i) => {
-              const Icon = service.icon
-                ? (LucideIcons[service.icon as keyof typeof LucideIcons] as LucideIcon | undefined)
-                : undefined;
-              return (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-medium text-zinc-700"
-                >
-                  {Icon && <Icon size={14} />}
-                  {service.label}
-                </span>
-              );
-            })}
-          </div>
-        )}
+      <div className="portfolio-content-bleed max-w-[104rem] mx-auto px-6 md:px-12 min-[1201px]:px-0 pb-16">
 
         <div className="grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)] gap-x-8 xl:gap-x-12">
           <TableOfContents title="Case Study" items={tocItems} />
@@ -389,5 +347,24 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         body={project.cta_body || "Get in touch and let's build something exceptional together."}
       />
     </>
+  );
+}
+
+/** The CMS service pills, shown in the case study's project-details panel */
+export function ServicePills({ services }: { services: PortfolioProject["services"] }) {
+  return (
+    <span className="flex flex-wrap gap-2">
+      {services.map((service, i) => {
+        const Icon = service.icon
+          ? (LucideIcons[service.icon as keyof typeof LucideIcons] as LucideIcon | undefined)
+          : undefined;
+        return (
+          <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700">
+            {Icon && <Icon size={14} aria-hidden="true" />}
+            {service.label}
+          </span>
+        );
+      })}
+    </span>
   );
 }

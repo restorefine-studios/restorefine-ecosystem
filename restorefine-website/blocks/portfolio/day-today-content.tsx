@@ -2,6 +2,7 @@ import { caseStudy } from "@/lib/clients/day-today";
 import { TableOfContents } from "@/blocks/blog/toc";
 import { AnimatedBuiltNumber } from "./animated-built-number";
 import { ExpandingCta } from "./expanding-cta";
+import { LightHeader } from "./case-heading";
 
 const { client, problem, strategy, whatWeBuilt, results, whyItWorked, conclusion, cta } = caseStudy;
 
@@ -16,20 +17,11 @@ const tocItems = [
   { id: "conclusion", label: "Conclusion" },
 ];
 
-function LightHeader({ num, label }: { num: string; label: string }) {
-  return (
-    <div className="flex items-center gap-3 mb-6">
-      <span className="text-red-600 font-black text-xs tracking-widest uppercase">{num}</span>
-      <div className="h-px flex-1 bg-zinc-100" />
-      <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-medium">{label}</span>
-    </div>
-  );
-}
 
 export function DayTodayContent() {
   return (
     <>
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-zinc-100">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pb-16">
 
         {/* Services + focus tags */}
         <div className="flex flex-wrap gap-2 mb-12">
@@ -136,10 +128,8 @@ export function DayTodayContent() {
 
             {/* 06 — Client Reaction */}
             <div id="client-reaction" className="bg-red-600 rounded-3xl px-8 py-12">
-              <div className="flex items-center gap-3 mb-10">
-                <span className="text-white font-black text-xs tracking-widest uppercase">06</span>
-                <div className="h-px flex-1 bg-red-500" />
-                <span className="text-[10px] tracking-[0.3em] uppercase text-red-200 font-medium">Client Reaction</span>
+              <div className="mb-10 border-t border-dashed border-white/30 pt-6">
+                <h2 className="v2-title-xl text-white">Client Reaction</h2>
               </div>
               <p className="text-red-100 text-sm leading-relaxed mb-8">{results.clientReaction.intro}</p>
               <div className="flex mb-8">
