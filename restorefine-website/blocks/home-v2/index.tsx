@@ -194,7 +194,7 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
               <p className="v2-lead text-white/75">{hero.body}</p>
               {hero.more && <p className="v2-body mt-4 text-white/60">{hero.more}</p>}
             </div>
-            <div className="lg:col-span-5 lg:col-start-8 lg:-mr-4 lg:w-fit lg:max-w-[40rem] lg:justify-self-end 2xl:-mr-10">
+            <div className="lg:col-span-5 lg:col-start-8 lg:-mr-4 lg:w-fit lg:max-w-[34rem] lg:justify-self-end 2xl:-mr-10">
               <p className="v2-h3 text-white/90">
                 {offer.slice(0, -1).join(", ")}
                 <br />
@@ -202,8 +202,7 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <EnquireAction {...ctas.enquire} />
-                <WhatsAppAction {...ctas.whatsapp} />
-                <CallAction {...ctas.call} />
+                <CallAction {...ctas.call} tone="white" />
               </div>
             </div>
           </div>

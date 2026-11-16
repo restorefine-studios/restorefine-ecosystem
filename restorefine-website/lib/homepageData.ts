@@ -22,7 +22,7 @@ export const homeContent = {
   ctas: {
     enquire: { label: "Enquire Now", href: "/enquire-now" },
     whatsapp: { label: "Chat on WhatsApp", href: WHATSAPP_HREF },
-    call: { label: `Call ${PHONE_DISPLAY}`, href: PHONE_HREF },
+    call: { label: `Call us ${PHONE_DISPLAY}`, href: PHONE_HREF },
   },
 
   hero: {
