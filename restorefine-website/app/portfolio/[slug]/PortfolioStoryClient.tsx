@@ -40,6 +40,8 @@ interface PortfolioStoryClientProps {
   heroBg: string | StaticImageData;
   /** Set when the project comes from the CMS rather than the hardcoded array. */
   cmsProject?: PortfolioProject | null;
+  /** View counts for the CMS project's TikToks, by video id. */
+  tiktokViews?: Record<string, number | null>;
 }
 
 // Projects with hardcoded content blocks: skip Contentful-fetched description/challenge/outcome
@@ -57,6 +59,7 @@ export function PortfolioStoryClient({
   nextProject,
   heroBg,
   cmsProject = null,
+  tiktokViews,
 }: PortfolioStoryClientProps) {
   // CMS projects always bring their own content block and use the clean hero
   const hasCustomContent = !!cmsProject || CUSTOM_CONTENT_IDS.includes(project.id);
@@ -182,7 +185,7 @@ export function PortfolioStoryClient({
       {/* ─── CONTENT: older blocks take the homepage type through v2-reuse ─── */}
       <div className="v2-reuse v2-case">
         {/* ── CMS-authored content ── */}
-        {cmsProject && <CmsPortfolioContent project={cmsProject} />}
+        {cmsProject && <CmsPortfolioContent project={cmsProject} tiktokViews={tiktokViews} />}
 
         {/* ── Custom per-project content ── */}
         {project.id === "saladclub" && <SaladClubContent />}

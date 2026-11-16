@@ -7,8 +7,10 @@ import {
   getPortfolioProject,
   getPortfolioProjects,
   getPortfolioSlugs,
+  parseTikTokUrl,
   toPortfolioItem,
 } from "@/lib/portfolio-cms";
+import { getTikTokViews } from "@/lib/tiktok-videos";
 import { PortfolioStoryClient } from "./PortfolioStoryClient";
 import { V2Shell } from "@/blocks/home-v2";
 import { Footer } from "@/components/footer";
@@ -136,6 +138,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const item = toPortfolioItem(cms);
   const idx = merged.findIndex((m) => m.id === cms.slug);
 
+  // View counts for the TikTok section, read from TikTok here on the server (cached six hours)
+  const tiktoks = cms.sections.tiktok.enabled
+    ? cms.sections.tiktok.videos.map((v) => parseTikTokUrl(v.url)).filter((v) => v !== null)
+    : [];
+  const counts = await Promise.all(tiktoks.map((v) => getTikTokViews({ ...v, client: "" })));
+  const tiktokViews = Object.fromEntries(tiktoks.map((v, i) => [v.id, counts[i]]));
+
   return (
     <>
       <V2Shell>
@@ -145,6 +154,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           nextProject={idx >= 0 && idx < merged.length - 1 ? merged[idx + 1] : null}
           heroBg={item.heroImage ?? item.thumbnail}
           cmsProject={cms}
+          tiktokViews={tiktokViews}
         />
       </V2Shell>
       <Footer />

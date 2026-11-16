@@ -12,10 +12,17 @@ import { LightHeader, SectionHeading } from "./case-heading";
 import {
   normaliseSectionOrder,
   SECTION_LABELS,
+  imageKey,
+  isImageKey,
+  parseTikTokUrl,
   type ChartTile,
+  type ImageBlock,
+  type OrderKey,
   type PortfolioProject,
   type SectionKey,
 } from "@/lib/portfolio-cms";
+import { ArrowUpRight } from "lucide-react";
+import { TikTokCard } from "@/blocks/service-v2/tiktok-card";
 
 const BASE = "https://www.restorefine.co.uk";
 
@@ -29,7 +36,14 @@ const SECTION_IDS: Record<SectionKey, string> = {
   results: "results",
   stats: "stats",
   charts: "charts",
+  tiktok: "tiktok",
   faq: "faqs",
+};
+
+const IMAGE_GRID: Record<ImageBlock["layout"], string> = {
+  full: "grid-cols-1",
+  two: "grid-cols-1 sm:grid-cols-2",
+  three: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
 };
 
 /** Whether a charts-section tile has enough content to render. */
@@ -41,14 +55,38 @@ function isChartTileVisible(t: ChartTile): boolean {
 }
 
 
-export function CmsPortfolioContent({ project }: { project: PortfolioProject }) {
+export function CmsPortfolioContent({
+  project,
+  tiktokViews = {},
+}: {
+  project: PortfolioProject;
+  /** View counts by TikTok video id, read on the server. Missing ids show no count. */
+  tiktokViews?: Record<string, number | null>;
+}) {
   const s = project.sections;
+
+  // TikToks with a usable link, most-viewed first; a video without a count goes last
+  const tiktoks = s.tiktok.videos
+    .map((v) => {
+      const parsed = parseTikTokUrl(v.url);
+      return parsed ? { video: { ...parsed, client: v.client.trim() || `@${parsed.handle}` }, views: tiktokViews[parsed.id] ?? null } : null;
+    })
+    .filter((v): v is NonNullable<typeof v> => v !== null)
+    .sort((a, b) => (b.views ?? -1) - (a.views ?? -1));
+
+  const imageBlocks = new Map(
+    s.imageBlocks
+      .map((b) => ({ ...b, items: b.items.filter((i) => i.src.trim()) }))
+      .filter((b) => b.items.length > 0)
+      .map((b) => [imageKey(b.id), b] as const)
+  );
 
   /**
    * A section shows only when it's switched on *and* has something to show.
    * A toggled-on but empty section would otherwise render a bare header.
    */
-  const isVisible = (key: SectionKey): boolean => {
+  const isVisible = (key: OrderKey): boolean => {
+    if (isImageKey(key)) return imageBlocks.has(key);
     if (!s[key].enabled) return false;
     switch (key) {
       case "overview":
@@ -67,20 +105,24 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         return s.stats.items.some((i) => i.value.trim() || i.label.trim());
       case "charts":
         return s.charts.items.some(isChartTileVisible);
+      case "tiktok":
+        return tiktoks.length > 0;
       case "faq":
         return s.faq.items.some((f) => f.question.trim() && f.answer.trim());
     }
   };
 
-  const order = normaliseSectionOrder(project.section_order);
+  const order = normaliseSectionOrder(project.section_order, s.imageBlocks);
   const visible = order.filter(isVisible);
   const labelFor = (key: SectionKey) => s[key].label?.trim() || SECTION_LABELS[key];
   const numberFor = (key: SectionKey) => String(visible.indexOf(key) + 1).padStart(2, "0");
 
-  const tocItems: TocItem[] = visible.map((key) => ({
-    id: SECTION_IDS[key],
-    label: labelFor(key),
-  }));
+  // Image blocks only join the contents list when they carry a heading
+  const tocItems: TocItem[] = visible.flatMap((key) => {
+    if (!isImageKey(key)) return [{ id: SECTION_IDS[key], label: labelFor(key) }];
+    const heading = imageBlocks.get(key)?.heading?.trim();
+    return heading ? [{ id: `images-${key.slice(6)}`, label: heading }] : [];
+  });
 
   const faqs = s.faq.items.filter((f) => f.question.trim() && f.answer.trim());
 
@@ -312,6 +354,33 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
       </div>
     ),
 
+    tiktok: isVisible("tiktok") && (
+      <div id={SECTION_IDS.tiktok} key="tiktok">
+        <LightHeader num={numberFor("tiktok")} label={labelFor("tiktok")} />
+        {s.tiktok.intro.trim() && (
+          <p className="mb-8 max-w-[68rem] whitespace-pre-line text-base leading-relaxed text-zinc-600">{s.tiktok.intro}</p>
+        )}
+        {/* The same cards as the Content page's rail, scrolling sideways inside the column */}
+        <ul tabIndex={0} aria-label={labelFor("tiktok")} className="v2-rail v2-rail--bar flex gap-3 overflow-x-auto">
+          {tiktoks.map(({ video, views }) => (
+            <li key={video.id} className="w-[72vw] shrink-0 sm:w-[38vw] lg:w-[19rem]">
+              <TikTokCard video={video} views={views} />
+            </li>
+          ))}
+        </ul>
+        {s.tiktok.ctaLabel.trim() && s.tiktok.ctaHref.trim() && (
+          <a
+            href={s.tiktok.ctaHref.trim()}
+            {...(/^https?:\/\//i.test(s.tiktok.ctaHref.trim()) ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            className="group mt-8 inline-flex items-center gap-2 rounded-full bg-zinc-950 py-3 pl-6 pr-5 text-[0.9375rem] font-medium text-white no-underline transition-colors hover:bg-red-600"
+          >
+            {s.tiktok.ctaLabel.trim()}
+            <ArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+        )}
+      </div>
+    ),
+
     faq: isVisible("faq") && (
       <div id={SECTION_IDS.faq} key="faq">
         <LightHeader num={numberFor("faq")} label={labelFor("faq")} />
@@ -335,7 +404,7 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
           <div className="space-y-16">
             {visible.map((key, i) => (
               <RevealBlock key={key} delay={Math.min(i, 5) * 0.04}>
-                {sectionBlocks[key]}
+                {isImageKey(key) ? <ImageBlockView block={imageBlocks.get(key)!} /> : sectionBlocks[key]}
               </RevealBlock>
             ))}
           </div>
@@ -347,6 +416,34 @@ export function CmsPortfolioContent({ project }: { project: PortfolioProject }) 
         body={project.cta_body || "Get in touch and let's build something exceptional together."}
       />
     </>
+  );
+}
+
+/**
+ * A CMS image block. Images keep their own proportions (nothing is cropped), so
+ * they are plain img tags: the CMS doesn't store sizes for next/image to use.
+ */
+function ImageBlockView({ block }: { block: ImageBlock }) {
+  const heading = block.heading?.trim();
+  return (
+    <div id={`images-${block.id}`}>
+      {heading && <SectionHeading label={heading} />}
+      <div className={`grid items-start gap-4 ${IMAGE_GRID[block.layout] ?? IMAGE_GRID.full}`}>
+        {block.items.map((item, i) => (
+          <figure key={item.src + i}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.src}
+              alt={item.alt || `${heading || "Project image"} ${i + 1}`}
+              loading="lazy"
+              decoding="async"
+              className="h-auto w-full rounded-[1.5rem] bg-zinc-100"
+            />
+            {item.caption?.trim() && <figcaption className="v2-small mt-3 px-1 text-zinc-500">{item.caption}</figcaption>}
+          </figure>
+        ))}
+      </div>
+    </div>
   );
 }
 
