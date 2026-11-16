@@ -7,7 +7,6 @@ import type { StaticImageData } from "next/image";
 import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
 import type { PortfolioItem } from "@/lib/portfolio";
-import { ItsPadelContent } from "@/blocks/portfolio/itspadel-content";
 import { SaladClubContent } from "@/blocks/portfolio/saladclub-content";
 import { YewTreeInnContent } from "@/blocks/portfolio/yewtreeinn-content";
 import { QuiknestContent } from "@/blocks/portfolio/quiknest-content";
@@ -45,7 +44,7 @@ interface PortfolioStoryClientProps {
 
 // Projects with hardcoded content blocks: skip Contentful-fetched description/challenge/outcome
 const CUSTOM_CONTENT_IDS = [
-  "itspadel", "yewtreeinn", "primewash", "saladclub",
+  "yewtreeinn", "primewash", "saladclub",
   "quiknest", "masala-moves-by-luna-shree", "big-bites", "everest-inn",
   "firangi", "gurhkaexpress", "himalayandineinn", "indianbynature",
   "mannis", "momohub", "ourhq", "pulp", "spudkingz", "za-cleaning",
@@ -61,7 +60,7 @@ export function PortfolioStoryClient({
 }: PortfolioStoryClientProps) {
   // CMS projects always bring their own content block and use the clean hero
   const hasCustomContent = !!cmsProject || CUSTOM_CONTENT_IDS.includes(project.id);
-  const isCleanHero = !!cmsProject || project.id === "za-cleaning" || project.id === "itspadel" || project.id === "masala-moves-by-luna-shree" || project.id === "day-today-tiktok-marketing-case-study";
+  const isCleanHero = !!cmsProject || project.id === "za-cleaning" || project.id === "masala-moves-by-luna-shree" || project.id === "day-today-tiktok-marketing-case-study";
   // Animation Variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 40 },
@@ -206,7 +205,6 @@ export function PortfolioStoryClient({
         {cmsProject && <CmsPortfolioContent project={cmsProject} />}
 
         {/* ── Custom per-project content ── */}
-        {project.id === "itspadel" && <ItsPadelContent />}
         {project.id === "saladclub" && <SaladClubContent />}
         {project.id === "yewtreeinn" && <YewTreeInnContent />}
         {project.id === "quiknest" && <QuiknestContent />}

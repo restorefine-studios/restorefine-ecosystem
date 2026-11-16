@@ -28,7 +28,6 @@ export interface ClientCard {
 export const clients: ClientCard[] = [
   { id: "day-today", name: "Day-Today", category: "Media", logo: "/clients/day-today.svg", logoType: "svg", cardColor: "bg-[#000000]", portfolioId: "day-today-tiktok-marketing-case-study" },
   { id: "za-cleaning", name: "Za Cleaning", category: "Branding", logo: "/za-cleaning.svg", logoType: "svg", cardColor: "bg-white", portfolioId: "za-cleaning", lightCard: true },
-  { id: "itspadel", name: "It's Padel", category: "Web & Mobile", logo: "/clients/itspadel-logo.svg", logoType: "svg", cardColor: "bg-[#000000]", portfolioId: "itspadel" },
   { id: "yewtreeinn", name: "Yew Tree Inn", category: "Menus", logo: "/clients/yew-tree-inn-logo.svg", logoType: "svg", cardColor: "bg-[#001d1d]", portfolioId: "yewtreeinn" },
   { id: "saladclub", name: "Salad Club", category: "Branding", logo: "/clients/salad-club-logo.svg", logoType: "svg", cardColor: "bg-[#002d2e]", portfolioId: "saladclub" },
   { id: "masala", name: "Masala Moves", category: "Branding", logo: "/clients/masala-moves-logo.svg", logoType: "svg", cardColor: "bg-[#001D1D]", portfolioId: "masala-moves-by-luna-shree" },
