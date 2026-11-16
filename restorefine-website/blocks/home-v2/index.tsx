@@ -12,7 +12,7 @@ import { getClientReviews } from "@/blocks/home/get-client-reviews";
 import { FaqAccordion } from "@/blocks/home/faq-accordion";
 import { ResourcesTabs, type PostSummary } from "@/blocks/home/resources-tabs";
 import { GOOGLE_REVIEWS, FEATURED_REVIEW_ID, type Review } from "./google-reviews";
-import { EnquireAction, WhatsAppAction } from "./actions";
+import { CallAction, EnquireAction, WhatsAppAction } from "./actions";
 import { EnquiryForm } from "./enquiry-form";
 import { AreasV2 } from "./areas";
 import { FounderSpotlight, type Founder } from "./founders";
@@ -203,6 +203,7 @@ export function Hero({ c = homeContent, place }: { c?: PageContent; place?: stri
               <div className="mt-7 flex flex-wrap gap-3">
                 <EnquireAction {...ctas.enquire} />
                 <WhatsAppAction {...ctas.whatsapp} />
+                <CallAction {...ctas.call} />
               </div>
             </div>
           </div>

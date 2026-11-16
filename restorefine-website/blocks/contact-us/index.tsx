@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail, MapPin, ArrowUpRight } from "lucide-react";
+import { ArrowRight, Mail, MapPin, ArrowUpRight, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { pushGTMEvent } from "@/lib/gtm";
@@ -96,6 +96,14 @@ export function ContactSection() {
               >
                 <Mail className="w-3.5 h-3.5 text-zinc-400 group-hover:text-red-600 transition-colors" />
                 hello@restorefine.com
+              </a>
+              <a
+                href="tel:+441414835850"
+                onClick={() => pushGTMEvent("phone_click", { location: "contact" })}
+                className="group mt-1.5 flex w-fit items-center gap-2 text-sm font-semibold text-zinc-700 hover:text-red-600 transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5 text-zinc-400 group-hover:text-red-600 transition-colors" />
+                +44 141 483 5850
               </a>
             </div>
             <div>

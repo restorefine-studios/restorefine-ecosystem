@@ -5,6 +5,7 @@ export type GTMEventMap = {
   enquiry_submitted: { category: string | null };
   contact_form_submitted: Record<string, never>;
   whatsapp_click: { location: "header" | "footer" | "page" };
+  phone_click: { location: "header" | "footer" | "contact" | "page" };
   email_click: { location: "header" | "footer" | "contact" };
   directions_click: Record<string, never>;
   social_click: { network: "instagram" | "linkedin" };

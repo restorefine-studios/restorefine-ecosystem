@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, MessageCircle } from "lucide-react";
+import { ArrowUpRight, MessageCircle, Phone } from "lucide-react";
 import { pushGTMEvent } from "@/lib/gtm";
 
 const base =
@@ -31,6 +31,16 @@ export function WhatsAppAction({ label, href, tone = "white" }: { label: string;
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" onClick={() => pushGTMEvent("whatsapp_click", { location: "page" })} className={`${base} ${tones[tone]}`}>
       <MessageCircle aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+      {label}
+    </a>
+  );
+}
+
+/** Click-to-call button, tracked as a phone_click */
+export function CallAction({ label, href, tone = "outlineLight" }: { label: string; href: string; tone?: Tone }) {
+  return (
+    <a href={href} onClick={() => pushGTMEvent("phone_click", { location: "page" })} className={`${base} ${tones[tone]}`}>
+      <Phone aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
       {label}
     </a>
   );

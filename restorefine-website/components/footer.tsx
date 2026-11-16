@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Instagram, Linkedin, MapPin, Mail } from "lucide-react";
+import { Instagram, Linkedin, MapPin, Mail, Phone } from "lucide-react";
 import { useCookieConsent } from "./cookie-consent-provider";
 import { pushGTMEvent } from "@/lib/gtm";
 import { GoogleG, GoogleStars, googleReviewsLinkProps } from "@/components/google-reviews";
@@ -97,6 +97,14 @@ export function Footer() {
                 <Mail size={12} className="text-red-600 shrink-0" />
                 hello@restorefine.com
               </Link>
+              <a
+                href="tel:+441414835850"
+                onClick={() => pushGTMEvent("phone_click", { location: "footer" })}
+                className="flex items-center gap-2 hover:text-zinc-300 transition-colors"
+              >
+                <Phone size={12} className="text-red-600 shrink-0" />
+                +44 141 483 5850
+              </a>
             </div>
           </div>
 
@@ -124,6 +132,13 @@ export function Footer() {
               >
                 hello@restorefine.com
               </Link>
+              <a
+                href="tel:+441414835850"
+                onClick={() => pushGTMEvent("phone_click", { location: "footer" })}
+                className="text-zinc-400 hover:text-white text-xs transition-colors"
+              >
+                +44 141 483 5850
+              </a>
               <Link href="/enquire-now" className="text-zinc-400 hover:text-white text-xs transition-colors">
                 Submit an Enquiry →
               </Link>

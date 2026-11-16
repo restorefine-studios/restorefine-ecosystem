@@ -33,6 +33,7 @@ const organizationSchema = {
   url: BASE_URL,
   logo: `${BASE_URL}/restorefine-logoblack.svg`,
   email: "hello@restorefine.com",
+  telephone: "+44 141 483 5850",
   address: {
     "@type": "PostalAddress",
     streetAddress: "(Unit 54) 24 Fairley Street",

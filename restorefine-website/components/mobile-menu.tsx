@@ -9,7 +9,7 @@ import navlogo from "@/public/restorefine-logoblack.svg";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { pushGTMEvent } from "@/lib/gtm";
 
-const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`;
+const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine, I'd like to find out more about your services.")}`;
 
 export function MobileMenu() {
   const [open, setOpen] = React.useState(false);

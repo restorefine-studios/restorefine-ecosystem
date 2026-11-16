@@ -6,7 +6,10 @@
  * Holiday script face. It must appear verbatim in the heading text.
  */
 
-export const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine Studios, I'd like to find out more about your services.")}`;
+export const PHONE_DISPLAY = "+44 141 483 5850";
+export const PHONE_HREF = "tel:+441414835850";
+
+export const WHATSAPP_HREF = `https://wa.me/441414835850?text=${encodeURIComponent("Hi RestoRefine, I'd like to find out more about your services.")}`;
 
 export const homeContent = {
   meta: {
@@ -19,6 +22,7 @@ export const homeContent = {
   ctas: {
     enquire: { label: "Enquire Now", href: "/enquire-now" },
     whatsapp: { label: "Chat on WhatsApp", href: WHATSAPP_HREF },
+    call: { label: `Call ${PHONE_DISPLAY}`, href: PHONE_HREF },
   },
 
   hero: {
