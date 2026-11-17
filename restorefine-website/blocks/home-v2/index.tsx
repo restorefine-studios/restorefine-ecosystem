@@ -31,17 +31,16 @@ const HERO_IMAGE = "/restorefine-hero.webp";
 const c = homeContent;
 
 /* All shown as equal square tiles. `tile`: the file has no background of its own, so it
- * sits on a white tile with padding. Our HQ uses a copy cropped to the wordmark. */
+ * sits on a white tile with padding. `bg`: same, but on that brand colour instead of white. Our HQ uses a copy cropped to the wordmark. */
 const LOGOS = [
   { src: "/clients/itspadel-logo.svg", alt: "It's Padel" },
-  { src: "/clients/masala-moves-logo.svg", alt: "Masala Moves" },
   { src: "/clients/spud-kingz-logo.svg", alt: "Spud Kingz" },
   { src: "/clients/day-today.svg", alt: "Day-to-Day", tile: true },
   { src: "/clients/our-hq-logo-cropped.svg", alt: "Our HQ", tile: true },
-  { src: "/clients/quiknest-logo.svg", alt: "Quiknest" },
-  { src: "/clients/salad-club-logo.svg", alt: "Salad Club" },
+  { src: "/clients/premier-purple.svg", alt: "Premier" },
+  { src: "/clients/leopardo-logo.svg", alt: "Leopardo Pizza", bg: "#f38e72" },
   { src: "/za-cleaning.svg", alt: "Za Cleaning", tile: true },
-] as { src: string; alt: string; tile?: boolean }[];
+] as { src: string; alt: string; tile?: boolean; bg?: string }[];
 
 /* Generated with Higgsfield in the hero's dark studio style, keyed by service id */
 const SERVICE_IMAGES: Record<string, { src: string; alt: string }> = {
@@ -226,12 +225,15 @@ export function Logos() {
     <section aria-label="Clients" className="border-b border-zinc-200">
       <div className="v2-wrap flex flex-col gap-6 py-8 lg:flex-row lg:items-center lg:gap-12">
         <p className="v2-small shrink-0 font-medium text-zinc-950 lg:max-w-[14rem]">Brands we have built and grown</p>
-        <ul className="grid flex-1 grid-cols-4 place-items-center gap-x-6 gap-y-6 sm:grid-cols-8">
+        <ul className="grid flex-1 grid-cols-4 place-items-center gap-x-6 gap-y-6 sm:grid-cols-7">
           {LOGOS.map((l) => (
-            <li key={l.src} className={`relative h-14 w-14 overflow-hidden rounded-xl ${l.tile ? "bg-white ring-1 ring-inset ring-zinc-200" : ""}`}>
-              <span className={`absolute ${l.tile ? "inset-1.5" : "inset-0"}`}>
-                <Image src={l.src} alt={l.alt} fill sizes="56px" className="object-contain" />
-              </span>
+            <li key={l.src} className="flex flex-col items-center gap-2">
+              <div style={l.bg ? { backgroundColor: l.bg } : undefined} className={`relative h-14 w-14 overflow-hidden rounded-xl ${l.tile ? "bg-white ring-1 ring-inset ring-zinc-200" : ""}`}>
+                <span className={`absolute ${l.tile || l.bg ? "inset-1.5" : "inset-0"}`}>
+                  <Image src={l.src} alt={`${l.alt} logo`} fill sizes="56px" className="object-contain" />
+                </span>
+              </div>
+              <span className="whitespace-nowrap text-center text-xs font-medium text-zinc-600">{l.alt}</span>
             </li>
           ))}
         </ul>
